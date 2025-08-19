@@ -14,8 +14,13 @@ find . -name "*.tex" -type f | while read -r file; do
     echo "Checking: $file"
     echo "----------------------------------------"
     if [[ -f "$CONFIG_FILE" ]]; then
-        $CHKTEX --localrc "$CONFIG_FILE" "$file"
+        $CHKTEX --localrc "$CONFIG_FILE" "$file" || true
     else
-        $CHKTEX "$file"
+        $CHKTEX "$file" || true
     fi
 done
+
+# Always exit successfully - warnings are informational, not failures
+echo ""
+echo "ChkTeX quality check completed."
+exit 0

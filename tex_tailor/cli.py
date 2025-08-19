@@ -4,6 +4,7 @@ Main CLI interface for tex-tailor.
 import click
 import os
 import sys
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -327,6 +328,42 @@ def status():
         click.echo("   Gemini API Key: [NOT SET]")
     
     click.echo()
+
+
+@main.command()
+@click.option("--out-dir", default="out", help="Directory containing the PDF files")
+def open(out_dir: str):
+    """Open the generated PDF files in the default viewer."""
+    
+    out_path = Path(out_dir)
+    if not out_path.exists():
+        click.echo(f"Error: Output directory not found: {out_dir}", err=True)
+        sys.exit(1)
+        
+    pdf_files = list(out_path.glob("*.tuned.pdf"))
+    
+    if not pdf_files:
+        click.echo("No tuned PDF files found in output directory.", err=True)
+        click.echo("Run 'tex-tailor render' first.", err=True)
+        sys.exit(1)
+        
+    if sys.platform == "darwin":
+        command = "open"
+    elif sys.platform == "linux":
+        command = "xdg-open"
+    elif sys.platform == "win32":
+        command = "start"
+    else:
+        click.echo(f"Unsupported platform: {sys.platform}")
+        click.echo("Could not automatically open PDF files.")
+        sys.exit(1)
+        
+    click.echo(f"Opening {len(pdf_files)} PDF file(s)...")
+    for pdf_file in pdf_files:
+        try:
+            subprocess.run([command, str(pdf_file)], check=True)
+        except Exception as e:
+            click.echo(f"Error opening {pdf_file}: {e}", err=True)
 
 
 if __name__ == "__main__":
