@@ -16,9 +16,9 @@ If a needed JD term is not present in the base text and cannot be inferred, list
 Keep "why" explanations very brief (max 30 chars).
 
 CRITICAL CONSTRAINTS:
-- Summary: Maximum 2 sentence-level changes only
-- Skills: Maximum 2 word replacements per category 
-- Cover letter: Edit maximum 2 paragraphs only
+- Summary: Maximum 5 sentence-level changes only
+- Skills: Maximum 4 word replacements per category 
+- Cover letter: Edit maximum 4 paragraphs only
 - Suggested additions: "why" field maximum 200 characters
 - Use null for unchanged fields
 - Make minimal, targeted edits that preserve original meaning

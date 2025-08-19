@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  18 AUG 2025 11:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  19 AUG 2025 13:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"/Users/connerjordan/Documents/Sandbox_v2/Basline_Cover_Letter/Conner_Jordan_Cover_Letter copy.tex"
-(/Users/connerjordan/Documents/Sandbox_v2/Basline_Cover_Letter/Conner_Jordan_Cover_Letter copy.tex
+**"/Users/connerjordan/Documents/Sandbox_v4/Basline_Cover_Letter/Conner_Jordan_Cover_Letter copy.tex"
+(/Users/connerjordan/Documents/Sandbox_v4/Basline_Cover_Letter/Conner_Jordan_Cover_Letter copy.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (/usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls
@@ -305,13 +305,13 @@ Package rerunfilecheck Info: File `"Conner_Jordan_Cover_Letter copy".out' has no
 Here is how much of TeX's memory you used:
  13685 strings out of 473190
  240404 string characters out of 5715801
- 626434 words of memory out of 5000000
+ 627434 words of memory out of 5000000
  36782 multiletter control sequences out of 15000+600000
  566061 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,5n,79p,795b,475s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,5n,79p,513b,475s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Brands-Regular.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Free-Solid.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb>
-Output written on "Conner_Jordan_Cover_Letter copy.pdf" (1 page, 70027 bytes).
+Output written on "Conner_Jordan_Cover_Letter copy.pdf" (1 page, 69507 bytes).
 PDF statistics:
  44 PDF objects out of 1000 (max. 8388607)
  31 compressed objects within 1 object stream

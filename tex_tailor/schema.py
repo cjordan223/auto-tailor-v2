@@ -172,10 +172,10 @@ def validate_summary_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
     
-    # Check sentence limit (≤ 2 sentence-level edits)
+    # Check sentence limit (≤ 5 sentence-level edits)
     sentence_changes = count_replacements(original, new)
-    if sentence_changes > 2:
-        violations.append(f"Too many sentence-level changes: {sentence_changes} (max: 2)")
+    if sentence_changes > 5:
+        violations.append(f"Too many sentence-level changes: {sentence_changes} (max: 5)")
     
     return violations
 
@@ -191,10 +191,10 @@ def validate_skills_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
     
-    # Check replacement limit (≤ 2 replacements)
+    # Check replacement limit (≤ 4 replacements)
     replacements = count_replacements(original, new)
-    if replacements > 2:
-        violations.append(f"Too many replacements: {replacements} (max: 2)")
+    if replacements > 4:
+        violations.append(f"Too many replacements: {replacements} (max: 4)")
     
     # Must be comma-separated list (no newlines allowed)
     if '\n' in new or not re.match(r'^[^,]+(,\s*[^,]+)*$', new.strip()):
@@ -222,9 +222,9 @@ def validate_cover_letter_edits(original_paragraphs: List[str], new_paragraphs: 
             for violation in latex_violations:
                 violations.append(f"Paragraph {i+1}: {violation}")
     
-    # Check edit limit (≤ 1 edit per paragraph, ≤ 2 paragraphs edited total)
-    if edited_count > 2:
-        violations.append(f"Too many paragraphs edited: {edited_count} (max: 2)")
+    # Check edit limit (≤ 1 edit per paragraph, ≤ 4 paragraphs edited total)
+    if edited_count > 4:
+        violations.append(f"Too many paragraphs edited: {edited_count} (max: 4)")
     
     return violations
 

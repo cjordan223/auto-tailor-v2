@@ -1,6 +1,6 @@
 {
   "summary": {
-    "replace": "I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code."
+    "replace": "I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code in Python. I am familiar with security frameworks and best practices."
   },
   "skills": {
     "Programming Languages": {
@@ -22,7 +22,7 @@
       "replace": null
     },
     "Security & Operating Systems": {
-      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response, Data Loss Prevention"
     },
     "Databases": {
       "replace": null
@@ -30,20 +30,20 @@
   },
   "cover_letter": {
     "paragraphs": [
+      "[Date]\n\nHiring Team,\n\nI'm applying for the Security Engineer role at PrizePicks. I was drawn to your work in developing security practices and tooling to protect the company and customers.",
+      "At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.",
       null,
-      "At the University of California, I consolidated Rapid7, Jamf, BigFix, and ServiceNow into a single operational view and automated the end-to-end flow—from extraction and normalization to analytics—reducing manual effort by 100+ hours per month and enabling near-real-time risk reporting across 2,700 endpoints. Earlier, I built SQL log-query frameworks with Pandas/NumPy to surface actionable signals for leadership and harden production systems. These projects leaned on the same foundations you need: dimensional modeling and star schemas for BI, careful schema governance, strong authN/Z and secrets management, and disciplined monitoring and alerting when SLAs slip.",
-      null,
-      null
+      "If your mandate is to build reliable, secure, and scalable software that solves complex problems and protect digital assets, I would like to help you ship that."
     ]
   },
   "suggested_additions": [
     {
       "term": "Risk Assessment",
-      "why": "Aligns with job description"
+      "why": "Important skill in the JD"
     },
     {
       "term": "Compliance Standards",
-      "why": "Aligns with job description"
+      "why": "Important skill in the JD"
     }
   ]
 }
