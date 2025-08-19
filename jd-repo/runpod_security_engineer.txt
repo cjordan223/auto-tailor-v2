@@ -1,0 +1,30 @@
+About the job
+
+Runpod is pioneering the future of AI and machine learning, offering cutting-edge cloud infrastructure for full-stack AI applications. Founded in 2022, we are a rapidly growing, well-funded company with a remote-first organization spread globally. Our mission is to empower innovators and enterprises to unlock AI's true potential, driving technology and transforming industries. Join us as we shape the future of AI.
+
+As Runpod continues to revolutionize the GPU cloud computing landscape, we are seeking a full-time, remote Security Engineer to join our team. This critical position will be instrumental in safeguarding our innovative GPU cloud platform, ensuring the security and isolation of our customers' workloads while enabling continued growth and pushing the boundaries of AI and machine learning infrastructure. We are looking for someone who is a problem-solver who can identify security vulnerabilities, develop and implement fixes, and work collaboratively with our software engineering teams to build secure systems that power the future of GPU cloud computing.
+
+The ideal candidate will possess experience with offensive and defensive security, coupled with strong software development abilities and deep knowledge of Linux systems and containerization. This role offers the opportunity to work on cutting-edge GPU cloud technologies, solve complex security challenges at scale, and directly contribute to the resilience and trustworthiness of Runpod's infrastructure and services.
+
+Key aspects of our Security Engineering approach at Runpod include:
+
+    Active Problem Solving: We don't just identify security issues; we actively develop and implement solutions. Our Security Engineers write code to fix vulnerabilities and improve our overall security posture, ensuring the isolation integrity of our GPU powered cloud platform.
+    Integrated Security: We believe security should be woven into the fabric of our development process. Our Security Engineers work side-by-side with software engineers, operating as integral members of the team to ensure security is considered at every stage of our platform's development.
+    Attacker's Mindset: We prioritize real-world security over checkbox compliance. Our approach involves thinking like an attacker to anticipate and mitigate potential threats before they can be exploited, crucial in a multitenant GPU cloud environment.
+    Continuous Improvement: We constantly iterate on our security practices and tooling, using data-driven decisions to enhance our defense mechanisms and incident response capabilities, adapting to the evolving needs of the AI landscape.
+
+As a Security Engineer at Runpod, you'll play a crucial role in safeguarding our GPU cloud platform, ensuring the security and isolation of our customers' workloads. You'll be at the forefront of implementing cutting-edge security practices for cloud environments, working closely with development teams to embed security into our software development lifecycle (SDLC). This role offers the opportunity to tackle complex security challenges in multitenant GPU cloud environments, contribute to the development of secure, scalable systems, and drive Runpod's security posture forward.
+
+If you're passionate about cloud security, have a deep understanding of Linux and containerization, and want to make a significant impact on the security posture of a growing GPU cloud platform, we want to hear from you. Join the Runpod team and help us build a more secure future for AI cloud computing!
+
+Responsibilities:
+
+    Design and implement secure architectures for Runpod's multitenant GPU cloud platform, ensuring strong isolation between customer workloads
+    Conduct thorough security assessments, including threat modeling, code reviews, and penetration testing of our cloud infrastructure and services
+    Develop and implement security fixes and improvements in collaboration with software engineering teams
+    Implement and manage security tools and systems (e.g., SIEM, WAF, EDR)
+    Create and maintain security documentation, including policies, procedures, and technical guidelines specific to GPU cloud security
+    Provide security guidance and training to development teams to foster a security-first culture in cloud development
+    Participate in incident response activities and contribute to post-incident analysis and improvements
+    Collaborate with operations team to ensure adherence to relevant standards (e.g., SOC 2, ISO 27001, GDPR)
+

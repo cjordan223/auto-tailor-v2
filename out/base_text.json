@@ -1,0 +1,28 @@
+{
+  "resume": {
+    "summary": "I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code in Python.",
+    "skills": {
+      "Programming Languages": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash",
+      "Frontend": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js",
+      "Backend": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful \\& GraphQL API Development",
+      "Cloud & DevOps": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)",
+      "AI & LLM Tools": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone)",
+      "Automation & Productivity": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting",
+      "Security & Operating Systems": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response",
+      "Databases": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "paragraphs": [
+      "I’m applying for the Data \\& AI role focused on making BNSF a real-time enterprise. My core strengths are Python and SQL, building secure, observable data services, and turning messy operational sources into dependable datasets that product and analytics teams can trust. I work across AWS/Azure/GCP, containerize with Docker/Kubernetes, provision with Terraform, and wire CI/CD so pipelines are testable, versioned, and easy to roll back.",
+      "At the University of California, I consolidated Rapid7, Jamf, BigFix, and ServiceNow into a single operational view and automated the end-to-end flow—from extraction and normalization to analytics—reducing manual effort by 100+ hours per month and enabling near-real-time risk reporting across 2,700 endpoints. Earlier, I built SQL log-query frameworks with Pandas/NumPy to surface actionable signals for leadership and harden production systems. These projects leaned on the same foundations you need: dimensional modeling and star schemas for BI, careful schema governance, strong authN/Z and secrets management, and disciplined monitoring and alerting when SLAs slip.",
+      "I’m comfortable owning solution design through deployment and operations: standing up batch and incremental jobs, implementing CDC where it fits, instrumenting pipelines, documenting contracts, and collaborating closely with data scientists and analysts. While my recent work has been more event-driven than tool-specific, I can ramp quickly on Kafka/Kinesis/Flink/Spark and have hands-on exposure to lakehouse patterns with Snowflake and Databricks.",
+      "If your mandate is low-latency ingest, certified datasets, and reliable, secure data products that scale, I’d like to help ship that."
+    ]
+  },
+  "meta": {
+    "resume_chunks": 9,
+    "cover_chunks": 4,
+    "total_editable_chunks": 13
+  }
+}
