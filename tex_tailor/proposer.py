@@ -19,7 +19,7 @@ CRITICAL CONSTRAINTS:
 - Summary: Maximum 2 sentence-level changes only
 - Skills: Maximum 2 word replacements per category 
 - Cover letter: Edit maximum 2 paragraphs only
-- Suggested additions: "why" field maximum 30 characters
+- Suggested additions: "why" field maximum 200 characters
 - Use null for unchanged fields
 - Make minimal, targeted edits that preserve original meaning
 

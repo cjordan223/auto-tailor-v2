@@ -1,2 +1,3 @@
 [console_scripts]
 tex-tailor = tex_tailor.cli:main
+

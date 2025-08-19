@@ -135,104 +135,127 @@ def reorder_resume_sections(content: str) -> str:
 def add_resume_markers(content: str) -> str:
     """Add LOCK/CHUNK markers to résumé content."""
     
-    # First reorder sections
-    content = reorder_resume_sections(content)
-    
     # Create meta header
     all_chunks = RESUME_LOCKS + RESUME_CHUNKS
     meta_header = create_meta_header("RESUME", all_chunks)
     
-    # Wrap preamble (everything before \begin{document})
+    # Extract the preamble (everything before \begin{document})
     preamble_match = re.search(r'(.*?)(\\begin\{document\})', content, re.DOTALL)
-    if preamble_match:
-        preamble = preamble_match.group(1)
-        begin_doc = preamble_match.group(2)
-        wrapped_preamble = wrap_chunk(preamble.strip(), "RESUME.PREAMBLE", False)
-        content = content.replace(preamble + begin_doc, wrapped_preamble + "\n\n" + begin_doc)
+    if not preamble_match:
+        return content  # If we can't find the structure, return as-is
     
-    # Extract and wrap summary
-    summary_pattern = r'(\\section\*?\{.*?(?:Summary|Professional Summary).*?\}\s*)(.*?)(?=\\section|\Z)'
-    summary_match = re.search(summary_pattern, content, re.DOTALL | re.IGNORECASE)
-    if summary_match:
-        summary_header = summary_match.group(1)
-        summary_content = summary_match.group(2).strip()
-        wrapped_header = wrap_chunk(summary_header.strip(), "RESUME.HEADER", False)
-        wrapped_content = wrap_chunk(summary_content, "RESUME.SUMMARY", True)
-        content = content.replace(summary_match.group(0), wrapped_header + "\n\n" + wrapped_content)
+    preamble = preamble_match.group(1).strip()
+    begin_doc = preamble_match.group(2)
     
-    # Extract and wrap experience section
-    exp_pattern = r'(\\section\*?\{.*?(?:Experience|Work Experience|Professional Experience).*?\}\s*)(.*?)(?=\\section|\Z)'
-    exp_match = re.search(exp_pattern, content, re.DOTALL | re.IGNORECASE)
-    if exp_match:
-        exp_content = exp_match.group(0)
-        wrapped_exp = wrap_chunk(exp_content.strip(), "RESUME.EXPERIENCE", False)
-        content = content.replace(exp_content, wrapped_exp)
+    # Extract the header section (from \begin{document} to the end of the header)
+    header_end_match = re.search(r'(\\begin\{document\}.*?\\section\{PROFESSIONAL SUMMARY\})', content, re.DOTALL)
+    if not header_end_match:
+        return content
     
-    # Extract and wrap skills section
-    skills_pattern = r'(\\section\*?\{.*?(?:Skills|Technical Skills).*?\})(.*?)(?=\\section|\Z)'
-    skills_match = re.search(skills_pattern, content, re.DOTALL | re.IGNORECASE)
-    if skills_match:
-        skills_header = skills_match.group(1)
-        skills_body = skills_match.group(2)
+    header_content = header_end_match.group(1)
+    
+    # Extract the summary text
+    summary_match = re.search(r'(\\section\{PROFESSIONAL SUMMARY\}.*?\\item \\small\{%)(.*?)(%\})', content, re.DOTALL)
+    if not summary_match:
+        return content
+    
+    summary_header = summary_match.group(1)
+    summary_text = summary_match.group(2).strip()
+    summary_end = summary_match.group(3)
+    
+    # Extract the experience section
+    exp_match = re.search(r'(\\section\{WORK EXPERIENCE\}.*?)(?=\\section\{TECHNICAL SKILLS\})', content, re.DOTALL)
+    if not exp_match:
+        return content
+    
+    exp_content = exp_match.group(1)
+    
+    # Extract the skills section
+    skills_match = re.search(r'(\\section\{TECHNICAL SKILLS\}.*?\\resumeSubHeadingListStart.*?\\item \\small\{)(.*?)(\}\s*\\resumeSubHeadingListEnd)', content, re.DOTALL)
+    if not skills_match:
+        return content
+    
+    skills_prefix = skills_match.group(1)
+    skills_body = skills_match.group(2)
+    skills_suffix = skills_match.group(3)
+    
+    # Extract the education section
+    edu_match = re.search(r'(\\section\{EDUCATION\}.*?)(?=\\section\{CERTIFICATIONS\})', content, re.DOTALL)
+    if not edu_match:
+        return content
+    
+    edu_content = edu_match.group(1)
+    
+    # Extract the certifications section
+    cert_match = re.search(r'(\\section\{CERTIFICATIONS\}.*?\\end\{document\})', content, re.DOTALL)
+    if not cert_match:
+        return content
+    
+    cert_content = cert_match.group(1)
+    
+    # Parse skills into individual lines
+    skill_pattern = r'\\textbf\{([^}]+):\}([^\\]+)'
+    skill_matches = re.findall(skill_pattern, skills_body)
+    
+    # Map skill categories to chunk IDs
+    skill_mapping = {
+        'Programming Languages': 'SKILLS.Programming Languages',
+        'Frontend': 'SKILLS.Frontend', 
+        'Backend': 'SKILLS.Backend',
+        'Cloud and DevOps': 'SKILLS.Cloud & DevOps',
+        'AI and LLM Tools': 'SKILLS.AI & LLM Tools',
+        'Automation and Productivity': 'SKILLS.Automation & Productivity',
+        'Security and Operating Systems': 'SKILLS.Security & Operating Systems',
+        'Databases': 'SKILLS.Databases'
+    }
+    
+    # Rebuild skills section with markers
+    new_skills_lines = []
+    for category, skills in skill_matches:
+        category = category.strip()
+        skills = skills.strip()
         
-        # Parse individual skill lines
-        skill_lines = []
-        for line in skills_body.split('\n'):
-            line = line.strip()
-            if line and not line.startswith('%'):
-                skill_lines.append(line)
+        # Find the chunk ID for this category
+        chunk_id = None
+        for skill_name, chunk_id_val in skill_mapping.items():
+            if skill_name.lower() == category.lower():
+                chunk_id = chunk_id_val
+                break
         
-        # Map skill lines to chunk IDs
-        skill_mapping = {
-            'Programming Languages': 'SKILLS.Programming Languages',
-            'Frontend': 'SKILLS.Frontend', 
-            'Backend': 'SKILLS.Backend',
-            'Cloud & DevOps': 'SKILLS.Cloud & DevOps',
-            'AI & LLM Tools': 'SKILLS.AI & LLM Tools',
-            'Automation & Productivity': 'SKILLS.Automation & Productivity',
-            'Security & Operating Systems': 'SKILLS.Security & Operating Systems',
-            'Databases': 'SKILLS.Databases'
-        }
-        
-        # Rebuild skills section with markers
-        new_skills = [skills_header.strip()]
-        
-        for skill_name, chunk_id in skill_mapping.items():
-            # Find matching line
-            matching_line = None
-            for line in skill_lines:
-                if skill_name.lower() in line.lower():
-                    matching_line = line
-                    break
-            
-            if matching_line:
-                # Extract just the content after the skill name
-                content_match = re.search(rf'{re.escape(skill_name)}:\s*(.*)', matching_line, re.IGNORECASE)
-                if content_match:
-                    skill_content = content_match.group(1)
-                    wrapped_skill = wrap_chunk(skill_content.strip(), chunk_id, True)
-                    new_skills.append(f"\\textbf{{{skill_name}:}} {wrapped_skill}")
-        
-        new_skills_content = '\n'.join(new_skills)
-        content = content.replace(skills_match.group(0), new_skills_content)
+        if chunk_id:
+            # Reconstruct the skill line with proper formatting
+            skill_line = f"\\textbf{{{category}:}} {skills}"
+            wrapped_skill = wrap_chunk(skill_line, chunk_id, True)
+            new_skills_lines.append(wrapped_skill)
+            new_skills_lines.append("")
+            new_skills_lines.append("\\vspace{3pt}")
+            new_skills_lines.append("")
     
-    # Wrap education
-    edu_pattern = r'(\\section\*?\{.*?(?:Education).*?\}.*?)(?=\\section|\Z)'
-    edu_match = re.search(edu_pattern, content, re.DOTALL | re.IGNORECASE)
-    if edu_match:
-        edu_content = edu_match.group(0)
-        wrapped_edu = wrap_chunk(edu_content.strip(), "RESUME.EDUCATION", False)
-        content = content.replace(edu_content, wrapped_edu)
+    # Remove the last spacing elements
+    if new_skills_lines:
+        new_skills_lines = new_skills_lines[:-2]
     
-    # Wrap certifications
-    cert_pattern = r'(\\section\*?\{.*?(?:Certifications?).*?\}.*?)(?=\\section|\Z)'
-    cert_match = re.search(cert_pattern, content, re.DOTALL | re.IGNORECASE)
-    if cert_match:
-        cert_content = cert_match.group(0)
-        wrapped_cert = wrap_chunk(cert_content.strip(), "RESUME.CERTS", False)
-        content = content.replace(cert_content, wrapped_cert)
+    new_skills_body = '\n'.join(new_skills_lines)
+    new_skills_content = skills_prefix + new_skills_body + skills_suffix
     
-    return meta_header + content
+    # Construct the final document
+    result = []
+    result.append(meta_header)
+    result.append(preamble)
+    result.append("")
+    result.append(wrap_chunk(header_content, "RESUME.HEADER", False))
+    result.append("")
+    result.append(summary_header + wrap_chunk(summary_text, "RESUME.SUMMARY", True) + summary_end)
+    result.append("")
+    result.append(wrap_chunk(exp_content, "RESUME.EXPERIENCE", False))
+    result.append("")
+    result.append(new_skills_content)
+    result.append("")
+    result.append(wrap_chunk(edu_content, "RESUME.EDUCATION", False))
+    result.append("")
+    result.append(wrap_chunk(cert_content, "RESUME.CERTS", False))
+    
+    return '\n'.join(result)
 
 
 def add_cover_letter_markers(content: str) -> str:

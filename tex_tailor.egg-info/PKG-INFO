@@ -1,10 +1,11 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: tex-tailor
 Version: 1.0.0
+Summary: UNKNOWN
+Home-page: UNKNOWN
+License: UNKNOWN
+Platform: UNKNOWN
 Requires-Python: >=3.8
-Requires-Dist: click
-Requires-Dist: colorama
-Requires-Dist: requests
-Requires-Dist: jsonschema
-Dynamic: requires-dist
-Dynamic: requires-python
+
+UNKNOWN
+

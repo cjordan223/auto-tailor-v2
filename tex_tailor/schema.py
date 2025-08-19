@@ -52,7 +52,7 @@ EDITS_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "term": {"type": "string"},
-                    "why": {"type": "string", "maxLength": 30}
+                    "why": {"type": "string", "maxLength": 200}
                 },
                 "required": ["term", "why"],
                 "additionalProperties": False

@@ -1,0 +1,11 @@
+##
+## Custom ChkTeX configuration for LaTeX documents
+## Suppress warning 1 (Command terminated with space) for cleaner output
+##
+
+# Suppress specific warnings by number
+# Warning 1: Command terminated with space
+# Warning 8: Wrong dash length (keep this one - it's useful)
+# Warning 26: Spaces before punctuation (keep this one too)
+
+CmdLine = { -n1 }

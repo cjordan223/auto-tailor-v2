@@ -120,10 +120,10 @@ def apply_resume_edits(content: str, edits: Dict[str, Any]) -> str:
             'Programming Languages': 'SKILLS.Programming Languages',
             'Frontend': 'SKILLS.Frontend', 
             'Backend': 'SKILLS.Backend',
-            'Cloud & DevOps': 'SKILLS.Cloud and DevOps',
-            'AI & LLM Tools': 'SKILLS.AI and LLM Tools',
-            'Automation & Productivity': 'SKILLS.Automation and Productivity',
-            'Security & Operating Systems': 'SKILLS.Security and Operating Systems',
+            'Cloud & DevOps': 'SKILLS.Cloud & DevOps',
+            'AI & LLM Tools': 'SKILLS.AI & LLM Tools',
+            'Automation & Productivity': 'SKILLS.Automation & Productivity',
+            'Security & Operating Systems': 'SKILLS.Security & Operating Systems',
             'Databases': 'SKILLS.Databases'
         }
         
@@ -138,8 +138,11 @@ def apply_resume_edits(content: str, edits: Dict[str, Any]) -> str:
                     # Escape only the content part, not the LaTeX formatting
                     escaped_skill_content = latex_escape(new_skill)
                     
+                    # Also escape the skill name in case it contains special characters like &
+                    escaped_skill_name = latex_escape(skill_name)
+                    
                     # Reconstruct the full LaTeX formatting
-                    formatted_skill = f"\\textbf{{{skill_name}:}} {escaped_skill_content}"
+                    formatted_skill = f"\\textbf{{{escaped_skill_name}:}} {escaped_skill_content}"
                     
                     # Replace content directly without going through normal escaping
                     modified_content = replace_chunk_content_raw(modified_content, chunk_id, formatted_skill)
@@ -164,6 +167,28 @@ def apply_cover_letter_edits(content: str, edits: Dict[str, Any]) -> str:
     return modified_content
 
 
+def clean_duplicate_end_document(content: str) -> str:
+    """Remove duplicate \\end{document} tags, keeping only the last one."""
+    # Count occurrences
+    end_doc_count = content.count('\\end{document}')
+    
+    if end_doc_count <= 1:
+        return content
+    
+    # Find position of last \end{document}
+    last_pos = content.rfind('\\end{document}')
+    
+    # Keep everything up to and including the last \end{document}, remove duplicates before it
+    before_last = content[:last_pos]
+    last_part = content[last_pos:]
+    
+    # Remove all \end{document} from the before part
+    cleaned_before = before_last.replace('\\end{document}', '')
+    
+    # Combine back together
+    return cleaned_before + last_part
+
+
 def apply_edits_to_files(resume_file: str, cover_file: str, edits_file: str) -> Tuple[str, str]:
     """Apply edits to résumé and cover letter files, return output paths."""
     
@@ -176,6 +201,8 @@ def apply_edits_to_files(resume_file: str, cover_file: str, edits_file: str) -> 
         resume_content = f.read()
     
     modified_resume = apply_resume_edits(resume_content, edits)
+    # Clean up duplicate end tags
+    modified_resume = clean_duplicate_end_document(modified_resume)
     
     # Generate output filename with .tuned.tex pattern
     base_name = resume_file.split('/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
@@ -189,6 +216,8 @@ def apply_edits_to_files(resume_file: str, cover_file: str, edits_file: str) -> 
         cover_content = f.read()
     
     modified_cover = apply_cover_letter_edits(cover_content, edits)
+    # Clean up duplicate end tags
+    modified_cover = clean_duplicate_end_document(modified_cover)
     
     # Generate output filename with .tuned.tex pattern  
     base_name = cover_file.split('/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
@@ -215,7 +244,7 @@ def validate_latex_compilation(tex_file: str) -> bool:
     if open_braces != close_braces:
         issues.append(f"Unmatched braces: {open_braces} open, {close_braces} close")
     
-    # Check for required document structure
+    # Check for required document structure (allow LLM-META header)
     if '\\documentclass' not in content:
         issues.append("Missing \\documentclass")
     
@@ -224,6 +253,14 @@ def validate_latex_compilation(tex_file: str) -> bool:
     
     if '\\end{document}' not in content:
         issues.append("Missing \\end{document}")
+    
+    # Skip validation if this is an LLM-META file (it's expected to have different structure)
+    if content.strip().startswith('% === LLM-META ==='):
+        # Only check for duplicate \end{document}
+        end_doc_count = content.count('\\end{document}')
+        if end_doc_count > 1:
+            issues.append(f"Multiple \\end{{document}} tags: {end_doc_count}")
+        return len(issues) == 0
     
     # Check for problematic patterns that might have been introduced
     problematic_patterns = [

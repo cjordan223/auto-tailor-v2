@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "replace": "I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": null
+    },
+    "Frontend": {
+      "replace": null
+    },
+    "Backend": {
+      "replace": null
+    },
+    "Cloud & DevOps": {
+      "replace": null
+    },
+    "AI & LLM Tools": {
+      "replace": null
+    },
+    "Automation & Productivity": {
+      "replace": null
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": null
+    }
+  },
+  "cover_letter": {
+    "paragraphs": [
+      null,
+      "At the University of California, I consolidated Rapid7, Jamf, BigFix, and ServiceNow into a single operational view and automated the end-to-end flow—from extraction and normalization to analytics—reducing manual effort by 100+ hours per month and enabling near-real-time risk reporting across 2,700 endpoints. Earlier, I built SQL log-query frameworks with Pandas/NumPy to surface actionable signals for leadership and harden production systems. These projects leaned on the same foundations you need: dimensional modeling and star schemas for BI, careful schema governance, strong authN/Z and secrets management, and disciplined monitoring and alerting when SLAs slip.",
+      null,
+      null
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Risk Assessment",
+      "why": "Aligns with job description"
+    },
+    {
+      "term": "Compliance Standards",
+      "why": "Aligns with job description"
+    }
+  ]
+}

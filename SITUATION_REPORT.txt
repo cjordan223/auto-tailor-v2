@@ -12,6 +12,7 @@ Status: FUNCTIONAL WITH KNOWN ISSUES
 4. **LaTeX Escaping** - Special characters properly escaped in content
 5. **Chunk Marker Consistency** - All markers use "and" instead of "&"
 6. **File Naming** - Output files correctly named as `*.tuned.tex`
+7. **ChkTeX LaTeX Linting** - Installed and configured for quality control
 
 ### ⚠️ CURRENT BLOCKING ISSUES:
 1. **Validation Constraints Too Strict**
@@ -43,6 +44,9 @@ tex-tailor apply --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..
 
 # 5. Render PDFs
 tex-tailor render
+
+# 6. Quality check with ChkTeX (NEW)
+./check_latex.sh
 ```
 
 ### 📁 FILE STATUS:
@@ -85,7 +89,7 @@ Skills.AI & LLM Tools: Too many replacements: 3 (max: 2)
 1. Relax validation constraints in schema.py
 2. Test full workflow with new job descriptions
 3. Fix or replace tex-tailor init command
-4. Optional: Integrate CheckMyTex validation
+4. ✅ ChkTeX integration completed - ready for LaTeX quality control
 
 ### 📝 DEVELOPMENT NOTES:
 - Template corruption was caused by init command
