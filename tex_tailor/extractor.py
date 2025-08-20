@@ -94,6 +94,7 @@ def build_base_text_json(resume_file: str, cover_file: str) -> Dict[str, Any]:
             }
         },
         "cover_letter": {
+            "salutation": cover_chunks.get("COVER.SALUTATION", ""),
             "paragraphs": [
                 cover_chunks.get("COVER.P1", ""),
                 cover_chunks.get("COVER.P2", ""),
@@ -105,14 +106,14 @@ def build_base_text_json(resume_file: str, cover_file: str) -> Dict[str, Any]:
             "resume_chunks": len([k for k in resume_chunks.keys() if k.startswith(("RESUME.", "SKILLS."))]),
             "cover_chunks": len([k for k in cover_chunks.keys() if k.startswith("COVER.")]),
             "total_editable_chunks": len([k for k in list(resume_chunks.keys()) + list(cover_chunks.keys()) 
-                                        if k.startswith(("RESUME.SUMMARY", "SKILLS.", "COVER.P"))])
+                                        if k.startswith(("RESUME.SUMMARY", "SKILLS.", "COVER.P", "COVER.SALUTATION"))])
         }
     }
     
     return base_text
 
 
-def extract_to_json(resume_file: str, cover_file: str, output_file: str) -> None:
+def extract_to_json(resume_file: str, cover_file: str, output_file: str, quiet: bool = False) -> None:
     """Extract base text from files and save as JSON."""
     
     base_text = build_base_text_json(resume_file, cover_file)
@@ -120,8 +121,9 @@ def extract_to_json(resume_file: str, cover_file: str, output_file: str) -> None
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(base_text, f, indent=2, ensure_ascii=False)
     
-    print(f"Extracted base text to: {output_file}")
-    print(f"Found {base_text['meta']['total_editable_chunks']} editable chunks")
+    if not quiet:
+        print(f"Extracted base text to: {output_file}")
+        print(f"Found {base_text['meta']['total_editable_chunks']} editable chunks")
 
 
 def validate_chunk_structure(filepath: str) -> List[str]:

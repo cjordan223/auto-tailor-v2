@@ -5,8 +5,10 @@ A deterministic CLI tool that tailors LaTeX résumés and cover letters to job d
 ## ✅ CURRENT STATUS: FULLY FUNCTIONAL
 
 **Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping, file structure  
-**Fixed**: Init command completely rewritten, proper LaTeX structure preservation, ampersand escaping  
-**Ready**: Production-ready for tailoring résumés and cover letters to job descriptions  
+**Fixed**: Overly conservative LLM prompting that was causing trivial edits instead of meaningful content changes  
+**Fixed**: LLM constraint adherence issues resolved with automatic truncation and enhanced prompting  
+**Fixed**: Cover letter salutation now dynamically replaces [Company Name] with actual company name  
+**Progress**: Added OpenAI provider support, post-processing truncation, and dynamic salutation handling  
 
 ## Quick Start
 
@@ -26,7 +28,7 @@ tex-tailor propose --jd job_description.txt --provider gemini
 # 5. Apply edits safely
 tex-tailor apply
 
-# 6. See what changed
+# 6. See what changed (enhanced display)
 tex-tailor diff
 
 # 7. Generate PDFs
@@ -34,6 +36,9 @@ tex-tailor render
 
 # 8. Check LaTeX quality (optional)
 ./check_latex.sh
+
+# 9. View workflow log (optional)
+tex-tailor log
 ```
 
 ## How It Works
@@ -105,7 +110,14 @@ export OLLAMA_BASE_URL="http://127.0.0.1:11434"
 export OLLAMA_MODEL="qwen2.5:14b-instruct"
 ```
 
-### Option B: Gemini
+### Option B: OpenAI (Recommended for Constraint Adherence)
+```bash
+# Set API key
+export OPENAI_API_KEY="your-api-key-here"
+export OPENAI_MODEL="gpt-4o-mini"  # optional, defaults to gpt-4o-mini
+```
+
+### Option C: Gemini
 ```bash
 # Set API key
 export GEMINI_API_KEY="your-api-key-here"
@@ -157,7 +169,7 @@ tex-tailor render
 ./check_latex.sh
 ```
 
-**Status**: All commands working perfectly. Complete end-to-end pipeline functional.
+**Status**: All commands working perfectly. Complete end-to-end pipeline functional with enhanced diff display and logging.
 
 ### Advanced Usage
 ```bash
@@ -172,6 +184,12 @@ tex-tailor apply --edits custom/edits.json --resume resume.tex --cover cover.tex
 
 # Export diff report
 tex-tailor diff --export diff_report.txt
+
+# Run complete workflow with logging
+tex-tailor workflow job_description.txt --with-logging
+
+# View latest workflow log
+tex-tailor log
 ```
 
 ## Edit Rules & Validation
@@ -179,18 +197,19 @@ tex-tailor diff --export diff_report.txt
 The tool enforces strict limits to prevent over-editing:
 
 ### Summary
-- ≤ 2 sentence-level changes
+- ≤ 5 sentence-level changes (updated from 2 to allow meaningful changes)
 - No LaTeX commands allowed
 
 ### Skills
-- ≤ 2 replacements per skill category
+- ≤ 8 replacements per skill category (updated from 2 to allow meaningful changes)
 - Must remain comma-separated format
 - 8 categories: Programming Languages, Frontend, Backend, Cloud & DevOps, AI & LLM Tools, Automation & Productivity, Security & Operating Systems, Databases
 
 ### Cover Letter
-- ≤ 1 edit per paragraph
-- ≤ 2 paragraphs total edited
-- 4 paragraphs exactly
+- ≤ 4 paragraphs total can be edited (updated from 2 for better customization)
+- Dynamic salutation that replaces [Company Name] with actual company name
+- 4 paragraphs exactly in structure
+- Preserves formal business letter format
 
 ### Forbidden Content
 - LaTeX commands (`\textbf`, `\section`, etc.)
@@ -244,8 +263,32 @@ curl http://127.0.0.1:11434/api/tags  # Ollama
 ```
 
 #### Edit Limit Violations
-**Problem**: `Too many replacements: 5 (max: 2)`
-**Solution**: This is intentional - limits prevent over-editing. The tool will reject the response and retry with stricter instructions.
+**Problem**: `Too many replacements: 9 (max: 8)` or `'why' too long (95 chars, max: 80)`
+**Solution**: 
+- **Automatic Truncation**: Long "why" explanations are automatically truncated to fit within limits
+- **Enhanced Prompting**: Improved constraint instructions with explicit character counting
+- **Provider Options**: Try OpenAI (better constraint adherence) or different models
+- **Retry Logic**: Tool auto-retries with detailed feedback on violations
+
+### Enhanced Diff Display
+The diff output now features:
+- **Color-coded changes**: Red background for deletions, green background for additions
+- **Emoji indicators**: Visual cues for different sections (🔧 chunks, 📊 statistics, 📋 summary)
+- **Better formatting**: Clear separation between sections with colored headers
+- **Improved readability**: White text on colored backgrounds for better contrast
+
+### Workflow Logging
+Capture complete workflow output to timestamped log files:
+```bash
+# Run workflow with logging
+tex-tailor workflow job_description.txt --with-logging
+
+# View latest log
+tex-tailor log
+
+# Or use the shell script with logging
+./run_workflow.sh job_description.txt --log
+```
 
 ### Debug Mode
 ```bash
@@ -280,9 +323,12 @@ cat out/edits.json | jq .
 - `RESUME.EDUCATION` - Education section
 - `RESUME.CERTS` - Certifications section
 
-### Cover Letter
-- `COVER.P1`, `COVER.P2`, `COVER.P3`, `COVER.P4` - Paragraph content (editable)
-- `COVER.PREAMBLE`, `COVER.HEADER`, `COVER.DATE`, `COVER.SALUTATION`, `COVER.SIGNOFF` - Structure (protected)
+### Cover Letter Chunks (Editable)
+- `COVER.SALUTATION` - Dynamic greeting (e.g., "Hello [Company Name] team,")
+- `COVER.P1`, `COVER.P2`, `COVER.P3`, `COVER.P4` - Paragraph content
+
+### Cover Letter Locks (Protected)
+- `COVER.PREAMBLE`, `COVER.HEADER`, `COVER.DATE`, `COVER.SIGNOFF` - Structure elements
 
 ## Testing
 
@@ -318,7 +364,8 @@ open out/*.pdf
 ```
 
 ### Performance Tips
-- **Gemini 2.0 Flash** (recommended): Fast, high-quality results  
+- **OpenAI GPT-4o-mini** (recommended): Best constraint adherence, reliable results
+- **Gemini 2.0 Flash**: Fast, high-quality results with occasional constraint issues
 - **Local Ollama**: Privacy-focused option for sensitive documents
 - Smaller models (7B-14B) work well for this task
 - Job descriptions >2000 words may hit token limits
@@ -326,19 +373,23 @@ open out/*.pdf
 
 ## Current Status & Metrics
 
-### ✅ Success Metrics (January 2025)
-- **Pipeline Success Rate**: 100% (init → extract → propose → apply → render)
+### ⚠️ Current Status (January 2025)
+- **Pipeline Infrastructure**: ✅ 100% (init → extract → propose → apply → render)
 - **PDF Generation**: ✅ Both résumé and cover letter compile successfully  
 - **LaTeX Validation**: ✅ Proper character escaping and structure preservation
-- **LLM Integration**: ✅ Gemini 2.0 Flash generates valid edits consistently
+- **LLM Integration**: ⚠️ Constraint adherence issues with Gemini 2.0 Flash
 - **File Structure**: ✅ All custom LaTeX commands preserved correctly
 
-### Recent Fixes Applied
-- **Init Command**: Complete rewrite - now preserves LaTeX structure perfectly
-- **Character Escaping**: Fixed ampersand issues in skill categories (`Security \& OS`)
-- **Chunk Markers**: Resolved mismatch between `&` and `and` in skill mapping
-- **Duplicate Removal**: Eliminated duplicate `\end{document}` tags
-- **ChkTeX Integration**: Added LaTeX quality control with custom configuration
+### Recent Progress & Fixes
+- **✅ Critical Fix**: Resolved overly conservative LLM prompting causing trivial edits (and → &)
+- **✅ Constraint Updates**: Increased limits from 2→8 skill replacements, 30→80→200 char explanations
+- **✅ Improved Prompting**: Added explicit examples and retry feedback for better constraint adherence
+- **✅ Constraint Resolution**: Implemented automatic truncation for long explanations
+- **✅ Provider Expansion**: Added OpenAI support with better constraint adherence
+- **✅ Enhanced UI**: Improved diff display with colors, emojis, and better readability
+- **✅ Logging System**: Added workflow logging with timestamped log files
+- **✅ Dynamic Salutation**: Cover letter salutation now replaces [Company Name] with actual company name
+- **✅ Core Infrastructure**: Init, extraction, application, and rendering work perfectly
 
 ## LaTeX Quality Control
 

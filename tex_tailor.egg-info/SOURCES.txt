@@ -4,6 +4,7 @@ tex_tailor/__init__.py
 tex_tailor/cli.py
 tex_tailor/differ.py
 tex_tailor/extractor.py
+tex_tailor/logger.py
 tex_tailor/markers.py
 tex_tailor/patcher.py
 tex_tailor/proposer.py

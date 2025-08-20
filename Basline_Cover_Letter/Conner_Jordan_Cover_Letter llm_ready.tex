@@ -19,14 +19,14 @@
 %       "type": "fixed"
 %     },
 %     {
-%       "id": "COVER.SALUTATION",
+%       "id": "COVER.SIGNOFF",
 %       "editable": false,
 %       "type": "fixed"
 %     },
 %     {
-%       "id": "COVER.SIGNOFF",
-%       "editable": false,
-%       "type": "fixed"
+%       "id": "COVER.SALUTATION",
+%       "editable": true,
+%       "type": "salutation"
 %     },
 %     {
 %       "id": "COVER.P1",
@@ -54,6 +54,7 @@
 %   }
 % }
 % === /LLM-META ===
+
 % === LLM:LOCK START COVER.PREAMBLE ===
 %-------------------------
 % Cover Letter in Latex — LLM-READY
@@ -144,6 +145,8 @@
 \end{center}
 % === LLM:LOCK END COVER.HEADER ===
 
+
+
 \vspace{16pt}
 
 % === LLM:LOCK START COVER.DATE ===
@@ -152,18 +155,14 @@ August 13, 2025
 \end{flushright}
 % === LLM:LOCK END COVER.DATE ===
 
-% === LLM:LOCK START COVER.SALUTATION ===
+% === LLM:CHUNK START COVER.SALUTATION ===
 \noindent
-Hiring Team,
-% === LLM:LOCK END COVER.SALUTATION ===
+Hello [Company Name] team,
+% === LLM:CHUNK END COVER.SALUTATION ===
 
 \vspace{16pt}
 
 % === LLM:CHUNK START COVER.P1 ===
-[Date]
-
-Hiring Team,
-
 I'm applying for the [Job Title] role at [Company Name]. I was drawn to your work in [Mention a specific area from the job description, e.g., building next-generation cloud infrastructure].
 
 My core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure that all processes are testable, versioned, and easy to roll back.

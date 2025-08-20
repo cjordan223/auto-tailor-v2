@@ -5,7 +5,7 @@ set -e # Exit immediately if a command exits with a non-zero status.
 # --- Configuration ---
 RESUME_FILE="Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
 COVER_LETTER_FILE="Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
-# PROVIDER="gemini" # No longer needed, determined dynamically
+LOG_FILE="workflow.log"
 
 # --- Functions ---
 function print_header() {
@@ -15,13 +15,24 @@ function print_header() {
   echo "================================================================================"
 }
 
+function log_message() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
 # --- Main Script ---
 if [ -z "$1" ]; then
   echo "Usage: $0 <path_to_job_description_file>"
+  echo ""
+  echo "Note: All output is automatically logged to workflow.log"
   exit 1
 fi
 
 JD_FILE=$1
+
+# Start logging - redirect all output to both terminal and log file
+exec > >(tee "$LOG_FILE") 2>&1
+
+log_message "Starting workflow for job description: $JD_FILE"
 
 print_header "Activating Virtual Environment"
 source venv/bin/activate
@@ -33,17 +44,7 @@ print_header "Step 2: Extracting content from LaTeX files"
 tex-tailor extract --resume "$RESUME_FILE" --cover "$COVER_LETTER_FILE"
 
 print_header "Step 3: Proposing edits based on Job Description"
-
-# Determine which provider to use
-if [ -n "$GEMINI_API_KEY" ]; then
-    PROVIDER="gemini"
-    echo "Using Gemini provider."
-else
-    echo "GEMINI_API_KEY not set, defaulting to Ollama."
-    PROVIDER="ollama"
-fi
-
-tex-tailor propose --jd "$JD_FILE" --provider "$PROVIDER"
+tex-tailor propose --jd "$JD_FILE"
 
 print_header "Step 4: Applying edits"
 tex-tailor apply
@@ -61,3 +62,4 @@ print_header "Step 8: Opening PDFs"
 tex-tailor open
 
 print_header "Workflow complete! PDFs are in the 'out' directory."
+log_message "Workflow completed successfully"

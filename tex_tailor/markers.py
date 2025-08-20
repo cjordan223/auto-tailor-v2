@@ -30,6 +30,7 @@ RESUME_LOCKS = [
 
 # Cover letter chunk definitions
 COVER_CHUNKS = [
+    {"id": "COVER.SALUTATION", "editable": True, "type": "salutation"},
     {"id": "COVER.P1", "editable": True, "type": "paragraph"},
     {"id": "COVER.P2", "editable": True, "type": "paragraph"},
     {"id": "COVER.P3", "editable": True, "type": "paragraph"},
@@ -40,7 +41,6 @@ COVER_LOCKS = [
     {"id": "COVER.PREAMBLE", "editable": False, "type": "fixed"},
     {"id": "COVER.HEADER", "editable": False, "type": "fixed"},
     {"id": "COVER.DATE", "editable": False, "type": "fixed"},
-    {"id": "COVER.SALUTATION", "editable": False, "type": "fixed"},
     {"id": "COVER.SIGNOFF", "editable": False, "type": "fixed"},
 ]
 
@@ -265,22 +265,81 @@ def add_cover_letter_markers(content: str) -> str:
     all_chunks = COVER_LOCKS + COVER_CHUNKS
     meta_header = create_meta_header("COVER", all_chunks)
     
-    # Wrap preamble
+    # Extract the preamble (everything before \begin{document})
     preamble_match = re.search(r'(.*?)(\\begin\{document\})', content, re.DOTALL)
-    if preamble_match:
-        preamble = preamble_match.group(1)
-        begin_doc = preamble_match.group(2)
-        wrapped_preamble = wrap_chunk(preamble.strip(), "COVER.PREAMBLE", False)
-        content = content.replace(preamble + begin_doc, wrapped_preamble + "\n\n" + begin_doc)
+    if not preamble_match:
+        return content  # If we can't find the structure, return as-is
     
-    # Find and wrap header/date/salutation
-    # This is a simplified approach - in practice you'd need more sophisticated parsing
-    # based on the actual structure of your cover letter
+    preamble = preamble_match.group(1).strip()
+    begin_doc = preamble_match.group(2)
     
-    # Wrap main body paragraphs as COVER.P1, P2, P3, P4
-    # This is a placeholder - you'd need to implement based on actual cover letter structure
+    # Extract the header section (from \begin{document} to date)
+    header_match = re.search(r'(\\begin\{document\}.*?)(?=\\vspace\{16pt\}.*?\\begin\{flushright\})', content, re.DOTALL)
+    if not header_match:
+        return content
     
-    return meta_header + content
+    header_content = header_match.group(1)
+    
+    # Extract the date section
+    date_match = re.search(r'(\\begin\{flushright\}.*?August.*?\\end\{flushright\})', content, re.DOTALL)
+    if not date_match:
+        return content
+    
+    date_content = date_match.group(1)
+    
+    # Extract the body content (everything after date until end)
+    body_match = re.search(r'\\end\{flushright\}(.*?)\\end\{document\}', content, re.DOTALL)
+    if not body_match:
+        return content
+    
+    body_content = body_match.group(1).strip()
+    
+    # Split body into paragraphs and create salutation + paragraphs
+    # Replace "Hiring Team," with template and make first paragraph without salutation
+    body_lines = body_content.split('\n')
+    
+    # Build the new content
+    result = []
+    result.append(meta_header)
+    result.append(wrap_chunk(preamble, "COVER.PREAMBLE", False))
+    result.append("")
+    result.append(header_content)
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    result.append(wrap_chunk(date_content, "COVER.DATE", False))
+    result.append("")
+    result.append(wrap_chunk("\\noindent\nHello [Company Name] team,", "COVER.SALUTATION", True))
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    
+    # Add the main paragraphs
+    result.append(wrap_chunk("I'm applying for the [Job Title] role at [Company Name]. I was drawn to your work in [Mention a specific area from the job description, e.g., building next-generation cloud infrastructure].\n\nMy core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure that all processes are testable, versioned, and easy to roll back.", "COVER.P1", True))
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    
+    result.append(wrap_chunk("At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.", "COVER.P2", True))
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    
+    result.append(wrap_chunk("Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects leaned on the same foundations you need: robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance.\n\nI am comfortable owning the entire lifecycle of a solution, from design through deployment and operations. This includes architecting and implementing features, instrumenting pipelines, documenting APIs and system contracts, and collaborating closely with cross-functional teams. While my experience is broad, I can ramp quickly on any specific technology stack your team uses.", "COVER.P3", True))
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    
+    result.append(wrap_chunk("If your mandate is to build reliable, secure, and scalable software that solves complex problems, I would like to help you ship that.", "COVER.P4", True))
+    result.append("")
+    result.append("\\vspace{16pt}")
+    result.append("")
+    
+    result.append(wrap_chunk("Sincerely,  \nConner Jordan", "COVER.SIGNOFF", False))
+    result.append("")
+    result.append("\\end{document}")
+    
+    return '\n'.join(result)
 
 
 def process_resume_file(input_path: str, output_path: str) -> None:
@@ -305,7 +364,7 @@ def process_cover_letter_file(input_path: str, output_path: str) -> None:
         f.write(marked_content)
 
 
-def init_files() -> None:
+def init_files(quiet: bool = False) -> None:
     """Initialize the baseline files with markers."""
     # Define paths - look in current directory first, then fallback to original path
     resume_input_local = Path("Baseline_Resume/Conner_Jordan_Software_Engineer copy.tex")
@@ -327,12 +386,16 @@ def init_files() -> None:
     # Process files
     if resume_input.exists():
         process_resume_file(str(resume_input), str(resume_output))
-        print(f"Created: {resume_output}")
+        if not quiet:
+            print(f"Created: {resume_output}")
     else:
-        print(f"Warning: Resume source file not found: {resume_input}")
+        if not quiet:
+            print(f"Warning: Resume source file not found: {resume_input}")
     
     if cover_input.exists():
         process_cover_letter_file(str(cover_input), str(cover_output))
-        print(f"Created: {cover_output}")
+        if not quiet:
+            print(f"Created: {cover_output}")
     else:
-        print(f"Warning: Cover letter source file not found: {cover_input}")
+        if not quiet:
+            print(f"Warning: Cover letter source file not found: {cover_input}")

@@ -1,0 +1,43 @@
+Company Overview:
+
+Critical Loop was born out of a mission to fix the electric grid. Today, we are making power more accessible and efficient by combining industry-leading portable energy storage with advanced predictive software. We deliver mobile power directly to our customers' locations, helping them operate at full capacity while lowering peak power costs. Serving industries such as factories, electric vehicle charging stations, data centers, and critical infrastructure, Critical Loop ensures reliable energy solutions wherever they are needed
+
+
+Role Description:
+
+At Critical Loop, we’re on a mission to make power more accessible and efficient. As we grow, we're encountering new security standards and compliance requirements - and we’re looking for an engineer who can help us not just meet them, but build systems that are secure, scalable, and easy to maintain.
+
+
+We’re seeking a Systems Engineer who thrives at the intersection of infrastructure, security, and code. Someone who loves digging into standards, thinking through edge cases, and implementing practical, elegant solutions. You’ll play a key role in translating requirements into real-world systems: from infrastructure as code and authentication systems to build pipelines and secure services.
+
+
+Responsibilities:
+
+    Develop secure, repeatable systems using tools like Ansible, Terraform, and Cloud-Init.
+    Build and maintain authentication, authorization, and access control systems aligned with business and compliance needs.
+    Implement security controls including network segmentation, secrets management, and audit logging.
+    Automate the deployment and maintenance of security tooling and access management systems.
+    Lead the triage and resolution of security-related issues and collaborate with engineers on secure software libraries.
+    Interpret and implement security requirements (e.g., contractual cybersecurity plans, internal policies, compliance obligations) across our infrastructure and systems.
+    Document your work clearly (what, why, and how) and help set documentation standards across the team.
+    Contribute to general systems engineering as time allows.
+
+
+Requirements:
+
+    A pragmatic mindset - security that enables progress, not prevents it.
+    Experience with identity and access management, RBAC, and security controls implementation.
+    Background in Linux-based systems (DevOps, SRE, Build/Release, or similar).
+    Proficiency in at least one programming language (Python preferred, but others welcome).
+    Strong experience with infrastructure-as-code practices and tools (Terraform, CloudFormation, etc.).
+    Understanding of authentication protocols (OAuth, SAML, OIDC) and authorization patterns.
+    Willingness to learn new tools as needed - our stack includes Python, Terraform, Ansible, AWS, and possibly C/C++ or Rust.
+
+
+Preferred Requirements:
+
+    Hands-on experience with our stack: AWS, Python, Terraform, Ansible.
+    Data engineering experience.
+    Experience securing hardware-adjacent systems. We deploy compute with our battery systems, not just in the cloud.
+    Experience implementing security and compliance frameworks (e.g., ISO 27001, SOC 2, etc.).
+

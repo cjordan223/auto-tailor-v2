@@ -108,7 +108,7 @@ def compute_word_diff(old_tokens: List[str], new_tokens: List[str]) -> List[Tupl
 
 
 def format_diff_line(diff_ops: List[Tuple[str, str]]) -> str:
-    """Format a diff line with colors."""
+    """Format a diff line with enhanced colors and readability."""
     formatted_parts = []
     
     for status, token in diff_ops:
@@ -116,14 +116,14 @@ def format_diff_line(diff_ops: List[Tuple[str, str]]) -> str:
             formatted_parts.append(token)
         elif status == 'delete':
             if COLORS_AVAILABLE:
-                formatted_parts.append(f"{Fore.RED}{Back.RED} -{token} {Style.RESET_ALL}")
+                formatted_parts.append(f"{Fore.RED}{Style.BRIGHT} -{token}- {Style.RESET_ALL}")
             else:
-                formatted_parts.append(f"[-{token}-]")
+                formatted_parts.append(f" -{token}- ")
         elif status == 'insert':
             if COLORS_AVAILABLE:
-                formatted_parts.append(f"{Fore.GREEN}{Back.GREEN} +{token} {Style.RESET_ALL}")
+                formatted_parts.append(f"{Fore.BLUE}{Style.BRIGHT} +{token}+ {Style.RESET_ALL}")
             else:
-                formatted_parts.append(f"[+{token}+]")
+                formatted_parts.append(f" +{token}+ ")
     
     return ''.join(formatted_parts)
 
@@ -136,22 +136,22 @@ def create_chunk_diff(old_content: str, new_content: str, chunk_id: str) -> str:
     
     diff_ops = compute_word_diff(old_tokens, new_tokens)
     
-    # Format the diff
+    # Format the diff with enhanced header
     if COLORS_AVAILABLE:
-        header = f"\n{Fore.CYAN}{Style.BRIGHT}=== CHUNK: {chunk_id} ==={Style.RESET_ALL}\n"
+        header = f"\n{Fore.WHITE}{Back.MAGENTA}{Style.BRIGHT} 🔧 CHUNK: {chunk_id} {Style.RESET_ALL}\n"
     else:
-        header = f"\n=== CHUNK: {chunk_id} ===\n"
+        header = f"\n🔧 CHUNK: {chunk_id}\n"
     
     diff_line = format_diff_line(diff_ops)
     
-    # Add statistics
+    # Add statistics with enhanced formatting
     deletions = sum(1 for op, _ in diff_ops if op == 'delete')
     insertions = sum(1 for op, _ in diff_ops if op == 'insert')
     
     if COLORS_AVAILABLE:
-        stats = f"\n{Fore.YELLOW}Changes: -{deletions} words, +{insertions} words{Style.RESET_ALL}\n"
+        stats = f"\n{Fore.WHITE}{Back.BLUE}{Style.BRIGHT} 📊 CHANGES: -{deletions} words, +{insertions} words {Style.RESET_ALL}\n"
     else:
-        stats = f"\nChanges: -{deletions} words, +{insertions} words\n"
+        stats = f"\n📊 CHANGES: -{deletions} words, +{insertions} words\n"
     
     return header + diff_line + stats
 
@@ -215,28 +215,37 @@ def create_diff_summary(diffs: List[str]) -> str:
     cover_changes = [c for c in changed_chunks if c.startswith('COVER.')]
     
     if COLORS_AVAILABLE:
-        summary = f"\n{Fore.BLUE}{Style.BRIGHT}DIFF SUMMARY{Style.RESET_ALL}\n"
-        summary += f"{Fore.BLUE}={'='*50}{Style.RESET_ALL}\n"
+        summary = f"\n{Fore.WHITE}{Back.CYAN}{Style.BRIGHT} 📋 DIFF SUMMARY {Style.RESET_ALL}\n"
+        summary += f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}\n"
     else:
-        summary = f"\nDIFF SUMMARY\n"
-        summary += f"{'='*50}\n"
+        summary = f"\n📋 DIFF SUMMARY\n"
+        summary += f"{'='*60}\n"
     
     if resume_changes:
-        summary += f"\nRésumé Changes ({len(resume_changes)}):\n"
+        if COLORS_AVAILABLE:
+            summary += f"\n{Fore.GREEN}{Style.BRIGHT}📄 Résumé Changes ({len(resume_changes)}):{Style.RESET_ALL}\n"
+        else:
+            summary += f"\n📄 Résumé Changes ({len(resume_changes)}):\n"
         for chunk in resume_changes:
-            summary += f"  • {chunk}\n"
+            summary += f"  🔹 {chunk}\n"
     
     if cover_changes:
-        summary += f"\nCover Letter Changes ({len(cover_changes)}):\n"
+        if COLORS_AVAILABLE:
+            summary += f"\n{Fore.YELLOW}{Style.BRIGHT}📝 Cover Letter Changes ({len(cover_changes)}):{Style.RESET_ALL}\n"
+        else:
+            summary += f"\n📝 Cover Letter Changes ({len(cover_changes)}):\n"
         for chunk in cover_changes:
-            summary += f"  • {chunk}\n"
+            summary += f"  🔹 {chunk}\n"
     
-    summary += f"\nTotal chunks modified: {len(changed_chunks)}\n"
+    if COLORS_AVAILABLE:
+        summary += f"\n{Fore.WHITE}{Back.GREEN}{Style.BRIGHT} ✅ Total chunks modified: {len(changed_chunks)} {Style.RESET_ALL}\n"
+    else:
+        summary += f"\n✅ Total chunks modified: {len(changed_chunks)}\n"
     
     return summary
 
 
-def show_diffs() -> None:
+def show_diffs(quiet: bool = False) -> None:
     """Show diffs for the standard file locations."""
     
     # Standard file paths
@@ -264,11 +273,12 @@ def show_diffs() -> None:
         print("Original files not found. Run 'tex-tailor init' first.")
         return
     
-    print(f"Comparing:")
-    print(f"  Original résumé: {original_resume}")
-    print(f"  Tuned résumé: {tuned_resume}")
-    print(f"  Original cover: {original_cover}")
-    print(f"  Tuned cover: {tuned_cover}")
+    if not quiet:
+        print(f"Comparing:")
+        print(f"  Original résumé: {original_resume}")
+        print(f"  Tuned résumé: {tuned_resume}")
+        print(f"  Original cover: {original_cover}")
+        print(f"  Tuned cover: {tuned_cover}")
     
     # Generate diffs
     diffs = get_all_chunk_diffs(original_resume, original_cover, tuned_resume, tuned_cover)
@@ -277,12 +287,12 @@ def show_diffs() -> None:
     summary = create_diff_summary(diffs)
     print(summary)
     
-    # Show detailed diffs
-    if diffs:
+    # Show detailed diffs only if not quiet
+    if not quiet and diffs:
         if COLORS_AVAILABLE:
-            print(f"\n{Fore.BLUE}{Style.BRIGHT}DETAILED DIFFS{Style.RESET_ALL}\n")
+            print(f"\n{Fore.WHITE}{Back.BLUE}{Style.BRIGHT} 🔍 DETAILED DIFFS {Style.RESET_ALL}\n")
         else:
-            print(f"\nDETAILED DIFFS\n")
+            print(f"\n🔍 DETAILED DIFFS\n")
         
         for diff in diffs:
             print(diff)

@@ -155,6 +155,12 @@ def apply_cover_letter_edits(content: str, edits: Dict[str, Any]) -> str:
     
     modified_content = content
     
+    # Apply salutation edit
+    if "cover_letter" in edits and "salutation" in edits["cover_letter"] and "replace" in edits["cover_letter"]["salutation"]:
+        new_salutation = edits["cover_letter"]["salutation"]["replace"]
+        if new_salutation:
+            modified_content = replace_chunk_content(modified_content, "COVER.SALUTATION", new_salutation)
+    
     # Apply paragraph edits
     if "cover_letter" in edits and "paragraphs" in edits["cover_letter"]:
         paragraphs = edits["cover_letter"]["paragraphs"]
@@ -333,10 +339,11 @@ def create_summary_report(resume_file: str, cover_file: str, edits_file: str) ->
     return "\n".join(report_lines)
 
 
-def apply_edits_with_validation(resume_file: str, cover_file: str, edits_file: str) -> None:
+def apply_edits_with_validation(resume_file: str, cover_file: str, edits_file: str, quiet: bool = False) -> None:
     """Apply edits with validation and reporting."""
     
-    print("Applying edits...")
+    if not quiet:
+        print("Applying edits...")
     
     try:
         resume_output, cover_output = apply_edits_to_files(resume_file, cover_file, edits_file)
@@ -348,15 +355,15 @@ def apply_edits_with_validation(resume_file: str, cover_file: str, edits_file: s
         resume_valid = validate_latex_compilation(resume_output)
         cover_valid = validate_latex_compilation(cover_output)
         
-        if resume_valid:
-            print("✓ Résumé LaTeX validation passed")
-        else:
+        if not resume_valid and not quiet:
             print("⚠ Résumé LaTeX validation warnings (see above)")
+        elif resume_valid and not quiet:
+            print("✓ Résumé LaTeX validation passed")
         
-        if cover_valid:
+        if not cover_valid and not quiet:
+            print("⚠ Cover letter LaTeX validation warnings (see above)")  
+        elif cover_valid and not quiet:
             print("✓ Cover letter LaTeX validation passed")
-        else:
-            print("⚠ Cover letter LaTeX validation warnings (see above)")
         
         # Create and display summary
         summary = create_summary_report(resume_output, cover_output, edits_file)
