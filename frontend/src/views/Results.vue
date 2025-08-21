@@ -2,19 +2,20 @@
   <div class="max-w-6xl mx-auto space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Resume Generated Successfully!</h1>
-      <p class="text-gray-600">Your customized resume and cover letter are ready for download.</p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ headerTitle }}</h1>
+      <p class="text-gray-600">{{ headerSubtitle }}</p>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin mx-auto w-8 h-8 text-primary-600">
-        <svg class="w-full h-full" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      </div>
-      <p class="text-gray-600 mt-4">Loading results...</p>
+    <!-- Loading/Processing State -->
+    <div v-if="loading || isProcessing" class="py-6">
+      <ProcessingStatus
+        :status="isProcessing ? 'processing' : 'idle'"
+        :progress="statusProgress"
+        :error="null"
+        :step="statusData?.step"
+        :detail="statusData?.detail"
+        :provider="statusData?.provider"
+      />
     </div>
 
     <!-- Error State -->
@@ -30,7 +31,7 @@
     </div>
 
     <!-- Results Content -->
-    <div v-else-if="results" class="space-y-8">
+    <div v-else-if="results && isCompleted" class="space-y-8">
       <!-- Download Section -->
       <div class="card">
         <h2 class="text-xl font-semibold text-gray-900 mb-6">Download Files</h2>
@@ -140,12 +141,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
+import ProcessingStatus from '../components/ProcessingStatus.vue'
 
 const route = useRoute()
-const { getResults, downloadFile: apiDownloadFile } = useAPI()
+const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()
 
 // Props
 const props = defineProps({
@@ -156,17 +158,34 @@ const props = defineProps({
 const loading = ref(true)
 const error = ref(null)
 const results = ref(null)
+const statusData = ref({ status: 'processing', progress: 0, step: 'Initializing...' })
 const downloading = ref({
   resume: false,
   coverLetter: false,
   edits: false
 })
+let pollTimer = null
 
 // Computed
 const jobId = computed(() => props.jobId || route.params.jobId)
 const isDownloadingAll = computed(() => 
   Object.values(downloading.value).some(d => d)
 )
+const isProcessing = computed(() => statusData.value?.status === 'processing')
+const isCompleted = computed(() => statusData.value?.status === 'completed')
+const statusProgress = computed(() => Number(statusData.value?.progress || 0))
+const headerTitle = computed(() => {
+  if (isProcessing.value) return 'Generating Your Resume...'
+  if (isCompleted.value) return 'Resume Generated Successfully!'
+  if (error.value) return 'Error Loading Results'
+  return 'Preparing Results...'
+})
+const headerSubtitle = computed(() => {
+  if (isProcessing.value) return 'AI is analyzing your job description and customizing your resume. This may take longer on local models.'
+  if (isCompleted.value) return 'Your customized resume and cover letter are ready for download.'
+  if (error.value) return error.value
+  return 'Loading results...'
+})
 
 // Methods
 const loadResults = async () => {
@@ -183,8 +202,27 @@ const loadResults = async () => {
   }
 }
 
+const pollStatus = async () => {
+  try {
+    const data = await checkStatus(jobId.value)
+    statusData.value = data
+    if (data.status === 'completed') {
+      clearInterval(pollTimer)
+      pollTimer = null
+      await loadResults()
+    } else if (data.status === 'error') {
+      clearInterval(pollTimer)
+      pollTimer = null
+      error.value = data.error || 'Processing failed'
+    }
+  } catch (err) {
+    // Keep polling; transient 404 while job initializes is expected
+  }
+}
+
 const downloadFile = async (fileType) => {
   try {
+    if (!isCompleted.value) return
     const downloadKey = fileType === 'cover-letter' ? 'coverLetter' : fileType
     downloading.value[downloadKey] = true
     
@@ -223,11 +261,17 @@ const formatDate = (dateString) => {
 
 // Lifecycle
 onMounted(() => {
-  if (jobId.value) {
-    loadResults()
-  } else {
+  if (!jobId.value) {
     error.value = 'No job ID provided'
     loading.value = false
+    return
   }
+  // Start polling status immediately and every 2s
+  pollStatus()
+  pollTimer = setInterval(pollStatus, 2000)
+})
+
+onBeforeUnmount(() => {
+  if (pollTimer) clearInterval(pollTimer)
 })
 </script>

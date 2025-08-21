@@ -2,11 +2,13 @@ import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs/promises'
 import uploadRoutes from './routes/upload.js'
 import processRoutes from './routes/process.js'
 import downloadRoutes from './routes/download.js'
 import statusRoutes from './routes/status.js'
 import providersRoutes from './routes/providers.js'
+import validateRoutes from './routes/validate.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 
@@ -44,31 +46,52 @@ app.use('/api/process', processRoutes)
 app.use('/api/download', downloadRoutes)
 app.use('/api/status', statusRoutes)
 app.use('/api/providers', providersRoutes)
+app.use('/api/validate', validateRoutes)
 
 // Results endpoint
 app.get('/api/results/:jobId', async (req, res) => {
   try {
     const { jobId } = req.params
-    
-    // In a real app, this would fetch from a database
-    // For now, we'll check if files exist
+    const tempDir = path.join(__dirname, '../temp', jobId)
+    const statusFile = path.join(tempDir, 'status.json')
+
+    let status = 'processing'
+    let progress = 0
+    let step = 'Initializing...'
+
+    try {
+      const statusRaw = await fs.readFile(statusFile, 'utf8')
+      const statusJson = JSON.parse(statusRaw)
+      status = statusJson.status || status
+      progress = Number(statusJson.progress ?? progress)
+      step = statusJson.step || step
+    } catch (_) {
+      // If status file not yet available, remain in processing
+    }
+
+    // Build file map only if completed
+    const files = {}
+    if (status === 'completed') {
+      files.resume = `/api/download/${jobId}/resume`
+      files.coverLetter = `/api/download/${jobId}/cover-letter`
+      files.edits = `/api/download/${jobId}/edits`
+    }
+
     const resultData = {
       jobId,
-      status: 'completed',
-      files: {
-        resume: `/api/download/${jobId}/resume`,
-        coverLetter: `/api/download/${jobId}/cover-letter`,
-        edits: `/api/download/${jobId}/edits`
-      },
+      status,
+      progress,
+      step,
+      files,
       suggestedAdditions: [
         {
-          term: "Example Skill",
-          why: "Relevant to job requirements"
+          term: 'Example Skill',
+          why: 'Relevant to job requirements'
         }
       ],
       createdAt: new Date().toISOString()
     }
-    
+
     res.json(resultData)
   } catch (error) {
     res.status(500).json({ message: error.message })

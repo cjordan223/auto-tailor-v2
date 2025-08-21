@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { globalSettings } from './useSettings.js'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -54,14 +55,9 @@ export function useAPI() {
   /**
    * Process resume with AI
    */
-  const processResume = async ({ resumeFile, jobDescription, provider, model }) => {
+  const processResume = async ({ jobDescription, provider, model }) => {
     try {
       const formData = new FormData()
-      
-      // Add resume file
-      if (resumeFile) {
-        formData.append('resume', resumeFile)
-      }
       
       // Add job description (file or text)
       if (typeof jobDescription === 'string') {
@@ -73,6 +69,10 @@ export function useAPI() {
       // Add configuration
       formData.append('provider', provider)
       formData.append('model', model)
+      
+      // Add API keys from settings
+      const apiKeys = globalSettings.getAllApiKeys()
+      formData.append('apiKeys', JSON.stringify(apiKeys))
       
       const response = await api.post('/process', formData, {
         headers: {
@@ -194,6 +194,22 @@ export function useAPI() {
     }
   }
 
+  /**
+   * Validate API key for a specific provider
+   */
+  const validateApiKey = async (provider, apiKey, ollamaUrl = null) => {
+    try {
+      const response = await api.post('/validate', {
+        provider,
+        apiKey,
+        ollamaUrl
+      })
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to validate API key')
+    }
+  }
+
   return {
     uploadFile,
     processResume,
@@ -201,6 +217,7 @@ export function useAPI() {
     downloadFile,
     getProviders,
     getResults,
-    getHistory
+    getHistory,
+    validateApiKey
   }
 }

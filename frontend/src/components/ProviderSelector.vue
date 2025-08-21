@@ -31,6 +31,13 @@
               >
                 Recommended
               </span>
+              <span
+                v-if="provider.apiKeyRequired"
+                :class="hasApiKey(provider.id) ? 'text-success-600' : 'text-warning-600'"
+                class="ml-2"
+              >
+                {{ hasApiKey(provider.id) ? '✓' : '⚠' }}
+              </span>
             </div>
             <div class="text-xs text-gray-500 mt-1">{{ provider.description }}</div>
           </div>
@@ -64,8 +71,14 @@
         <p><span class="font-medium">Quality:</span> {{ currentProvider.quality }}</p>
         <p><span class="font-medium">Speed:</span> {{ currentProvider.speed }}</p>
         <p><span class="font-medium">Cost:</span> {{ currentProvider.cost }}</p>
-        <p v-if="currentProvider.apiKeyRequired" class="text-warning-600">
-          <span class="font-medium">⚠️ API Key Required:</span> {{ currentProvider.apiKeyEnv }}
+        <p v-if="currentProvider.apiKeyRequired" :class="hasApiKey(currentProvider.id) ? 'text-success-600' : 'text-warning-600'">
+          <span class="font-medium">{{ hasApiKey(currentProvider.id) ? '✅ API Key Configured' : '⚠️ API Key Required' }}</span>
+          <span v-if="!hasApiKey(currentProvider.id)">: {{ currentProvider.apiKeyEnv }}</span>
+        </p>
+        <p v-if="currentProvider.apiKeyRequired && !hasApiKey(currentProvider.id)" class="text-sm">
+          <router-link to="/settings" class="text-primary-600 hover:underline">
+            Configure API key in Settings →
+          </router-link>
         </p>
       </div>
     </div>
@@ -74,6 +87,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useSettings } from '../composables/useSettings.js'
 
 const props = defineProps({
   provider: String,
@@ -81,6 +95,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:provider', 'update:model', 'update'])
+const { hasApiKey } = useSettings()
 
 // State
 const selectedProvider = ref(props.provider || 'gemini')

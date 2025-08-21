@@ -33,9 +33,22 @@
       <h3 class="text-xl font-semibold text-gray-900 mb-2">
         {{ statusText }}
       </h3>
-      <p class="text-gray-600">
+      <p class="text-gray-600 mb-2">
         {{ statusDescription }}
       </p>
+      
+      <!-- Detailed Step Information -->
+      <div v-if="step || detail || provider" class="text-sm space-y-1">
+        <p v-if="step" class="font-medium text-gray-800">
+          {{ step }}
+        </p>
+        <p v-if="detail" class="text-gray-600">
+          {{ detail }}
+        </p>
+        <p v-if="provider" class="text-primary-600">
+          Using {{ provider }} AI
+        </p>
+      </div>
     </div>
 
     <!-- Progress Bar -->
@@ -122,7 +135,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  error: String
+  error: String,
+  step: String,
+  detail: String,
+  provider: String
 })
 
 const emit = defineEmits(['retry', 'view-results', 'cancel'])

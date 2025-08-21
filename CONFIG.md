@@ -116,11 +116,24 @@ OLLAMA_MODEL=qwen2.5:14b-instruct
 
 Access via `http://localhost:3000/settings`:
 
-- **AI Provider Setup**: Configure API keys for Gemini, OpenAI, Ollama
-- **Default Provider**: Choose preferred AI provider
-- **Auto-download**: Automatically download generated files
-- **Server URL**: Configure Ollama server URL for local models
+**API Key Management:**
+- **Secure Input**: Password-masked input fields with show/hide toggle
+- **Real-time Validation**: Test button (🧪) makes actual API calls to verify keys
+- **Visual Feedback**: Status indicators show ✓ configured / ⚠ required / ❌ invalid
+- **Automatic Storage**: Keys saved to browser localStorage on input
+- **Direct Links**: Quick access to provider API key pages
+
+**Provider Configuration:**
+- **Gemini Setup**: API key from Google AI Studio with validation
+- **OpenAI Setup**: API key from OpenAI Platform with validation  
+- **Ollama Setup**: Server URL configuration with connection testing
+- **Default Provider**: Choose preferred AI provider for new jobs
+- **Auto-download**: Automatically download generated files when processing completes
+
+**Additional Features:**
 - **Processing History**: View and clear previous jobs
+- **Backend Status**: Real-time connection indicator
+- **Settings Export**: All settings stored in localStorage
 
 #### Local Storage Settings
 
@@ -128,14 +141,20 @@ Settings are persisted in browser local storage:
 ```javascript
 {
   "apiKeys": {
-    "gemini": "user_provided_key",
-    "openai": "user_provided_key"
+    "gemini": "user_provided_key",    // Securely stored, only sent during processing
+    "openai": "user_provided_key"     // Validated with real API calls
   },
-  "ollamaUrl": "http://localhost:11434",
-  "defaultProvider": "gemini",
-  "autoDownload": false
+  "ollamaUrl": "http://localhost:11434",  // Server URL for local models
+  "defaultProvider": "gemini",            // Auto-selected on new jobs
+  "autoDownload": false                   // Auto-download completed files
 }
 ```
+
+#### API Key Security
+- **Browser Storage**: Keys stored in localStorage, never transmitted except during processing
+- **Environment Fallback**: System environment variables used if localStorage keys not available
+- **Frontend Priority**: Browser-stored keys override environment variables
+- **Validation**: Real API calls test key validity before first use
 
 ### Backend (Express.js)
 
@@ -156,7 +175,7 @@ app.use(cors({
 
 #### File Upload Configuration
 ```javascript
-// Multer configuration for file uploads
+// Multer configuration for job description uploads only
 const storage = multer.diskStorage({
   destination: 'temp/',  // Temporary file storage
   filename: (req, file, cb) => {
@@ -166,7 +185,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }  // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },  // 10MB limit
+  fileFilter: (req, file, cb) => {
+    // Job descriptions only: .txt, .pdf, .doc, .docx
+    const allowedTypes = ['.txt', '.pdf', '.doc', '.docx']
+    const ext = path.extname(file.originalname).toLowerCase()
+    cb(null, allowedTypes.includes(ext))
+  }
 })
 ```
 
@@ -174,11 +199,46 @@ const upload = multer({
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/process` | POST | Start resume processing |
+| `/api/process` | POST | Start resume processing (job description + baseline template) |
 | `/api/status/:jobId` | GET | Check processing status |
 | `/api/download/:jobId/:fileType` | GET | Download generated files |
 | `/api/providers` | GET | Get available AI providers |
+| `/api/validate` | POST | Validate API keys with real API calls |
 | `/api/health` | GET | Health check |
+
+#### Real-time Output Streaming
+
+The Express.js backend now provides real-time streaming of Python CLI output:
+
+**Output Parsing Engine:**
+```javascript
+// Parse CLI stdout/stderr in real-time
+parseOutputAndUpdateStatus(statusFile, output, jobId)
+
+// Intelligent progress mapping
+"🔄 Processing job description" → 10% "Processing job description..."
+"✓ Initialization complete" → 20% "Baseline files prepared"
+"Generated 12 edits" → 60% "Generated 12 targeted edits"
+```
+
+**Enhanced Status Response:**
+```json
+{
+  "status": "processing",
+  "progress": 40,
+  "step": "AI analysis in progress...",
+  "detail": "Sending content to AI provider for analysis",
+  "provider": "Gemini",
+  "error": null,
+  "updatedAt": "2025-08-21T07:00:00.000Z"
+}
+```
+
+**Error Categorization:**
+- API Authentication → "Invalid or missing API key"
+- Timeout → "AI provider request timed out"
+- Rate Limit → "API rate limit reached"
+- General → "Processing error with logs"
 
 ### Development vs Production
 

@@ -49,6 +49,13 @@
                 >
                   {{ showApiKeys.gemini ? '🙈' : '👁️' }}
                 </button>
+                <button
+                  @click="testApiKey('gemini')"
+                  :disabled="!apiKeys.gemini || validating.gemini"
+                  class="btn btn-primary"
+                >
+                  {{ validating.gemini ? '⏳' : '🧪' }}
+                </button>
               </div>
               <p class="text-xs text-gray-500 mt-1">
                 Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-primary-600 hover:underline">Google AI Studio</a>
@@ -95,6 +102,13 @@
                 >
                   {{ showApiKeys.openai ? '🙈' : '👁️' }}
                 </button>
+                <button
+                  @click="testApiKey('openai')"
+                  :disabled="!apiKeys.openai || validating.openai"
+                  class="btn btn-primary"
+                >
+                  {{ validating.openai ? '⏳' : '🧪' }}
+                </button>
               </div>
               <p class="text-xs text-gray-500 mt-1">
                 Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" class="text-primary-600 hover:underline">OpenAI Platform</a>
@@ -128,12 +142,21 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Server URL
               </label>
-              <input
-                v-model="ollamaUrl"
-                type="url"
-                class="w-full p-3 border border-gray-300 rounded-lg focus-ring"
-                placeholder="http://localhost:11434"
-              />
+              <div class="flex space-x-2">
+                <input
+                  v-model="ollamaUrl"
+                  type="url"
+                  class="flex-1 p-3 border border-gray-300 rounded-lg focus-ring"
+                  placeholder="http://localhost:11434"
+                />
+                <button
+                  @click="testApiKey('ollama')"
+                  :disabled="!ollamaUrl || validating.ollama"
+                  class="btn btn-primary"
+                >
+                  {{ validating.ollama ? '⏳' : '🧪' }}
+                </button>
+              </div>
               <p class="text-xs text-gray-500 mt-1">
                 Install Ollama from <a href="https://ollama.ai" target="_blank" class="text-primary-600 hover:underline">ollama.ai</a>
               </p>
@@ -230,22 +253,31 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAPI } from '../composables/useAPI.js'
+import { useSettings } from '../composables/useSettings.js'
 
-const { getProviders } = useAPI()
+const { getProviders, validateApiKey } = useAPI()
+const { settings, saveSettings: saveSettingsToStorage } = useSettings()
 
 // State
 const saving = ref(false)
 const backendStatus = ref(false)
 
-// API Keys
-const apiKeys = ref({
-  gemini: '',
-  openai: ''
-})
-
+// UI State
 const showApiKeys = ref({
   gemini: false,
   openai: false
+})
+
+const validating = ref({
+  gemini: false,
+  openai: false,
+  ollama: false
+})
+
+const validationResults = ref({
+  gemini: null,
+  openai: null,
+  ollama: null
 })
 
 // Provider Status
@@ -253,10 +285,11 @@ const geminiStatus = ref({ available: false })
 const openaiStatus = ref({ available: false })
 const ollamaStatus = ref({ available: false })
 
-// Settings
-const ollamaUrl = ref('http://localhost:11434')
-const defaultProvider = ref('gemini')
-const autoDownload = ref(false)
+// Settings (reactive references to the global settings)
+const apiKeys = settings.apiKeys
+const ollamaUrl = ref(settings.ollamaUrl)
+const defaultProvider = ref(settings.defaultProvider)  
+const autoDownload = ref(settings.autoDownload)
 
 // Methods
 const toggleApiKeyVisibility = (provider) => {
@@ -267,36 +300,24 @@ const saveSettings = async () => {
   try {
     saving.value = true
     
-    // In a real app, this would save to localStorage or send to backend
-    localStorage.setItem('tex-tailor-settings', JSON.stringify({
-      apiKeys: apiKeys.value,
-      ollamaUrl: ollamaUrl.value,
-      defaultProvider: defaultProvider.value,
-      autoDownload: autoDownload.value
-    }))
+    // Update settings object
+    settings.ollamaUrl = ollamaUrl.value
+    settings.defaultProvider = defaultProvider.value
+    settings.autoDownload = autoDownload.value
     
-    // Show success message
-    alert('Settings saved successfully!')
+    // Save to localStorage (happens automatically via useSettings watcher)
+    const success = saveSettingsToStorage()
+    
+    if (success) {
+      alert('Settings saved successfully!')
+    } else {
+      throw new Error('Failed to save to localStorage')
+    }
     
   } catch (error) {
     alert('Failed to save settings: ' + error.message)
   } finally {
     saving.value = false
-  }
-}
-
-const loadSettings = () => {
-  try {
-    const saved = localStorage.getItem('tex-tailor-settings')
-    if (saved) {
-      const settings = JSON.parse(saved)
-      apiKeys.value = settings.apiKeys || { gemini: '', openai: '' }
-      ollamaUrl.value = settings.ollamaUrl || 'http://localhost:11434'
-      defaultProvider.value = settings.defaultProvider || 'gemini'
-      autoDownload.value = settings.autoDownload || false
-    }
-  } catch (error) {
-    console.error('Failed to load settings:', error)
   }
 }
 
@@ -316,6 +337,29 @@ const checkProviderStatus = async () => {
   }
 }
 
+const testApiKey = async (provider) => {
+  try {
+    validating.value[provider] = true
+    validationResults.value[provider] = null
+    
+    const apiKey = provider === 'ollama' ? null : apiKeys.value[provider]
+    const result = await validateApiKey(provider, apiKey, provider === 'ollama' ? ollamaUrl.value : null)
+    
+    validationResults.value[provider] = result
+    
+    if (result.valid) {
+      alert(`✅ ${provider.toUpperCase()} ${provider === 'ollama' ? 'server' : 'API key'} is valid!`)
+    } else {
+      alert(`❌ ${provider.toUpperCase()} validation failed: ${result.error}`)
+    }
+    
+  } catch (error) {
+    alert(`❌ Failed to test ${provider}: ${error.message}`)
+  } finally {
+    validating.value[provider] = false
+  }
+}
+
 const clearHistory = async () => {
   if (confirm('Are you sure you want to clear all processing history? This cannot be undone.')) {
     try {
@@ -330,7 +374,11 @@ const clearHistory = async () => {
 
 // Lifecycle
 onMounted(() => {
-  loadSettings()
+  // Sync local refs with global settings
+  ollamaUrl.value = settings.ollamaUrl
+  defaultProvider.value = settings.defaultProvider
+  autoDownload.value = settings.autoDownload
+  
   checkProviderStatus()
 })
 </script>

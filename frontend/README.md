@@ -4,7 +4,8 @@ Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
 
 ## ✨ Features
 
-- **Drag & Drop File Upload** - Easy resume template and job description upload
+- **Job Description Upload** - Upload or paste job descriptions for AI customization
+- **Pre-configured Baseline Resume** - Uses optimized LaTeX template with LLM markers
 - **Real-time Processing** - Live status updates during AI processing  
 - **Provider Selection** - Choose between Gemini, OpenAI, or Ollama
 - **Results Dashboard** - Download generated PDFs and view changes
@@ -18,6 +19,7 @@ Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
 - Node.js 18+ 
 - npm or yarn
 - Backend Python CLI running
+- Baseline resume template file: `Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex`
 
 ### Installation
 
@@ -58,7 +60,7 @@ npm run server
 ### Backend API (Express.js)
 - **Port:** 3001  
 - **Framework:** Express.js with ES modules
-- **File Upload:** Multer for handling resume/job description files
+- **File Upload:** Multer for handling job description files only
 - **Process Management:** Spawns Python CLI as subprocess
 - **File Serving:** Serves generated PDFs for download
 
@@ -77,7 +79,7 @@ frontend/
 │   │   ├── ProviderSelector.vue # AI provider selection
 │   │   └── ProcessingStatus.vue # Real-time status updates
 │   ├── views/               # Page components
-│   │   ├── Home.vue         # Main workflow page
+│   │   ├── Home.vue         # Main workflow page (job description only)
 │   │   ├── Results.vue      # Results and downloads
 │   │   └── Settings.vue     # Configuration page
 │   ├── composables/         # Reusable logic
@@ -104,6 +106,15 @@ GEMINI_API_KEY=your_gemini_key
 OPENAI_API_KEY=your_openai_key
 ```
 
+### Baseline Resume Template
+
+The application uses a pre-configured baseline resume template located at:
+```
+Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex
+```
+
+This template includes LLM markers for optimal AI processing and consistent formatting.
+
 ### Settings
 
 - **API Keys:** Configure in Settings page or environment variables
@@ -113,7 +124,7 @@ OPENAI_API_KEY=your_openai_key
 ## 🔌 API Endpoints
 
 ### File Processing
-- `POST /api/process` - Start resume processing
+- `POST /api/process` - Start resume processing (job description only)
 - `GET /api/status/:jobId` - Check processing status
 - `GET /api/results/:jobId` - Get job results
 
@@ -128,10 +139,10 @@ OPENAI_API_KEY=your_openai_key
 ## 🎨 UI Components
 
 ### FileUpload
-- Drag & drop interface
-- File type validation
+- Drag & drop interface for job descriptions
+- File type validation (.txt, .pdf, .doc, .docx)
+- Text input for pasting job descriptions
 - Progress indicators
-- Text input for job descriptions
 
 ### ProviderSelector
 - Visual provider cards
@@ -156,7 +167,7 @@ OPENAI_API_KEY=your_openai_key
    - Backend: Auto-restart with nodemon at http://localhost:3001
 
 3. **Test Processing:**
-   - Upload resume template and job description
+   - Upload or paste job description
    - Select AI provider
    - Monitor real-time status updates
    - Download generated files
@@ -181,6 +192,7 @@ Deploy to Railway, Render, or any Node.js hosting:
 
 ```bash
 # Ensure Python CLI is available on server
+# Ensure baseline resume template is present
 npm run server
 ```
 
@@ -188,6 +200,7 @@ npm run server
 - Set API keys as environment variables
 - Ensure Python CLI dependencies are installed
 - Configure file storage permissions
+- Verify baseline resume template exists
 
 ## 🐛 Troubleshooting
 
@@ -201,10 +214,15 @@ npm run server
 - Ensure Python CLI is executable
 - Check API keys are configured
 - Verify file upload permissions
+- Confirm baseline resume template exists
 
 **"Files not downloading"**
 - Check temp directory permissions
 - Verify Python CLI output directory
+
+**"Baseline resume template not found"**
+- Ensure `Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex` exists
+- Check file permissions and path configuration
 
 ### Debug Mode
 
@@ -212,6 +230,22 @@ npm run server
 # Enable debug logging
 DEBUG=tex-tailor:* npm run dev:server
 ```
+
+## 🔮 Future Enhancements
+
+### Custom LaTeX Template Support
+The current version uses a pre-configured baseline resume template. Future releases will include:
+
+- **Custom Template Upload** - Allow users to upload their own LaTeX templates
+- **Marker Detection** - Automatically detect LLM markers in uploaded templates
+- **Template Validation** - Validate LaTeX syntax and marker placement
+- **Chunk Extraction** - Extract customizable sections from templates
+
+### Implementation Requirements
+- Marker detection algorithm
+- Template validation system
+- Chunk extraction logic
+- Backward compatibility with baseline template
 
 ## 🤝 Contributing
 

@@ -14,6 +14,7 @@ Command-line tool for advanced users, scripts, and batch processing.
 
 **✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
 **✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
+**✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
 **Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping  
 **Enhanced**: Generalized cover letter with LLM placeholder instructions for dynamic content  
 **Improved**: Removed restrictive validation constraints - 100% success rate vs previous 10%  
@@ -30,9 +31,12 @@ npm install
 npm run dev
 
 # 2. Open http://localhost:3000 in your browser
-# 3. Upload resume template and job description
-# 4. Select AI provider (Gemini recommended)
-# 5. Download customized resume and cover letter PDFs
+# 3. Configure API keys in Settings (first time only)
+# 4. Upload or paste job description
+# 5. Select AI provider (Gemini recommended)  
+# 6. Download customized resume and cover letter PDFs
+
+# Note: Uses pre-configured baseline resume template
 ```
 
 ### 💻 CLI Interface
@@ -528,10 +532,28 @@ export FRONTEND_URL="http://localhost:3000"
 
 Configure API keys and preferences through the **Settings** page at `http://localhost:3000/settings`:
 
-- **Provider Selection**: Choose default AI provider
-- **API Key Management**: Secure storage of credentials
-- **Auto-download**: Automatically download generated files
-- **Processing History**: View and manage previous jobs
+#### API Key Management
+- **Secure Storage**: API keys stored in browser localStorage (never sent to server except during processing)
+- **Real-time Validation**: Test button (🧪) to verify keys work with actual API calls
+- **Visual Status**: Provider cards show ✓ configured / ⚠ required status
+- **Fallback Support**: Environment variables still work as backup
+
+#### Real-time Processing Visibility
+- **Detailed Progress**: See actual CLI output, not just percentages
+- **Step-by-Step Updates**: Know exactly what's happening (e.g., "Extracted 14 editable chunks")
+- **Provider Detection**: See which AI provider is actively being used
+- **Smart Error Messages**: Categorized errors with actionable guidance
+- **Same CLI Experience**: Get the rich information you're used to from direct CLI usage
+
+#### Provider Configuration
+- **Gemini**: Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **OpenAI**: Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+- **Ollama**: Configure server URL (default: http://localhost:11434)
+
+#### Additional Settings
+- **Default Provider**: Choose preferred AI provider
+- **Auto-download**: Automatically download generated files when processing completes
+- **Processing History**: View and clear previous jobs
 
 ### CLI Configuration
 
