@@ -65,20 +65,13 @@ EDITS_SCHEMA = {
 }
 
 
-# LaTeX commands and characters that should be rejected
+# Only reject actual LaTeX commands that would break the document structure
 FORBIDDEN_LATEX_PATTERNS = [
-    r'\\',          # Backslash (LaTeX commands)
-    r'\{',          # Opening brace
-    r'\}',          # Closing brace
-    r'%',           # Comment character
-    r'_',           # Subscript
-    r'\^',          # Superscript
-    r'~',           # Non-breaking space
-    r'\\begin',     # Environment start
+    r'\\begin\{',   # Environment start
+    r'\\end\{',     # Environment end
     r'\\section',   # Section command
-    r'\\textbf',    # Bold command
-    r'\\item',      # List item
-    r'\\\\',        # Line break
+    r'\\documentclass', # Document class
+    r'\\usepackage', # Package import
 ]
 
 
