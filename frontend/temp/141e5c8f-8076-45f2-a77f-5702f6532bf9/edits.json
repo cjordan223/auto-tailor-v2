@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "replace": "Passionate and driven software engineer with a proven track record of developing innovative and robust AI-powered applications.  Experience spans the full software development lifecycle, from conception to deployment, with a strong focus on clean, efficient, and maintainable code in Python. Proven ability to build and deploy ML/DL models in production, integrating intelligent systems across the entire member journey, and delivering real-world impact through scalable, thoughtful innovation."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash, Node.js"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js"
+    },
+    "Backend": {
+      "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins), MLflow, Airflow, SageMaker Pipelines"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone), PyTorch, TensorFlow, Hugging Face"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "Hello Foodsmart team,"
+    },
+    "paragraphs": [
+      "I am applying for the Senior AI Engineer role at Foodsmart. I was drawn to your mission of making nutritious food accessible and affordable for everyone, and your use of AI to personalize nutrition and care.",
+      "My core strengths align perfectly with this role.  My expertise in Python and ML frameworks (PyTorch, TensorFlow, Hugging Face) combined with my experience building and deploying ML/DL models in production (2+ years) directly address your requirements. I have a proven track record of developing backend systems using Node.js and TypeScript, and I am adept at building and deploying models that power real-time personalization, such as dynamic marketing segmentation and smart outreach throttling.",
+      "In a previous role, I engineered a solution that consolidated diverse enterprise systems, automating the end-to-end workflow and reducing manual effort by over 100 hours per month.  This involved robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting—all crucial for maintaining high availability and performance in your large-scale application.",
+      "I am confident in my ability to contribute significantly to Foodsmart's mission. My experience in building scalable, reliable, and secure AI-powered applications, coupled with my collaborative spirit, makes me a strong candidate for this position. I am eager to learn more about this opportunity and discuss how my skills and experience can benefit your team."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "MLOps",
+      "why": "Demonstrates experience with the entire ML lifecycle, from model development to deployment and monitoring, crucial for maintaining AI systems in production."
+    },
+    {
+      "term": "Data Engineering",
+      "why": "Highlights experience with data preparation, cleaning, and transformation, essential for training and maintaining accurate AI models."
+    },
+    {
+      "term": "Behavioral Modeling",
+      "why": "Shows understanding of predicting user behavior, vital for personalized outreach and engagement strategies."
+    }
+  ]
+}

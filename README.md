@@ -1,17 +1,45 @@
-# LaTeX Tailor
+# Tex-Tailor
 
-A deterministic CLI tool that tailors LaTeX résumés and cover letters to job descriptions using LLMs, while preserving document structure and preventing LaTeX corruption.
+AI-powered resume and cover letter customization with both CLI and modern web interface. Tailors LaTeX documents to job descriptions using LLMs while preserving document structure and preventing corruption.
+
+## 🎯 **Two Ways to Use Tex-Tailor**
+
+### 🌐 **Web Interface (Recommended for Most Users)**
+Modern Vue.js frontend with drag & drop, real-time processing, and beautiful UI.
+
+### 💻 **CLI Interface (Power Users & Automation)**
+Command-line tool for advanced users, scripts, and batch processing.
 
 ## ✅ CURRENT STATUS: FULLY FUNCTIONAL
 
-**Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping, file structure  
-**New**: Generalized cover letter with LLM placeholder instructions for dynamic content generation  
-**Fixed**: Removed overly restrictive validation constraints - LLM now has freedom to make quality edits  
-**Fixed**: Simplified CLI interface with sensible defaults and better environment variable support  
-**Fixed**: Cover letter salutation now dynamically replaces [Company Name] with actual company name  
-**Progress**: 100% success rate with quality-focused edits vs previous 10% failure rate  
+**✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
+**✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
+**✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
+**Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping  
+**Enhanced**: Generalized cover letter with LLM placeholder instructions for dynamic content  
+**Improved**: Removed restrictive validation constraints - 100% success rate vs previous 10%  
+**Streamlined**: Simplified CLI with auto-detection and sensible defaults
 
-## Quick Start
+## 🚀 Quick Start
+
+### 🌐 Web Interface (Easiest)
+
+```bash
+# 1. Start the web application
+cd frontend
+npm install
+npm run dev
+
+# 2. Open http://localhost:3000 in your browser
+# 3. Configure API keys in Settings (first time only)
+# 4. Upload or paste job description
+# 5. Select AI provider (Gemini recommended)  
+# 6. Download customized resume and cover letter PDFs
+
+# Note: Uses pre-configured baseline resume template
+```
+
+### 💻 CLI Interface
 
 ```bash
 # 1. Install the package
@@ -39,7 +67,22 @@ tex-tailor render
 ./run_workflow_clean.sh job_description.txt
 ```
 
-## How It Works
+## 🏗️ Architecture
+
+### Web Interface Flow
+```
+Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI Provider → Generated Files
+```
+
+1. **Upload**: Drag & drop resume template and job description
+2. **Configure**: Select AI provider (Gemini, OpenAI, Ollama) and model
+3. **Process**: Express server calls Python CLI with uploaded files
+4. **Monitor**: Real-time status updates via JSON status files
+5. **Download**: Generated PDFs served via Express endpoints
+
+### CLI Architecture
+
+The CLI tool uses a sophisticated marker system to safely edit LaTeX documents:
 
 ### 1. **Marker System** 
 The tool inserts special comment markers around editable content:
@@ -74,15 +117,44 @@ Only CHUNK content is sent to LLMs. LaTeX commands stay protected.
 - Validates no LaTeX commands in responses
 - Enforces edit limits (≤2 changes per section)
 
-## Installation
+## 📦 Installation
 
 ### Prerequisites
+
+**For CLI only:**
 - Python 3.8+
 - LaTeX distribution (for PDF rendering)
-- LLM provider (Ollama or Gemini)
 - ChkTeX (for LaTeX linting) - included with TeX Live
 
+**For Web Interface (additional):**
+- Node.js 18+
+- npm or yarn
+
+**AI Providers (choose one):**
+- Google Gemini API key (recommended)
+- OpenAI API key
+- Ollama local installation
+
 ### Setup
+
+**Web Interface (Recommended):**
+```bash
+# 1. Clone repository
+git clone <repo-url>
+cd tex-tailor
+
+# 2. Install Python CLI
+pip install -e .
+
+# 3. Install and start web interface
+cd frontend
+npm install
+npm run dev
+
+# 4. Open http://localhost:3000
+```
+
+**CLI Only:**
 ```bash
 # Clone and install
 git clone <repository>
@@ -403,6 +475,8 @@ open out/*.pdf
 ## Current Status & Metrics
 
 ### ✅ Current Status (August 2025)
+- **Web Interface**: ✅ Modern Vue.js frontend with drag & drop, real-time processing
+- **API Server**: ✅ Express.js backend bridging web frontend to Python CLI
 - **Pipeline Infrastructure**: ✅ 100% (init → extract → propose → apply → render)
 - **PDF Generation**: ✅ Both résumé and cover letter compile successfully  
 - **LaTeX Validation**: ✅ Proper character escaping and structure preservation
@@ -412,6 +486,8 @@ open out/*.pdf
 - **Configuration Management**: ✅ Centralized config system with smart defaults
 
 ### Recent Major Improvements
+- **✨ NEW: Web Interface**: Vue.js frontend with drag & drop, real-time processing, beautiful UI
+- **✨ NEW: Express API**: Backend server bridging web frontend to Python CLI
 - **✅ Generalized Cover Letter**: Implemented LLM placeholder system for dynamic content generation
 - **✅ Validation Overhaul**: Removed artificial constraints that caused 90% failure rates
 - **✅ Quality Focus**: LLM now has freedom to make meaningful, job-relevant improvements
@@ -420,6 +496,72 @@ open out/*.pdf
 - **✅ Environment Variables**: Full support for OPENAI_MODEL, GEMINI_MODEL, OLLAMA_MODEL
 - **✅ Enhanced Workflow**: Single-command processing with `./run_workflow_clean.sh`
 - **✅ Configuration Management**: Centralized all hardcoded values into configurable system
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+**AI Provider API Keys:**
+```bash
+# Google Gemini (recommended)
+export GEMINI_API_KEY="your_gemini_api_key"
+
+# OpenAI (high quality)
+export OPENAI_API_KEY="your_openai_api_key"
+
+# Ollama (local - no key needed)
+export OLLAMA_BASE_URL="http://localhost:11434"
+```
+
+**Model Selection:**
+```bash
+# Override default models
+export GEMINI_MODEL="gemini-1.5-pro"
+export OPENAI_MODEL="gpt-4o"
+export OLLAMA_MODEL="qwen2.5:14b-instruct"
+```
+
+**Web Interface:**
+```bash
+# Server configuration (optional)
+export PORT=3001
+export FRONTEND_URL="http://localhost:3000"
+```
+
+### Web Interface Settings
+
+Configure API keys and preferences through the **Settings** page at `http://localhost:3000/settings`:
+
+#### API Key Management
+- **Secure Storage**: API keys stored in browser localStorage (never sent to server except during processing)
+- **Real-time Validation**: Test button (🧪) to verify keys work with actual API calls
+- **Visual Status**: Provider cards show ✓ configured / ⚠ required status
+- **Fallback Support**: Environment variables still work as backup
+
+#### Real-time Processing Visibility
+- **Detailed Progress**: See actual CLI output, not just percentages
+- **Step-by-Step Updates**: Know exactly what's happening (e.g., "Extracted 14 editable chunks")
+- **Provider Detection**: See which AI provider is actively being used
+- **Smart Error Messages**: Categorized errors with actionable guidance
+- **Same CLI Experience**: Get the rich information you're used to from direct CLI usage
+
+#### Provider Configuration
+- **Gemini**: Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **OpenAI**: Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+- **Ollama**: Configure server URL (default: http://localhost:11434)
+
+#### Additional Settings
+- **Default Provider**: Choose preferred AI provider
+- **Auto-download**: Automatically download generated files when processing completes
+- **Processing History**: View and clear previous jobs
+
+### CLI Configuration
+
+The CLI automatically detects available providers and uses sensible defaults. See `info.txt` for detailed customization options including:
+
+- AI personality tuning in `tex_tailor/proposer.py`
+- Validation strictness in `tex_tailor/schema.py`  
+- Model parameters in `tex_tailor/config.py`
 
 ## LaTeX Quality Control
 

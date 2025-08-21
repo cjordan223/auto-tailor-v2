@@ -1,0 +1,7 @@
+{
+  "status": "error",
+  "progress": 0,
+  "step": "Processing failed",
+  "updatedAt": "2025-08-21T07:36:42.123Z",
+  "error": "Python CLI not found at /Users/connerjordan/Documents/Sandbox_v4/frontend/run_workflow_clean.sh"
+}
