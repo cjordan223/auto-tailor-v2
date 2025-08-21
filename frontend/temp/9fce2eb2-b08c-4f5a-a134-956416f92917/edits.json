@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "replace": "I am a passionate Software Engineer with extensive experience in embedded systems and flight software development for aerospace applications. My expertise includes designing, developing, and maintaining real-time software solutions using C/C++ and Python, working closely with RTOS like VxWorks or embedded Linux, and collaborating on spacecraft avionics and GNC systems."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "C/C++, Python"
+    },
+    "Frontend": {
+      "replace": null
+    },
+    "Backend": {
+      "replace": null
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, GitLab CI/CD, CMake"
+    },
+    "AI & LLM Tools": {
+      "replace": null
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Jenkins, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "RTOS (VxWorks), Embedded Linux"
+    },
+    "Databases": {
+      "replace": null
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\nDear Ten One Aerospace Team,"
+    },
+    "paragraphs": [
+      "I am excited to apply for the Software Engineer position at Ten One Aerospace. Your focus on developing advanced GNC capabilities and RPO systems aligns perfectly with my background in embedded software development, particularly in real-time aerospace systems using C/C++ and Python.",
+      "In my previous role, I designed and implemented a robust flight software system that integrated seamlessly with spacecraft avionics and communication protocols such as UDP and TCP/IP. This project involved extensive work with RTOS like VxWorks and the development of comprehensive unit tests and integration tests to ensure reliability and performance.",
+      "I have also led efforts in building CI/CD pipelines using GitLab and CMake, which significantly improved our team's ability to deliver high-quality software quickly and efficiently. My experience spans from initial design through deployment, ensuring that all systems are secure, observable, and scalable.",
+      "With a strong foundation in embedded systems and flight software development, I am eager to contribute to your mission of making RPO safe and affordable for new space companies. I look forward to the opportunity to collaborate with your team on innovative solutions that push the boundaries of aerospace technology."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "RTOS",
+      "why": "Job description mentions working with RTOS such as VxWorks or embedded Linux."
+    },
+    {
+      "term": "RPO",
+      "why": "Spacecraft Rendezvous and Proximity Operations (RPO) is a key focus area for the company."
+    }
+  ]
+}

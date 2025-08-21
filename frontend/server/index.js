@@ -98,6 +98,7 @@ app.get('/api/results/:jobId', async (req, res) => {
     // Get review data if completed
     let reviewData = null
     let suggestedAdditions = []
+    let skillsChanges = null
     
     if (status === 'completed') {
       try {
@@ -115,6 +116,53 @@ app.get('/api/results/:jobId', async (req, res) => {
         // Fall back to empty array if review fails
         suggestedAdditions = []
       }
+
+      // Get skills changes by comparing original and new skills
+      try {
+        const baseTextPath = path.join(__dirname, '../../out/base_text.json')
+        const editsPath = path.join(tempDir, 'edits.json')
+        
+        // Read original skills from base_text.json
+        const baseTextRaw = await fs.readFile(baseTextPath, 'utf8')
+        const baseText = JSON.parse(baseTextRaw)
+        const originalSkills = baseText.resume?.skills || {}
+        
+        // Read new skills from edits.json
+        const editsRaw = await fs.readFile(editsPath, 'utf8')
+        const edits = JSON.parse(editsRaw)
+        const newSkills = edits.skills || {}
+        
+        // Compare skills and generate changes
+        skillsChanges = {}
+        for (const [category, newSkillData] of Object.entries(newSkills)) {
+          const originalSkill = originalSkills[category] || ''
+          const newSkill = newSkillData.replace || originalSkill
+          
+          if (originalSkill !== newSkill) {
+            // Parse skills into arrays for comparison
+            const originalItems = originalSkill.split(',').map(s => s.trim()).filter(s => s)
+            const newItems = newSkill.split(',').map(s => s.trim()).filter(s => s)
+            
+            const originalSet = new Set(originalItems)
+            const newSet = new Set(newItems)
+            
+            const removed = originalItems.filter(item => !newSet.has(item))
+            const added = newItems.filter(item => !originalSet.has(item))
+            
+            if (removed.length > 0 || added.length > 0) {
+              skillsChanges[category] = {
+                original: originalSkill,
+                new: newSkill,
+                removed: removed,
+                added: added
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to generate skills changes:', error.message)
+        skillsChanges = {}
+      }
     }
 
     const resultData = {
@@ -125,6 +173,7 @@ app.get('/api/results/:jobId', async (req, res) => {
       files,
       suggestedAdditions,
       reviewData,
+      skillsChanges,
       createdAt: new Date().toISOString()
     }
 

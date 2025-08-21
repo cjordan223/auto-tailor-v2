@@ -1,0 +1,11 @@
+{
+  "status": "error",
+  "progress": 0,
+  "step": "Processing failed",
+  "updatedAt": "2025-08-21T23:12:22.281Z",
+  "detail": "Invalid or missing API key. Please check your credentials.",
+  "provider": "Gemini",
+  "error": "Process exited with code 1",
+  "stderr": "❌ Workflow failed: Gemini API error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyADHP71XmdAiuONZNz8FjeBDlAJs1Nrgqc\n",
+  "stdout": "🔄 Step 1: Initializing...\nCreated: Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex\nCreated: Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex\n✅ Initialization complete\n🔄 Step 2: Extracting content...\nExtracted base text to: out/base_text.json\nFound 14 editable chunks\n✅ Text extraction complete\n🔄 Step 3: Proposing edits...\nGEMINI_API_KEY found, using Gemini provider.\nGenerating edits (attempt 1/3)...\n"
+}

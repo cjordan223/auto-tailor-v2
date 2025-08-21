@@ -106,6 +106,61 @@
         </div>
       </div>
 
+      <!-- Skills Changes -->
+      <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="card">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">Skills Changes</h2>
+        <p class="text-gray-600 mb-4">
+          The following skills were modified to better align with the job requirements:
+        </p>
+        <div class="space-y-6">
+          <div
+            v-for="(changes, category) in results.skillsChanges"
+            :key="category"
+            class="border border-gray-200 rounded-lg p-6"
+          >
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ category }}</h3>
+            
+            <!-- Skills Added -->
+            <div v-if="changes.added.length > 0" class="mb-4">
+              <h4 class="text-sm font-medium text-green-700 mb-2 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Added Skills ({{ changes.added.length }})
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="skill in changes.added"
+                  :key="skill"
+                  class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium"
+                >
+                  {{ skill }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Skills Removed -->
+            <div v-if="changes.removed.length > 0">
+              <h4 class="text-sm font-medium text-red-700 mb-2 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+                Removed Skills ({{ changes.removed.length }})
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="skill in changes.removed"
+                  :key="skill"
+                  class="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full font-medium line-through"
+                >
+                  {{ skill }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Review Overview -->
       <div v-if="results.reviewData?.overview" class="card">
         <h2 class="text-xl font-semibold text-gray-900 mb-6">AI Analysis Overview</h2>
