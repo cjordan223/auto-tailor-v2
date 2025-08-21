@@ -1,5 +1,9 @@
 """
 Main CLI interface for tex-tailor.
+
+🚪 ENTRY POINT - This orchestrates the entire workflow
+📍 Main commands: propose, patch, extract
+📍 Workflow: CLI → Extractor → Proposer → Schema → Patcher
 """
 import click
 import os

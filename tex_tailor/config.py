@@ -1,6 +1,10 @@
 """
 Configuration management for tex-tailor.
-Centralizes all hardcoded values, paths, and model settings.
+
+⚙️ SETTINGS CONTROL CENTER - Modify values here to change defaults
+📍 Model parameters (temperature, timeout, etc.) controlled here
+📍 Provider settings and API URLs defined here
+📍 Environment variable fallbacks configured here
 """
 import os
 from typing import Dict, Any, Optional
@@ -13,9 +17,9 @@ class LLMModelConfig:
     """Configuration for LLM models."""
     default_model: str
     timeout: int = 120
-    temperature: float = 0
-    top_k: int = 1
-    max_tokens: int = 2048
+    temperature: float = 0      # 🎛️ CREATIVITY: 0=deterministic, 1=creative
+    top_k: int = 1             # 🎛️ DIVERSITY: Lower=focused, higher=diverse  
+    max_tokens: int = 2048     # 🎛️ LENGTH: Max response length
 
 
 @dataclass

@@ -1,0 +1,133 @@
+# Tex-Tailor Implementation Guide
+# Internal documentation for developers and customization
+
+## WHERE TO TUNE THE MODEL & ADD PERSONALITY
+
+### 🧠 MAIN PROMPT SYSTEM (PRIMARY LOCATION)
+**File:** `tex_tailor/proposer.py`
+**Lines:** 12-94 (SYSTEM_PROMPT variable)
+
+This is the PRIMARY location where the AI's personality and behavior is controlled.
+
+Key sections to modify:
+- Line 12: Main system prompt starts here
+- Lines 18-25: Constraint descriptions (how strict/flexible the AI should be)
+- Lines 84-93: Examples section (teaches AI through examples)
+
+To make the AI more conversational/creative:
+- Reduce emphasis on "deterministic" behavior
+- Add personality descriptors like "helpful", "creative", "conversational"
+- Modify constraint language to be less restrictive
+
+### 🎛️ MODEL PARAMETERS (SECONDARY TUNING)
+**File:** `tex_tailor/proposer.py` 
+**Lines:** 174-178 (Ollama), 222-227 (Gemini), 283-285 (OpenAI)
+
+Temperature settings control creativity:
+- temperature: 0 = very deterministic, 1 = very creative
+- top_k: Lower = more focused, higher = more diverse
+- Currently set to maximum determinism (temp=0, top_k=1)
+
+### 📋 VALIDATION CONSTRAINTS
+**File:** `tex_tailor/schema.py`
+**Lines:** 68-75 (FORBIDDEN_LATEX_PATTERNS)
+
+Controls what the AI is allowed to output. Currently very permissive.
+
+### 🔧 PROVIDER CONFIGURATION  
+**File:** `tex_tailor/config.py`
+Default models and settings for each provider.
+
+## ARCHITECTURE OVERVIEW
+
+### 📁 FILE STRUCTURE & RESPONSIBILITIES
+
+```
+tex_tailor/
+├── cli.py           # 🚪 Entry point - command line interface
+├── proposer.py      # 🧠 AI interaction - PROMPT & MODEL TUNING HERE
+├── schema.py        # ✅ Validation rules - what AI can/cannot do
+├── config.py        # ⚙️  Provider settings & default models
+├── extractor.py     # 📤 Extracts text from LaTeX templates
+├── patcher.py       # 📝 Applies AI edits back to LaTeX files
+├── differ.py        # 🔄 Shows what changed between versions
+├── markers.py       # 🏷️  Handles LLM chunk markers in LaTeX
+└── logger.py        # 📊 Logging utilities
+```
+
+### 🔄 EXECUTION FLOW
+1. **CLI** (`cli.py`) → parses commands, orchestrates workflow
+2. **Extractor** (`extractor.py`) → reads LaTeX, extracts editable content
+3. **Proposer** (`proposer.py`) → sends to AI, gets back edits JSON
+4. **Schema** (`schema.py`) → validates AI output meets constraints  
+5. **Patcher** (`patcher.py`) → applies edits back to LaTeX files
+6. **Differ** (`differ.py`) → shows what changed
+
+### 🎯 KEY DECISIONS POINTS
+
+**Where validation was relaxed:**
+- `schema.py` lines 177-180: Removed sentence count limits
+- `schema.py` lines 194-196: Removed replacement count limits  
+- `schema.py` lines 229-231: Removed paragraph count limits
+- `schema.py` lines 68-75: Reduced forbidden LaTeX patterns
+
+**Where AI behavior is controlled:**
+- `proposer.py` lines 18-25: Constraint philosophy
+- `proposer.py` lines 174-178, 222-227, 283-285: Model parameters
+
+## CUSTOMIZATION EXAMPLES
+
+### Make AI More Creative
+In `proposer.py`, change:
+```python
+# Current (line ~175)
+"temperature": 0,
+
+# To more creative
+"temperature": 0.3,
+```
+
+### Add Personality  
+In `proposer.py`, modify system prompt (line ~12):
+```python
+SYSTEM_PROMPT = """You are a friendly and creative résumé/cover-letter tailor.
+You have a conversational tone and enjoy helping job seekers find their perfect match.
+Never output LaTeX or prose. Output VALID JSON only matching the provided schema.
+```
+
+### Change Validation Strictness
+In `schema.py`, modify FORBIDDEN_LATEX_PATTERNS to be more/less restrictive.
+
+## PROVIDER NOTES
+
+**Gemini:** Best balance of speed, quality, and cost
+**OpenAI:** Highest quality, most expensive  
+**Ollama:** Free local models, requires more setup
+
+Default priority: Gemini → OpenAI → Ollama
+
+## DEBUGGING TIPS
+
+1. **AI not following instructions?** → Check `proposer.py` SYSTEM_PROMPT
+2. **Validation errors?** → Check `schema.py` constraint functions
+3. **LaTeX not applying?** → Check `patcher.py` marker matching
+4. **Provider issues?** → Check `config.py` and environment variables
+
+## RECENT MAJOR CHANGES
+
+- **August 2025:** Removed artificial validation limits for better quality
+- **August 2025:** Added generalized cover letter system with LLM placeholders
+- **August 2025:** Fixed overly restrictive LaTeX pattern blocking (%, _, etc.)
+- **August 2025:** Added comprehensive configuration system
+
+## ENVIRONMENT VARIABLES
+
+Required for providers:
+- `GEMINI_API_KEY` - Google Gemini API key
+- `OPENAI_API_KEY` - OpenAI API key  
+- `OLLAMA_BASE_URL` - Ollama server URL (default: http://127.0.0.1:11434)
+
+Model selection:
+- `GEMINI_MODEL` - Override default Gemini model
+- `OPENAI_MODEL` - Override default OpenAI model
+- `OLLAMA_MODEL` - Override default Ollama model

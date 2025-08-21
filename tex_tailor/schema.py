@@ -1,5 +1,9 @@
 """
 Module for JSON schema validation and edit limits enforcement.
+
+✅ VALIDATION CONTROLS - Modify functions here to change what AI can/cannot do
+📍 FORBIDDEN_LATEX_PATTERNS - Controls what text patterns are blocked
+📍 validate_*_edits functions - Controls validation strictness
 """
 import re
 import json
@@ -65,13 +69,15 @@ EDITS_SCHEMA = {
 }
 
 
+# 🚫 FORBIDDEN PATTERNS - Controls what text the AI cannot output
 # Only reject actual LaTeX commands that would break the document structure
+# Previously blocked: %, _, \, {, } - removed these for more natural content
 FORBIDDEN_LATEX_PATTERNS = [
-    r'\\begin\{',   # Environment start
-    r'\\end\{',     # Environment end
-    r'\\section',   # Section command
-    r'\\documentclass', # Document class
-    r'\\usepackage', # Package import
+    r'\\begin\{',       # Environment start - would break LaTeX structure
+    r'\\end\{',         # Environment end - would break LaTeX structure
+    r'\\section',       # Section command - would break document hierarchy
+    r'\\documentclass', # Document class - would break document structure
+    r'\\usepackage',    # Package import - would break document structure
 ]
 
 
@@ -167,8 +173,11 @@ def validate_summary_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # Allow reasonable changes for job relevance
-    # No arbitrary sentence limits - focus on quality
+    # 🎛️ CONSTRAINT REMOVED: Previously had sentence count limits
+    # Allow reasonable changes for job relevance - focus on quality over arbitrary limits
+    # To re-enable limits, uncomment and modify the validation logic below:
+    # sentence_changes = count_replacements(original, new)
+    # if sentence_changes > LIMIT: violations.append(f"Too many changes: {sentence_changes}")
 
     return violations
 
@@ -184,8 +193,11 @@ def validate_skills_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # Allow reasonable skill additions for job relevance
-    # No arbitrary replacement limits - focus on quality
+    # 🎛️ CONSTRAINT REMOVED: Previously had replacement count limits  
+    # Allow reasonable skill additions for job relevance - focus on quality over arbitrary limits
+    # To re-enable limits, uncomment and modify the validation logic below:
+    # replacements = count_replacements(original, new)
+    # if replacements > LIMIT: violations.append(f"Too many replacements: {replacements}")
 
     # Must be comma-separated list (no newlines allowed)
     if '\n' in new or not re.match(r'^[^,]+(,\s*[^,]+)*$', new.strip()):
@@ -214,8 +226,10 @@ def validate_cover_letter_edits(original_paragraphs: List[str], new_paragraphs: 
             for violation in latex_violations:
                 violations.append(f"Paragraph {i+1}: {violation}")
 
-    # Allow editing all paragraphs as needed for job relevance
-    # No arbitrary paragraph limits - focus on quality
+    # 🎛️ CONSTRAINT REMOVED: Previously had paragraph count limits
+    # Allow editing all paragraphs as needed for job relevance - focus on quality over arbitrary limits
+    # To re-enable limits, uncomment and modify the validation logic below:
+    # if edited_count > LIMIT: violations.append(f"Too many paragraphs edited: {edited_count}")
 
     return violations
 
