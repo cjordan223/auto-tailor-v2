@@ -1,5 +1,9 @@
 """
-Module for LLM calls (Ollama and Gemini) to propose edits.
+Module for LLM calls (Ollama, Gemini, OpenAI) to propose edits.
+
+🧠 THIS IS THE MAIN AI BRAIN - PERSONALITY & BEHAVIOR CONTROLLED HERE
+📍 To tune model behavior, modify SYSTEM_PROMPT below (lines 15-95)
+📍 To adjust creativity, modify temperature/top_k in provider classes (lines 175+)
 """
 import os
 import json
@@ -9,13 +13,15 @@ from .schema import validate_edits
 from .config import config, get_api_config_for_provider
 
 
-# LLM prompt templates
+# 🎯 MAIN AI PROMPT - MODIFY HERE TO CHANGE PERSONALITY & BEHAVIOR
+# This controls how the AI behaves, what it prioritizes, and its "personality"
 SYSTEM_PROMPT = """You are a deterministic résumé/cover-letter tailor.
 Never output LaTeX or prose. Output VALID JSON only matching the provided schema.
 Preserve factual integrity (employers, titles, dates, metrics). Optimize skills and content to align with job description requirements.
 If a needed JD term is not present in the base text and cannot be inferred, list it under "suggested_additions" only.
 
 CRITICAL CONSTRAINTS:
+# 🎛️ TUNE THESE TO CHANGE AI BEHAVIOR - More restrictive = safer, less restrictive = more creative
 - Summary: Preserve personal voice while optimizing for job relevance. Focus on key terminology alignment.
 - Skills: PREFER ADDITIONS over deletions. Add job-relevant technologies while preserving core competencies.
 - Cover letter: Tailor content to job requirements while maintaining authentic tone and factual accuracy.
@@ -81,6 +87,7 @@ REQUIRED JSON SCHEMA:
 
 YOU MUST include all required fields: summary, skills, cover_letter.
 
+# 📚 EXAMPLES SECTION - ADD MORE EXAMPLES HERE TO TEACH AI NEW BEHAVIORS
 EXAMPLES OF VALID EDITS:
 - Summary: Modify to highlight relevant experience for the target role.
 - Skills: ADD job-relevant technologies while preserving existing core skills. Only remove if truly irrelevant.
@@ -154,7 +161,7 @@ def build_user_prompt(jd_content: str, base_text: Dict[str, Any]) -> str:
 
 
 class OllamaProvider:
-    """Ollama LLM provider."""
+    """Ollama LLM provider - Free local models."""
 
     def __init__(self, base_url: Optional[str] = None, model: Optional[str] = None):
         api_config = get_api_config_for_provider("ollama")
@@ -173,8 +180,9 @@ class OllamaProvider:
             ],
             "stream": False,
             "options": {
-                "temperature": config.providers.ollama.temperature,
-                "top_k": config.providers.ollama.top_k,
+                # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
+                "temperature": config.providers.ollama.temperature,  # 0=deterministic, 1=creative
+                "top_k": config.providers.ollama.top_k,              # Lower=focused, higher=diverse
                 "num_predict": config.providers.ollama.max_tokens
             }
         }
@@ -197,7 +205,7 @@ class OllamaProvider:
 
 
 class GeminiProvider:
-    """Gemini LLM provider."""
+    """Gemini LLM provider - Best balance of speed, quality, and cost (RECOMMENDED)."""
 
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
@@ -221,8 +229,9 @@ class GeminiProvider:
                 }
             ],
             "generationConfig": {
-                "temperature": config.providers.gemini.temperature,
-                "topK": config.providers.gemini.top_k,
+                # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
+                "temperature": config.providers.gemini.temperature,   # 0=deterministic, 1=creative
+                "topK": config.providers.gemini.top_k,               # Lower=focused, higher=diverse
                 "maxOutputTokens": config.providers.gemini.max_tokens,
                 "responseMimeType": "application/json"
             }
@@ -263,7 +272,7 @@ class GeminiProvider:
 
 
 class OpenAIProvider:
-    """OpenAI LLM provider."""
+    """OpenAI LLM provider - Highest quality, most expensive."""
 
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
@@ -281,7 +290,8 @@ class OpenAIProvider:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": config.providers.openai.temperature,
+            # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
+            "temperature": config.providers.openai.temperature,  # 0=deterministic, 1=creative
             "max_tokens": config.providers.openai.max_tokens,
             "response_format": {"type": "json_object"}
         }
