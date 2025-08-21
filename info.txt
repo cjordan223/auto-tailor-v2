@@ -1,6 +1,58 @@
 # Tex-Tailor Implementation Guide
 # Internal documentation for developers and customization
 
+## 🌐 WEB INTERFACE OVERVIEW
+
+The web interface provides a modern UI for the Python CLI backend:
+
+### Architecture
+```
+Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI Providers
+```
+
+### Key Files
+- `frontend/src/` - Vue.js frontend application
+- `frontend/server/` - Express.js API server
+- `frontend/package.json` - Dependencies and scripts
+
+### Quick Start
+```bash
+cd frontend
+npm install
+npm run dev  # Starts both frontend and backend
+```
+
+## 🎨 WEB INTERFACE CUSTOMIZATION
+
+### Frontend Styling
+**File:** `frontend/src/assets/style.css`
+- Tailwind CSS configuration for colors, themes
+- Custom component styles and animations
+
+### UI Components
+**Directory:** `frontend/src/components/`
+- `FileUpload.vue` - Drag & drop file interface
+- `ProviderSelector.vue` - AI provider selection cards
+- `ProcessingStatus.vue` - Real-time progress indicators
+
+### Views/Pages
+**Directory:** `frontend/src/views/`
+- `Home.vue` - Main workflow page
+- `Results.vue` - Download and results dashboard
+- `Settings.vue` - Configuration page
+
+### API Integration
+**File:** `frontend/src/composables/useAPI.js`
+- HTTP client for backend communication
+- File upload and download handling
+- Error management and retry logic
+
+### Server Configuration
+**File:** `frontend/server/index.js`
+- Express.js server setup and middleware
+- API routes and CORS configuration
+- File handling and subprocess management
+
 ## WHERE TO TUNE THE MODEL & ADD PERSONALITY
 
 ### 🧠 MAIN PROMPT SYSTEM (PRIMARY LOCATION)
