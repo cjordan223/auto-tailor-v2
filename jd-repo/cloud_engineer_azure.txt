@@ -1,0 +1,30 @@
+Company: Axiom Health Systems
+Position: Cloud Engineer
+
+Job Description:
+Axiom Health Systems provides cloud-based software solutions for hospitals and clinics. We are seeking an experienced Cloud Engineer with a specialization in Microsoft Azure to join our infrastructure team. You will be responsible for the architecture, deployment, and management of our SaaS platform on Azure, ensuring it is secure, scalable, and compliant with healthcare regulations like HIPAA.
+
+Responsibilities:
+* Design and deploy scalable, highly available, and fault-tolerant systems on Microsoft Azure.
+* Manage Azure resources, including Virtual Machines, Azure Kubernetes Service (AKS), Azure SQL, and App Services.
+* Automate infrastructure provisioning and management using Azure Resource Manager (ARM) templates, Bicep, or Terraform.
+* Implement and manage CI/CD pipelines using Azure DevOps to deliver applications to production.
+* Configure and manage Azure networking components, such as VNETs, Load Balancers, and Application Gateways.
+* Monitor system performance and costs using Azure Monitor and Log Analytics, making recommendations for optimization.
+* Implement security best practices and manage identity and access using Azure Active Directory (Azure AD).
+* Ensure all infrastructure and processes are compliant with HIPAA and other relevant regulations.
+
+Required Qualifications:
+* Bachelor's degree in a technical discipline or equivalent experience.
+* 3+ years of experience as a Cloud Engineer, with a primary focus on Azure.
+* Hands-on experience with core Azure services (IaaS and PaaS).
+* Proficiency in scripting with PowerShell or Bash.
+* Experience with infrastructure as code (IaC) on Azure.
+* Solid understanding of cloud networking and security principles.
+* Experience with Azure DevOps for CI/CD.
+
+Desired Qualifications:
+* Azure certifications (e.g., Azure Administrator Associate, Azure Solutions Architect Expert).
+* Experience with container orchestration on AKS.
+* Familiarity with serverless computing using Azure Functions.
+* Experience working in a regulated environment such as healthcare or finance.

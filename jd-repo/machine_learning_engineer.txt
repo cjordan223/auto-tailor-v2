@@ -1,0 +1,29 @@
+Company: AdOptics Marketing
+Position: Machine Learning Engineer
+
+Job Description:
+AdOptics is a leader in digital advertising technology, using AI to optimize ad spend for our clients. We are looking for a Machine Learning Engineer who can bridge the gap between data science and software engineering. You will be responsible for taking machine learning models from prototype to production, building the scalable systems required to serve them at scale, and continuously monitoring their performance.
+
+Responsibilities:
+* Design, build, and maintain scalable infrastructure for training and deploying machine learning models.
+* Work with data scientists to productionize models for tasks like real-time bidding, click-through rate prediction, and audience segmentation.
+* Develop and manage data pipelines for feature engineering and model training using tools like Airflow and Spark.
+* Build low-latency APIs to serve model predictions to our ad-serving platform.
+* Implement MLOps best practices for versioning, monitoring, and continuous improvement of deployed models.
+* Optimize model performance for both speed and accuracy.
+* Collaborate with software engineers to integrate ML services into the broader application architecture.
+
+Required Qualifications:
+* Bachelor's or Master's degree in Computer Science, Engineering, or a related field.
+* 3+ years of software engineering experience, with a focus on machine learning systems.
+* Strong programming skills in Python, with experience in frameworks like TensorFlow, PyTorch, or Scikit-learn.
+* Experience building and deploying services in a cloud environment (AWS, GCP, Azure).
+* Knowledge of MLOps principles and tools (e.g., MLflow, Kubeflow, Seldon Core).
+* Experience with data processing technologies like Apache Spark or Pandas.
+* Familiarity with containerization technologies (Docker, Kubernetes).
+
+Desired Qualifications:
+* Experience in the ad-tech industry.
+* Knowledge of building real-time, high-throughput systems.
+* Experience with feature stores or large-scale data warehousing solutions (e.g., Snowflake, BigQuery).
+* Familiarity with C++ for performance-critical applications.

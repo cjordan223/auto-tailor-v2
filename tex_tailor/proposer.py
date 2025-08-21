@@ -6,6 +6,7 @@ import json
 import requests
 from typing import Dict, Any, Optional
 from .schema import validate_edits
+from .config import config, get_api_config_for_provider
 
 
 # LLM prompt templates
@@ -15,13 +16,13 @@ Preserve factual integrity (employers, titles, dates, metrics). Optimize skills 
 If a needed JD term is not present in the base text and cannot be inferred, list it under "suggested_additions" only.
 
 CRITICAL CONSTRAINTS:
-- Summary: Maximum 5 sentence-level changes only.
-- Skills: PREFER ADDITIONS over deletions. Only remove skills if they are clearly irrelevant or outdated. Add job-relevant technologies while preserving core competencies. Maximum 8 changes per category (prioritize additions).
-- Cover letter: Edit maximum 4 paragraphs only.
-- Suggested additions: "why" field MUST be 200 characters or less. Count carefully - this is a hard limit.
-- Use null for unchanged fields.
-- Focus on job-relevant modifications that improve keyword alignment.
-- PRESERVE CORE SKILLS: Do not remove foundational programming languages, frameworks, or tools unless absolutely necessary.
+- Summary: Preserve personal voice while optimizing for job relevance. Focus on key terminology alignment.
+- Skills: PREFER ADDITIONS over deletions. Add job-relevant technologies while preserving core competencies.
+- Cover letter: Tailor content to job requirements while maintaining authentic tone and factual accuracy.
+- Suggested additions: "why" field should be concise and under 200 characters.
+- Use null for unchanged fields when no improvement is needed.
+- Focus on strategic job-relevant modifications that improve keyword alignment.
+- PRESERVE FACTUAL INTEGRITY: Never change employers, titles, dates, or quantified metrics.
 
 REQUIRED JSON SCHEMA:
 {
@@ -156,9 +157,9 @@ class OllamaProvider:
     """Ollama LLM provider."""
 
     def __init__(self, base_url: Optional[str] = None, model: Optional[str] = None):
-        self.base_url = base_url or os.getenv(
-            "OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-        self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5:14b-instruct")
+        api_config = get_api_config_for_provider("ollama")
+        self.base_url = base_url or api_config["base_url"]
+        self.model = model or config.providers.ollama.default_model
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         """Generate response using Ollama."""
@@ -172,9 +173,9 @@ class OllamaProvider:
             ],
             "stream": False,
             "options": {
-                "temperature": 0,
-                "top_k": 1,
-                "num_predict": 2048
+                "temperature": config.providers.ollama.temperature,
+                "top_k": config.providers.ollama.top_k,
+                "num_predict": config.providers.ollama.max_tokens
             }
         }
 
@@ -182,7 +183,7 @@ class OllamaProvider:
             response = requests.post(
                 f"{self.base_url}/api/chat",
                 json=payload,
-                timeout=120
+                timeout=config.providers.ollama.timeout
             )
             response.raise_for_status()
 
@@ -200,7 +201,7 @@ class GeminiProvider:
 
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+        self.model = model or config.providers.gemini.default_model
 
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY environment variable is required")
@@ -220,15 +221,15 @@ class GeminiProvider:
                 }
             ],
             "generationConfig": {
-                "temperature": 0,
-                "topK": 1,
-                "maxOutputTokens": 2048,
+                "temperature": config.providers.gemini.temperature,
+                "topK": config.providers.gemini.top_k,
+                "maxOutputTokens": config.providers.gemini.max_tokens,
                 "responseMimeType": "application/json"
             }
         }
 
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+            url = f"{config.apis.gemini_base_url}/{self.model}:generateContent"
             headers = {"Content-Type": "application/json"}
             params = {"key": self.api_key}
 
@@ -237,7 +238,7 @@ class GeminiProvider:
                 json=payload,
                 headers=headers,
                 params=params,
-                timeout=120
+                timeout=config.providers.gemini.timeout
             )
             response.raise_for_status()
 
@@ -266,7 +267,7 @@ class OpenAIProvider:
 
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.model = model or config.providers.openai.default_model
 
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required")
@@ -280,13 +281,13 @@ class OpenAIProvider:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": 0,
-            "max_tokens": 2048,
+            "temperature": config.providers.openai.temperature,
+            "max_tokens": config.providers.openai.max_tokens,
             "response_format": {"type": "json_object"}
         }
 
         try:
-            url = "https://api.openai.com/v1/chat/completions"
+            url = f"{config.apis.openai_base_url}/chat/completions"
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.api_key}"
@@ -296,7 +297,7 @@ class OpenAIProvider:
                 url,
                 json=payload,
                 headers=headers,
-                timeout=120
+                timeout=config.providers.openai.timeout
             )
             response.raise_for_status()
 

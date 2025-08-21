@@ -1,0 +1,30 @@
+Company: StreamFlow Media
+Position: Site Reliability Engineer
+
+Job Description:
+StreamFlow Media operates a global video streaming platform serving millions of concurrent users. We're looking for a Site Reliability Engineer (SRE) who is passionate about building reliable, scalable, and performant distributed systems. You will apply software engineering principles to solve infrastructure and operations problems, with a focus on automation, observability, and incident response to maintain our strict service level objectives (SLOs).
+
+Responsibilities:
+* Develop and implement software to improve the reliability, scalability, and efficiency of our services.
+* Define and monitor Service Level Indicators (SLIs) and Service Level Objectives (SLOs) for critical systems.
+* Lead incident response, conduct blameless post-mortems, and drive follow-up actions to prevent future outages.
+* Build and maintain robust observability tooling for monitoring, logging, and tracing (e.g., Prometheus, Jaeger, Grafana).
+* Automate manual operational tasks, from deployments and configuration changes to failure mitigation.
+* Engage in capacity planning and performance analysis to ensure our platform can handle future growth.
+* Participate in a 24/7 on-call rotation to support the production environment.
+* Work with development teams to ensure new features are designed with reliability and scalability in mind.
+
+Required Qualifications:
+* Bachelor's degree in Computer Science or a related technical field.
+* 3-5 years of experience in SRE, DevOps, or software engineering with a focus on infrastructure.
+* Strong programming skills in a language like Go, Python, or Java.
+* Experience managing large-scale, distributed systems on a public cloud platform (GCP, AWS).
+* Deep understanding of Linux operating systems and networking.
+* Experience with container orchestration systems, especially Kubernetes.
+* A systematic, data-driven approach to problem-solving.
+
+Desired Qualifications:
+* Experience with chaos engineering principles and tools.
+* Familiarity with Content Delivery Networks (CDNs) and video streaming protocols.
+* Experience with distributed databases and caching systems.
+* A strong desire to eliminate toil through automation.
