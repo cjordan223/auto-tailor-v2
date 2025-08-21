@@ -174,11 +174,8 @@ def validate_summary_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # Check sentence limit (≤ 5 sentence-level edits)
-    sentence_changes = count_replacements(original, new)
-    if sentence_changes > 5:
-        violations.append(
-            f"Too many sentence-level changes: {sentence_changes} (max: 5)")
+    # Allow reasonable changes for job relevance
+    # No arbitrary sentence limits - focus on quality
 
     return violations
 
@@ -194,10 +191,8 @@ def validate_skills_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # Check replacement limit (≤ 6 replacements)
-    replacements = count_replacements(original, new)
-    if replacements > 8:
-        violations.append(f"Too many replacements: {replacements} (max: 8)")
+    # Allow reasonable skill additions for job relevance
+    # No arbitrary replacement limits - focus on quality
 
     # Must be comma-separated list (no newlines allowed)
     if '\n' in new or not re.match(r'^[^,]+(,\s*[^,]+)*$', new.strip()):
@@ -226,10 +221,8 @@ def validate_cover_letter_edits(original_paragraphs: List[str], new_paragraphs: 
             for violation in latex_violations:
                 violations.append(f"Paragraph {i+1}: {violation}")
 
-    # Check edit limit (≤ 1 edit per paragraph, ≤ 4 paragraphs edited total)
-    if edited_count > 4:
-        violations.append(
-            f"Too many paragraphs edited: {edited_count} (max: 4)")
+    # Allow editing all paragraphs as needed for job relevance
+    # No arbitrary paragraph limits - focus on quality
 
     return violations
 

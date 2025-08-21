@@ -1,0 +1,30 @@
+Company: UrbanGo Transit
+Position: Full Stack Engineer
+
+Job Description:
+UrbanGo is a mobile-first company revolutionizing urban transportation. Our app helps millions of commuters navigate their cities with real-time transit data. We are looking for a versatile Full Stack Engineer with a passion for mobile development to join our core product team. You will build and maintain features across our entire stack, from our React Native mobile app to our Go-powered backend APIs.
+
+Responsibilities:
+* Develop, test, and ship new user-facing features in our React Native mobile application for both iOS and Android.
+* Design, build, and maintain scalable and performant backend services and APIs using Go.
+* Collaborate with product managers and designers to translate product requirements into technical solutions.
+* Write clean, maintainable, and well-tested code across the full stack.
+* Work with our PostgreSQL database, designing schemas and writing efficient queries.
+* Optimize application performance, focusing on mobile responsiveness and API latency.
+* Participate in code reviews and contribute to a high-quality, collaborative engineering culture.
+* Debug production issues and support the services you build.
+
+Required Qualifications:
+* Bachelor's degree in Computer Science or equivalent experience.
+* 3+ years of professional software development experience.
+* Proficiency in at least one modern backend language (e.g., Go, Node.js, Python) and one frontend framework.
+* Experience developing mobile applications with React Native, or native experience with Swift/Kotlin and a strong desire to learn.
+* Experience building and consuming RESTful APIs.
+* Familiarity with relational databases like PostgreSQL or MySQL.
+* Proficient with Git and modern software development workflows.
+
+Desired Qualifications:
+* Strong experience with Go (Golang) for backend development.
+* Experience with cloud platforms like GCP or AWS, and containerization with Docker.
+* Knowledge of mobile-specific challenges like offline storage, push notifications, and performance optimization.
+* Experience with mapping technologies or geospatial data.

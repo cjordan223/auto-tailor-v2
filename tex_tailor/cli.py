@@ -21,6 +21,7 @@ from .proposer import propose_and_save_edits
 from .patcher import apply_edits_with_validation
 from .differ import show_diffs, diff_specific_files, export_diff_report
 from .logger import WorkflowLogger, get_latest_log, show_latest_log
+from .config import config, get_model_for_provider, get_default_paths
 
 
 @click.group()
@@ -52,10 +53,14 @@ def init(ctx):
 @main.command()
 @click.option("--resume", required=True, help="Path to résumé LLM-ready file")
 @click.option("--cover", required=True, help="Path to cover letter LLM-ready file")
-@click.option("--out", default="out/base_text.json", help="Output JSON file path")
+@click.option("--out", default=None, help="Output JSON file path")
 @click.pass_context
-def extract(ctx, resume: str, cover: str, out: str):
+def extract(ctx, resume: str, cover: str, out: Optional[str]):
     """Extract editable text from marked LaTeX files."""
+
+    # Use default path if not specified
+    if not out:
+        out = get_default_paths()["base_text"]
 
     # Validate input files
     if not Path(resume).exists():
@@ -84,11 +89,17 @@ def extract(ctx, resume: str, cover: str, out: str):
 @click.option("--provider", type=click.Choice(["ollama", "gemini", "openai"]),
               help="LLM provider to use (optional, auto-detects if not specified)")
 @click.option("--model", help="Model name (optional, uses env defaults)")
-@click.option("--base-text", default="out/base_text.json", help="Path to base text JSON")
-@click.option("--out", default="out/edits.json", help="Output edits JSON file")
+@click.option("--base-text", default=None, help="Path to base text JSON")
+@click.option("--out", default=None, help="Output edits JSON file")
 @click.pass_context
-def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_text: str, out: str):
+def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_text: Optional[str], out: Optional[str]):
     """Propose edits based on job description using LLM."""
+
+    # Use default paths if not specified
+    if not base_text:
+        base_text = get_default_paths()["base_text"]
+    if not out:
+        out = get_default_paths()["edits"]
 
     # Validate input files
     if not Path(jd).exists():
@@ -112,11 +123,11 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
             provider = "ollama"
             click.echo("No API keys found, defaulting to Ollama provider.")
 
-    # Check environment variables for provider
+    # Get configuration for provider
     if provider == "ollama":
-        base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-        default_model = os.getenv("OLLAMA_MODEL", "qwen2.5:14b-instruct")
-        click.echo(f"Using Ollama: {base_url}")
+        api_config = config.apis
+        default_model = get_model_for_provider("ollama")
+        click.echo(f"Using Ollama: {api_config.ollama_base_url}")
         click.echo(f"Model: {model or default_model}")
     elif provider == "openai":
         api_key = os.getenv("OPENAI_API_KEY")
@@ -124,7 +135,7 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
             click.echo(
                 "Error: OPENAI_API_KEY environment variable required for OpenAI", err=True)
             sys.exit(1)
-        default_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        default_model = get_model_for_provider("openai")
         click.echo(f"Using OpenAI API")
         click.echo(f"Model: {model or default_model}")
     elif provider == "gemini":
@@ -133,7 +144,7 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
             click.echo(
                 "Error: GEMINI_API_KEY environment variable required for Gemini", err=True)
             sys.exit(1)
-        default_model = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+        default_model = get_model_for_provider("gemini")
         click.echo(f"Using Gemini API")
         click.echo(f"Model: {model or default_model}")
 
@@ -151,15 +162,22 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
 
 
 @main.command()
-@click.option("--edits", default="out/edits.json", help="Path to edits JSON file")
-@click.option("--resume", default="Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex",
-              help="Path to original résumé LLM-ready file")
-@click.option("--cover", default="Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex",
-              help="Path to original cover letter LLM-ready file")
+@click.option("--edits", default=None, help="Path to edits JSON file")
+@click.option("--resume", default=None, help="Path to original résumé LLM-ready file")
+@click.option("--cover", default=None, help="Path to original cover letter LLM-ready file")
 @click.pass_context
-def apply(ctx, edits: str, resume: str, cover: str):
+def apply(ctx, edits: Optional[str], resume: Optional[str], cover: Optional[str]):
     """Validate and apply edits to create tuned LaTeX files."""
 
+    # Use default paths if not specified
+    default_paths = get_default_paths()
+    if not edits:
+        edits = default_paths["edits"]
+    if not resume:
+        resume = default_paths["baseline_resume"]
+    if not cover:
+        cover = default_paths["baseline_cover"]
+    
     # Validate input files
     if not Path(edits).exists():
         click.echo(f"Error: Edits file not found: {edits}", err=True)
@@ -175,7 +193,7 @@ def apply(ctx, edits: str, resume: str, cover: str):
         sys.exit(1)
 
     # Ensure output directory exists
-    Path("out").mkdir(exist_ok=True)
+    Path(config.paths.output_dir).mkdir(exist_ok=True)
 
     try:
         quiet = ctx.obj.get('quiet', False) if ctx.obj else False
@@ -187,21 +205,24 @@ def apply(ctx, edits: str, resume: str, cover: str):
 
 
 @main.command()
-@click.option("--original-resume",
-              default="Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex",
-              help="Path to original résumé file")
-@click.option("--original-cover",
-              default="Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex",
-              help="Path to original cover letter file")
+@click.option("--original-resume", default=None, help="Path to original résumé file")
+@click.option("--original-cover", default=None, help="Path to original cover letter file")
 @click.option("--tuned-resume", help="Path to tuned résumé file (auto-detected if not specified)")
 @click.option("--tuned-cover", help="Path to tuned cover letter file (auto-detected if not specified)")
 @click.option("--export", help="Export diff report to file")
 @click.pass_context
-def diff(ctx, original_resume: str, original_cover: str,
+def diff(ctx, original_resume: Optional[str], original_cover: Optional[str],
          tuned_resume: Optional[str], tuned_cover: Optional[str],
          export: Optional[str]):
     """Show colorized word-diffs of chunk changes."""
 
+    # Use default paths if not specified
+    default_paths = get_default_paths()
+    if not original_resume:
+        original_resume = default_paths["baseline_resume"]
+    if not original_cover:
+        original_cover = default_paths["baseline_cover"]
+    
     if tuned_resume and tuned_cover:
         # Use specified files
         if not Path(tuned_resume).exists():
@@ -230,10 +251,12 @@ def diff(ctx, original_resume: str, original_cover: str,
 
 
 @main.command()
-@click.option("--out-dir", default="out", help="Output directory for PDFs")
-def render(out_dir: str):
+@click.option("--out-dir", default=None, help="Output directory for PDFs")
+def render(out_dir: Optional[str]):
     """Render tuned LaTeX files to PDF using latexmk."""
 
+    if not out_dir:
+        out_dir = config.paths.output_dir
     out_path = Path(out_dir)
     if not out_path.exists():
         click.echo(f"Error: Output directory not found: {out_dir}", err=True)
@@ -297,9 +320,10 @@ def status():
     click.echo("=" * 50)
 
     # Check initialization
+    default_paths = get_default_paths()
     init_files = [
-        "Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex",
-        "Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
+        default_paths["baseline_resume"],
+        default_paths["baseline_cover"]
     ]
 
     all_init = True
@@ -315,7 +339,7 @@ def status():
         click.echo("   → Run: tex-tailor init")
 
     # Check extraction
-    base_text_file = "out/base_text.json"
+    base_text_file = default_paths["base_text"]
     click.echo("\n2. Text Extraction:")
     if Path(base_text_file).exists():
         click.echo(f"   ✓ {base_text_file}")
@@ -324,7 +348,7 @@ def status():
         click.echo("   → Run: tex-tailor extract --resume ... --cover ...")
 
     # Check proposal
-    edits_file = "out/edits.json"
+    edits_file = default_paths["edits"]
     click.echo("\n3. Edit Proposal:")
     if Path(edits_file).exists():
         click.echo(f"   ✓ {edits_file}")
@@ -333,7 +357,7 @@ def status():
         click.echo("   → Run: tex-tailor propose --jd job_description.txt")
 
     # Check application
-    out_dir = Path("out")
+    out_dir = Path(config.paths.output_dir)
     tuned_files = list(out_dir.glob("*.tuned.tex")) if out_dir.exists() else []
     click.echo("\n4. Edit Application:")
     if tuned_files:
@@ -341,7 +365,7 @@ def status():
             click.echo(f"   ✓ {file}")
     else:
         click.echo("   ✗ No tuned .tex files found")
-        click.echo("   → Run: tex-tailor apply --edits out/edits.json")
+        click.echo(f"   → Run: tex-tailor apply --edits {default_paths['edits']}")
 
     # Check PDFs
     pdf_files = list(out_dir.glob("*.pdf")) if out_dir.exists() else []
@@ -357,26 +381,22 @@ def status():
     click.echo("\n6. Environment:")
 
     # Check Ollama
-    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:14b-instruct")
-    click.echo(f"   Ollama URL: {ollama_url}")
-    click.echo(f"   Ollama Model: {ollama_model}")
+    click.echo(f"   Ollama URL: {config.apis.ollama_base_url}")
+    click.echo(f"   Ollama Model: {get_model_for_provider('ollama')}")
 
     # Check OpenAI
     openai_key = os.getenv("OPENAI_API_KEY")
-    openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     if openai_key:
         click.echo(f"   OpenAI API Key: [SET]")
-        click.echo(f"   OpenAI Model: {openai_model}")
+        click.echo(f"   OpenAI Model: {get_model_for_provider('openai')}")
     else:
         click.echo("   OpenAI API Key: [NOT SET]")
 
     # Check Gemini
     gemini_key = os.getenv("GEMINI_API_KEY")
-    gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
     if gemini_key:
         click.echo(f"   Gemini API Key: [SET]")
-        click.echo(f"   Gemini Model: {gemini_model}")
+        click.echo(f"   Gemini Model: {get_model_for_provider('gemini')}")
     else:
         click.echo("   Gemini API Key: [NOT SET]")
 
@@ -384,10 +404,12 @@ def status():
 
 
 @main.command()
-@click.option("--out-dir", default="out", help="Directory containing the PDF files")
-def open(out_dir: str):
+@click.option("--out-dir", default=None, help="Directory containing the PDF files")
+def open(out_dir: Optional[str]):
     """Open the generated PDF files in the default viewer."""
 
+    if not out_dir:
+        out_dir = config.paths.output_dir
     out_path = Path(out_dir)
     if not out_path.exists():
         click.echo(f"Error: Output directory not found: {out_dir}", err=True)
@@ -447,19 +469,20 @@ def run_workflow_steps(job_description: str):
         
         # Step 2: Extract
         click.echo("🔄 Step 2: Extracting content...")
-        resume_file = "Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
-        cover_file = "Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
-        extract_to_json(resume_file, cover_file, "out/base_text.json")
+        default_paths = get_default_paths()
+        resume_file = default_paths["baseline_resume"]
+        cover_file = default_paths["baseline_cover"]
+        extract_to_json(resume_file, cover_file, default_paths["base_text"])
         click.echo("✅ Text extraction complete")
         
         # Step 3: Propose edits
         click.echo("🔄 Step 3: Proposing edits...")
-        propose_and_save_edits(job_description, "out/base_text.json", "out/edits.json", "auto")
+        propose_and_save_edits(job_description, default_paths["base_text"], default_paths["edits"], "auto")
         click.echo("✅ Edit proposal complete")
         
         # Step 4: Apply edits
         click.echo("🔄 Step 4: Applying edits...")
-        apply_edits_with_validation(resume_file, cover_file, "out/edits.json")
+        apply_edits_with_validation(resume_file, cover_file, default_paths["edits"])
         click.echo("✅ Edits applied")
         
         # Step 5: Show diffs
@@ -468,7 +491,7 @@ def run_workflow_steps(job_description: str):
         
         # Step 6: Render PDFs
         click.echo("🔄 Step 6: Rendering PDFs...")
-        render_pdfs("out")
+        render_pdfs(config.paths.output_dir)
         click.echo("✅ PDF rendering complete")
         
         click.echo("🎉 Workflow completed successfully!")

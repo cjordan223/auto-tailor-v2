@@ -1,0 +1,30 @@
+Company: Orbitronix Robotics
+Position: Embedded Systems Engineer
+
+Job Description:
+Orbitronix Robotics is developing the next generation of autonomous warehouse robots. We're looking for an Embedded Systems Engineer to join our hardware team. You will be responsible for writing low-level software for microcontrollers, integrating sensors and actuators, and ensuring our robots operate safely and efficiently. This is a hands-on role where you'll see your code directly impact the physical world.
+
+Responsibilities:
+* Design, develop, and test embedded firmware in C and C++ for our robotic platforms.
+* Develop drivers and interfaces for various sensors (e.g., IMUs, LiDAR) and actuators (e.g., motors, grippers).
+* Work with real-time operating systems (RTOS) like FreeRTOS to manage concurrent tasks and ensure real-time performance.
+* Collaborate with hardware engineers on component selection, schematic review, and board bring-up.
+* Implement communication protocols such as SPI, I2C, UART, and CAN for inter-device communication.
+* Develop and execute unit tests and integration tests for embedded firmware.
+* Debug complex hardware/software interaction issues using tools like oscilloscopes, logic analyzers, and debuggers.
+* Maintain clear and thorough documentation for firmware design and implementation.
+
+Required Qualifications:
+* Bachelor's degree in Electrical Engineering, Computer Engineering, or a related field.
+* 3+ years of professional experience in embedded systems development.
+* Strong proficiency in C and C++ for embedded systems.
+* Experience with 32-bit microcontrollers (e.g., ARM Cortex-M series).
+* Hands-on experience with hardware debugging tools and lab equipment.
+* Understanding of embedded software development principles, including memory management, interrupt handling, and concurrency.
+* Familiarity with common embedded communication protocols.
+
+Desired Qualifications:
+* Experience with RTOS environments (e.g., FreeRTOS, Zephyr).
+* Knowledge of robotics, motor control, or sensor fusion algorithms.
+* Experience with Python for scripting and testing.
+* Familiarity with version control systems, particularly Git.

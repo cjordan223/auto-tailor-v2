@@ -1,52 +1,64 @@
 {
   "summary": {
-    "replace": "I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions, particularly in AI-driven applications. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code in Python and React."
+    "replace": "Passionate and driven software engineer with 3+ years of experience building and deploying machine learning models at scale. Proven ability to bridge the gap between data science and software engineering, taking models from prototype to production. Expertise in Python, TensorFlow/PyTorch, and cloud platforms (AWS, GCP, Azure).  Proficient in MLOps principles and tools, including CI/CD, model monitoring, and versioning.  Seeking to leverage my skills to build innovative and robust solutions for AdOptics Marketing."
   },
   "skills": {
     "Programming Languages": {
-      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash"
+      "replace": "Python, Java, C/C++, C++, TensorFlow, PyTorch, Scikit-learn"
     },
     "Frontend": {
-      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js, Figma"
+      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js"
     },
     "Backend": {
       "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
     },
     "Cloud & DevOps": {
-      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)"
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins), Airflow, Spark"
     },
     "AI & LLM Tools": {
-      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone), Prompt Engineering"
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone), MLflow, Kubeflow, Seldon Core"
     },
     "Automation & Productivity": {
-      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting, Pandas"
     },
     "Security & Operating Systems": {
       "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
     },
     "Databases": {
-      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks, BigQuery"
     }
   },
   "cover_letter": {
     "salutation": {
-      "replace": "Hello Stanford University team,"
+      "replace": "Hello AdOptics Marketing team,"
     },
     "paragraphs": [
-      "I'm applying for the Software Engineer role at Stanford University. I was drawn to your work in developing AI modules for verbal individuals on the autism spectrum.",
-      "At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.",
-      "Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects leaned on the same foundations you need: robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance. I am also experienced in prompt engineering and fine-tuning LLMs.",
-      "If your mandate is to build reliable, secure, and scalable software that solves complex problems in AI and autism research, I would like to help you ship that."
+      "I am writing to express my keen interest in the Machine Learning Engineer position at AdOptics Marketing.  Your company's leadership in leveraging AI to optimize ad spend, particularly the focus on bridging data science and software engineering, strongly aligns with my career aspirations and experience.",
+      "My expertise lies in building and deploying scalable machine learning systems using Python, TensorFlow/PyTorch, and various cloud platforms (AWS, GCP, Azure).  I have a proven track record of taking models from prototype to production, implementing MLOps best practices for versioning, monitoring, and continuous improvement, and optimizing model performance for both speed and accuracy.  My experience with data processing technologies like Apache Spark and Pandas, coupled with my familiarity with containerization (Docker, Kubernetes) and CI/CD pipelines, ensures efficient and reliable model deployment.",
+      "In a previous role, I engineered a solution that consolidated diverse enterprise systems, automating the end-to-end workflow and significantly reducing manual effort. This involved building robust system architecture, implementing strong authentication and secrets management, and establishing disciplined monitoring and alerting to maintain high availability and performance.  This experience directly translates to the challenges of building and maintaining scalable infrastructure for training and deploying machine learning models, as described in the job description.",
+      "I am confident that my skills and experience make me a strong candidate for this position.  I am eager to contribute to AdOptics Marketing's continued success and am excited about the opportunity to work on challenging and impactful projects. Thank you for your time and consideration."
     ]
   },
   "suggested_additions": [
     {
-      "term": "User Research",
-      "why": "The job description mentions experience leading structured and unstructured user research, which is not explicitly mentioned in the base text."
+      "term": "Real-time bidding systems",
+      "why": "Directly relevant to AdOptics' business and mentioned in the JD."
     },
     {
-      "term": "Agile",
-      "why": "The job description mentions deep experience in Agile software development, sprint planning, and version control."
+      "term": "Click-through rate (CTR) prediction",
+      "why": "A key task mentioned in the JD responsibilities."
+    },
+    {
+      "term": "Audience segmentation",
+      "why": "Another key task mentioned in the JD responsibilities."
+    },
+    {
+      "term": "Feature stores",
+      "why": "Desired qualification in the JD."
+    },
+    {
+      "term": "High-throughput systems",
+      "why": "Desired qualification in the JD."
     }
   ]
 }

@@ -1,0 +1,29 @@
+Company: ConnectSphere API Solutions
+Position: Integration Engineer
+
+Job Description:
+ConnectSphere is a fast-growing SaaS company that provides a unified platform for business process automation. We are hiring an Integration Engineer to help our customers and partners connect their applications to our platform. This role involves designing, developing, and supporting robust integrations using our API and third-party services. You'll be a key player in ensuring seamless data flow and functionality between disparate systems.
+
+Responsibilities:
+* Design, build, and maintain integrations between the ConnectSphere platform and various third-party applications (e.g., Salesforce, Slack, Workday).
+* Develop and manage RESTful and GraphQL APIs to support integration requirements.
+* Work closely with customers and partners to understand their integration needs and provide technical guidance.
+* Build and support ETL processes to handle data synchronization and migration between systems.
+* Troubleshoot and resolve issues related to integrations, APIs, and data transfer.
+* Create and maintain comprehensive documentation for APIs and integration workflows.
+* Collaborate with the product team to provide feedback and influence the roadmap for our API and integration capabilities.
+
+Required Qualifications:
+* Bachelor's degree in Computer Science, Engineering, or a related discipline.
+* 3+ years of experience in a software or integration engineering role.
+* Strong programming skills in at least one language, such as Python, Java, or Node.js.
+* Proven experience working with REST APIs, including design, development, and consumption.
+* Knowledge of data formats like JSON and XML, and data transformation techniques.
+* Familiarity with authentication and authorization standards like OAuth 2.0 and SAML.
+* Excellent problem-solving skills and the ability to debug complex, multi-system issues.
+
+Desired Qualifications:
+* Experience with Integration Platform as a Service (iPaaS) tools like MuleSoft, Dell Boomi, or Workato.
+* Familiarity with message queueing systems (e.g., RabbitMQ, Kafka).
+* Experience with GraphQL APIs.
+* Prior experience in a customer-facing technical role.

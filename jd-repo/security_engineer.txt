@@ -1,0 +1,30 @@
+Company: FinSecure Corp.
+Position: Cloud Security Engineer
+
+Job Description:
+FinSecure Corp. is a leading financial technology company dedicated to providing secure and innovative payment solutions. We are looking for a proactive Cloud Security Engineer to join our growing security team. This role is critical in protecting our cloud infrastructure and customer data from emerging threats. You will be responsible for implementing and managing security controls, conducting vulnerability assessments, and responding to security incidents within our multi-cloud environment.
+
+Responsibilities:
+* Design, implement, and maintain security controls and solutions for our AWS and GCP cloud environments.
+* Conduct regular vulnerability scanning, penetration testing, and security audits of cloud infrastructure and applications.
+* Develop and automate security processes and workflows to improve efficiency and response times.
+* Monitor security alerts, investigate potential incidents, and lead incident response activities.
+* Collaborate with DevOps and engineering teams to integrate security best practices into the CI/CD pipeline (DevSecOps).
+* Manage identity and access management (IAM) policies, ensuring least-privilege access.
+* Stay current with emerging cloud security threats, vulnerabilities, and industry best practices.
+* Develop and maintain documentation for security policies, procedures, and architectural diagrams.
+
+Required Qualifications:
+* Bachelor's degree in Computer Science, Cybersecurity, or a related field.
+* 3+ years of hands-on experience in a security engineering role, with a strong focus on cloud security.
+* Proficient with at least one major cloud platform (AWS, GCP, or Azure).
+* Experience with security tools such as SIEM (e.g., Splunk, ELK Stack), vulnerability scanners (e.g., Nessus, Qualys), and Web Application Firewalls (WAF).
+* Solid understanding of network protocols, firewalls, and intrusion detection/prevention systems (IDS/IPS).
+* Scripting experience for automation using Python, Bash, or PowerShell.
+* Familiarity with compliance frameworks like SOC 2, ISO 27001, or PCI-DSS.
+
+Desired Qualifications:
+* Professional certifications such as AWS Certified Security - Specialty, CompTIA Security+, or CISSP.
+* Experience with container security (Docker, Kubernetes).
+* Knowledge of Infrastructure as Code (IaC) security principles using tools like Terraform or CloudFormation.
+* Experience in a fintech or other highly regulated industry.

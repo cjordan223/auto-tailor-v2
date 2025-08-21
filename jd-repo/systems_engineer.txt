@@ -1,0 +1,30 @@
+Company: NovaScale Infrastructure
+Position: Systems Engineer
+
+Job Description:
+NovaScale Infrastructure provides scalable and resilient cloud solutions for enterprise clients. We are looking for a Systems Engineer to design, build, and maintain the core infrastructure that powers our services. The ideal candidate has a strong background in Linux systems administration, automation, and cloud technologies. You will be instrumental in ensuring the reliability, scalability, and performance of our production environments.
+
+Responsibilities:
+* Manage and maintain our hybrid-cloud infrastructure, primarily based on Linux systems.
+* Develop and manage infrastructure as code (IaC) using Terraform and Ansible to automate provisioning and configuration.
+* Administer our container orchestration platform (Kubernetes) and associated tooling (e.g., Helm, Prometheus).
+* Implement and manage monitoring, logging, and alerting systems to ensure high availability and performance.
+* Troubleshoot and resolve complex infrastructure issues, performing root cause analysis to prevent recurrence.
+* Collaborate with software engineers to optimize application performance and reliability.
+* Manage system security, including patch management, hardening, and access control.
+* Participate in an on-call rotation to support our 24/7 production environment.
+
+Required Qualifications:
+* Bachelor's degree in a relevant technical field or equivalent practical experience.
+* 3-5 years of experience in a Systems Engineer, Site Reliability Engineer, or similar role.
+* Deep expertise in Linux/UNIX systems administration and troubleshooting.
+* Hands-on experience with configuration management tools like Ansible, Puppet, or Chef.
+* Strong experience with containerization (Docker) and orchestration (Kubernetes).
+* Proficiency in a scripting language such as Python, Go, or Bash.
+* Experience with cloud providers like AWS, Azure, or GCP.
+
+Desired Qualifications:
+* Experience with CI/CD tools such as Jenkins or GitLab CI.
+* Familiarity with networking concepts (TCP/IP, DNS, VPNs, BGP).
+* Knowledge of database administration (e.g., PostgreSQL, MySQL).
+* Experience building and maintaining highly available, fault-tolerant systems.

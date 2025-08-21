@@ -1,0 +1,28 @@
+Company: HealthMetric Analytics
+Position: Data Scientist, Clinical Insights
+
+Job Description:
+HealthMetric Analytics is at the forefront of leveraging data to improve patient outcomes. We are seeking a passionate Data Scientist to join our Clinical Insights team. In this role, you will work with complex healthcare datasets to build machine learning models that predict disease progression, optimize treatment plans, and provide actionable insights to clinicians. You will collaborate with a multidisciplinary team of engineers, medical experts, and product managers to translate data into life-saving solutions.
+
+Responsibilities:
+* Clean, process, and analyze large, complex healthcare datasets, including electronic health records (EHR) and clinical trial data.
+* Develop, train, and validate predictive models using machine learning algorithms to address clinical questions.
+* Utilize statistical methods to conduct exploratory data analysis and test hypotheses.
+* Communicate findings and complex analytical results to both technical and non-technical stakeholders through clear visualizations and reports.
+* Collaborate with data engineers to build and maintain data pipelines for modeling and analysis.
+* Contribute to the full lifecycle of a data science project, from problem formulation to model deployment and monitoring.
+* Stay up-to-date with the latest advancements in machine learning, statistics, and healthcare informatics.
+
+Required Qualifications:
+* Master’s degree in Data Science, Statistics, Computer Science, or a related quantitative field, or a Bachelor's degree with 3+ years of relevant experience.
+* Proficiency in Python and its data science ecosystem (e.g., Pandas, NumPy, Scikit-learn, TensorFlow, PyTorch).
+* Strong experience with SQL for data extraction and manipulation from relational databases.
+* Demonstrated experience in applying various machine learning techniques such as classification, regression, clustering, and NLP.
+* Solid understanding of statistical concepts (e.g., hypothesis testing, confidence intervals, regression analysis).
+* Experience with data visualization tools like Matplotlib, Seaborn, or Tableau.
+
+Desired Qualifications:
+* Experience working with healthcare data and an understanding of standards like HIPAA.
+* Familiarity with big data technologies such as Spark or Hadoop.
+* Experience deploying machine learning models into production environments.
+* Contributions to open-source projects or a portfolio of relevant work (e.g., Kaggle competitions, GitHub projects).

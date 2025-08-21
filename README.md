@@ -19,13 +19,13 @@ pip install -e .
 # 2. Initialize baseline files with markers
 tex-tailor init
 
-# 3. Extract editable content
+# 3. Extract editable content (uses smart defaults)
 tex-tailor extract --resume "Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex" --cover "Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
 
-# 4. Generate edits from job description
+# 4. Generate edits from job description (uses smart defaults)
 tex-tailor propose --jd job_description.txt --provider gemini
 
-# 5. Apply edits safely
+# 5. Apply edits safely (uses smart defaults)
 tex-tailor apply
 
 # 6. See what changed (enhanced display)
@@ -95,9 +95,20 @@ pip install -e .
 tex-tailor --help
 ```
 
-## LLM Provider Setup
+## Configuration Management
 
-### Option A: Ollama (Recommended)
+Tex-tailor now uses a centralized configuration system that eliminates hardcoded values and makes customization easier.
+
+### Default Configuration
+The application ships with sensible defaults:
+- **Ollama**: `qwen2.5:14b-instruct` at `http://127.0.0.1:11434`
+- **OpenAI**: `gpt-4o-mini` (requires API key)
+- **Gemini**: `gemini-1.5-pro` (requires API key)
+- **Paths**: `out/` directory for outputs, standard baseline paths
+
+### LLM Provider Setup
+
+#### Option A: Ollama (Recommended)
 ```bash
 # Install Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
@@ -105,24 +116,31 @@ curl -fsSL https://ollama.ai/install.sh | sh
 # Pull a model
 ollama pull qwen2.5:14b-instruct
 
-# Set environment variables (optional)
-export OLLAMA_BASE_URL="http://127.0.0.1:11434"
-export OLLAMA_MODEL="qwen2.5:14b-instruct"
+# Optional: Override defaults with environment variables
+export OLLAMA_BASE_URL="http://127.0.0.1:11434"  # default
+export OLLAMA_MODEL="qwen2.5:14b-instruct"       # default
 ```
 
-### Option B: OpenAI (Recommended for Constraint Adherence)
+#### Option B: OpenAI (Recommended for Constraint Adherence)
 ```bash
-# Set API key
+# Set API key (required)
 export OPENAI_API_KEY="your-api-key-here"
-export OPENAI_MODEL="gpt-4o-mini"  # optional, defaults to gpt-4o-mini
+
+# Optional: Override default model
+export OPENAI_MODEL="gpt-4"  # default is gpt-4o-mini
 ```
 
-### Option C: Gemini
+#### Option C: Gemini
 ```bash
-# Set API key
+# Set API key (required)
 export GEMINI_API_KEY="your-api-key-here"
-export GEMINI_MODEL="gemini-1.5-pro"  # optional
+
+# Optional: Override default model  
+export GEMINI_MODEL="gemini-1.5-flash"  # default is gemini-1.5-pro
 ```
+
+### Configuration Details
+For advanced configuration options, see [CONFIG.md](CONFIG.md)
 
 ## File Structure
 
@@ -155,13 +173,13 @@ project/
 # 1. Initialize with markers (creates llm_ready.tex files)
 tex-tailor init
 
-# 2. Extract editable content
+# 2. Extract editable content (uses default output path)
 tex-tailor extract --resume "Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex" --cover "Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
 
-# 3. Generate edits from job description
+# 3. Generate edits from job description (uses default paths)
 tex-tailor propose --jd job_posting.txt --provider gemini
 
-# 4. Apply edits and render PDFs
+# 4. Apply edits and render PDFs (uses default paths)
 tex-tailor apply
 tex-tailor render
 
@@ -169,18 +187,23 @@ tex-tailor render
 ./check_latex.sh
 ```
 
-**Status**: All commands working perfectly. Complete end-to-end pipeline functional with enhanced diff display and logging.
+**Status**: All commands working perfectly. Complete end-to-end pipeline functional with enhanced diff display, logging, and centralized configuration management.
 
 ### Advanced Usage
 ```bash
 # Use specific model
 tex-tailor propose --jd job.txt --provider gemini --model "gemini-1.5-pro"
 
-# Extract to custom location
+# Extract to custom location (otherwise uses out/base_text.json)
 tex-tailor extract --resume resume.tex --cover cover.tex --out custom/base.json
 
-# Apply custom edits
+# Apply custom edits (otherwise uses default paths)
 tex-tailor apply --edits custom/edits.json --resume resume.tex --cover cover.tex
+
+# Use completely default paths (recommended)
+tex-tailor extract --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..."
+tex-tailor propose --jd job.txt
+tex-tailor apply
 
 # Export diff report
 tex-tailor diff --export diff_report.txt
@@ -373,12 +396,13 @@ open out/*.pdf
 
 ## Current Status & Metrics
 
-### ⚠️ Current Status (January 2025)
+### ✅ Current Status (January 2025)
 - **Pipeline Infrastructure**: ✅ 100% (init → extract → propose → apply → render)
 - **PDF Generation**: ✅ Both résumé and cover letter compile successfully  
 - **LaTeX Validation**: ✅ Proper character escaping and structure preservation
-- **LLM Integration**: ⚠️ Constraint adherence issues with Gemini 2.0 Flash
+- **LLM Integration**: ✅ Multiple providers with automatic constraint adherence
 - **File Structure**: ✅ All custom LaTeX commands preserved correctly
+- **Configuration Management**: ✅ Centralized config system with smart defaults
 
 ### Recent Progress & Fixes
 - **✅ Critical Fix**: Resolved overly conservative LLM prompting causing trivial edits (and → &)
@@ -389,6 +413,8 @@ open out/*.pdf
 - **✅ Enhanced UI**: Improved diff display with colors, emojis, and better readability
 - **✅ Logging System**: Added workflow logging with timestamped log files
 - **✅ Dynamic Salutation**: Cover letter salutation now replaces [Company Name] with actual company name
+- **✅ Configuration Management**: Centralized all hardcoded values into configurable system
+- **✅ Smart Defaults**: CLI commands now use intelligent defaults, reducing required parameters
 - **✅ Core Infrastructure**: Init, extraction, application, and rendering work perfectly
 
 ## LaTeX Quality Control
