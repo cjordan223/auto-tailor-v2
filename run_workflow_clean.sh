@@ -3,9 +3,11 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
-RESUME_FILE="Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
-COVER_LETTER_FILE="Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
-LOG_FILE="workflow.log"
+# Resolve all paths relative to this script's directory so execution is cwd-agnostic
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RESUME_FILE="$SCRIPT_DIR/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
+COVER_LETTER_FILE="$SCRIPT_DIR/Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
+LOG_FILE="$SCRIPT_DIR/workflow.log"
 
 # --- Functions ---
 function log_message() {
@@ -20,14 +22,22 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-JD_FILE=$1
+# Convert job description file to absolute path
+if [[ "$1" = /* ]]; then
+  # Already absolute path
+  JD_FILE="$1"
+else
+  # Convert relative path to absolute
+  JD_FILE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+fi
 
 # Start logging - redirect all output to both terminal and log file
 exec > >(tee "$LOG_FILE") 2>&1
 
 log_message "Starting clean workflow for job description: $JD_FILE"
 
-source venv/bin/activate
+# Activate virtual environment from project root
+source "$SCRIPT_DIR/venv/bin/activate"
 
 echo "🔄 Processing job description..."
 tex-tailor --quiet init

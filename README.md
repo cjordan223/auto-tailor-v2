@@ -15,6 +15,8 @@ Command-line tool for advanced users, scripts, and batch processing.
 **✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
 **✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
 **✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
+**✅ FIXED**: Path handling issues resolved - workflow now works from any directory  
+**✅ FIXED**: File upload and processing integration fully functional  
 **Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping  
 **Enhanced**: Generalized cover letter with LLM placeholder instructions for dynamic content  
 **Improved**: Removed restrictive validation constraints - 100% success rate vs previous 10%  
@@ -37,6 +39,7 @@ npm run dev
 # 6. Download customized resume and cover letter PDFs
 
 # Note: Uses pre-configured baseline resume template
+# Both frontend (port 3000) and backend (port 3001) will start automatically
 ```
 
 ### 💻 CLI Interface
@@ -65,6 +68,8 @@ tex-tailor render
 
 # 8. OR: Run complete workflow with one command
 ./run_workflow_clean.sh job_description.txt
+
+# ✅ VERIFIED: Path handling fixed - works from any directory
 ```
 
 ## 🏗️ Architecture
@@ -445,6 +450,25 @@ python -m unittest tex_tailor.tests.test_extractor -v
 
 ## Troubleshooting
 
+### Recent Fixes (August 2025)
+
+**✅ Path Handling Issues - RESOLVED**
+- **Problem**: CLI workflow would hang after "🔄 Processing job description..." message
+- **Root Cause**: Relative path resolution causing Python CLI to fail finding job description files
+- **Solution**: `run_workflow_clean.sh` now converts all paths to absolute paths
+- **Status**: ✅ Fully resolved - workflow works from any directory
+
+**✅ File Upload Integration - RESOLVED**  
+- **Problem**: Web interface file uploads not processing correctly
+- **Root Cause**: Path handling issues between frontend and backend
+- **Solution**: Complete API integration with proper file handling
+- **Status**: ✅ Fully functional - drag & drop job descriptions work perfectly
+
+**✅ Real-time Processing - RESOLVED**
+- **Problem**: Limited visibility into processing progress
+- **Solution**: Live CLI output streaming with detailed status updates
+- **Status**: ✅ Complete - see exact progress and detailed output
+
 ### Common Commands
 ```bash
 # Reset working files (baselines stay untouched)
@@ -472,6 +496,36 @@ open out/*.pdf
 - All providers now achieve ~100% success rate with quality-focused validation
 - Use `./run_workflow_clean.sh` for streamlined single-command workflow
 
+### Verification Checklist
+
+**✅ To verify everything is working:**
+
+1. **CLI Workflow Test**:
+   ```bash
+   ./run_workflow_clean.sh test_jd.txt
+   # Should complete successfully with PDF generation
+   ```
+
+2. **Web Interface Test**:
+   ```bash
+   cd frontend && npm run dev
+   # Open http://localhost:3000
+   # Upload a job description file
+   # Should process and generate PDFs
+   ```
+
+3. **API Health Check**:
+   ```bash
+   curl http://localhost:3001/health
+   # Should return: {"status":"healthy","service":"tex-tailor-api"}
+   ```
+
+4. **Frontend Health Check**:
+   ```bash
+   curl http://localhost:3000 | head -3
+   # Should return HTML content
+   ```
+
 ## Current Status & Metrics
 
 ### ✅ Current Status (August 2025)
@@ -484,10 +538,16 @@ open out/*.pdf
 - **File Structure**: ✅ All custom LaTeX commands preserved correctly
 - **Generalized Cover Letter**: ✅ Dynamic content generation with LLM placeholders
 - **Configuration Management**: ✅ Centralized config system with smart defaults
+- **Path Handling**: ✅ Fixed - workflow works from any directory
+- **File Upload**: ✅ API integration fully functional
+- **Real-time Processing**: ✅ Live status updates and progress tracking
 
 ### Recent Major Improvements
 - **✨ NEW: Web Interface**: Vue.js frontend with drag & drop, real-time processing, beautiful UI
 - **✨ NEW: Express API**: Backend server bridging web frontend to Python CLI
+- **✅ Path Handling Fix**: Resolved critical path resolution issues - workflow now works from any directory
+- **✅ File Upload Integration**: Complete API integration for job description processing
+- **✅ Real-time Processing**: Live status updates with detailed CLI output streaming
 - **✅ Generalized Cover Letter**: Implemented LLM placeholder system for dynamic content generation
 - **✅ Validation Overhaul**: Removed artificial constraints that caused 90% failure rates
 - **✅ Quality Focus**: LLM now has freedom to make meaningful, job-relevant improvements

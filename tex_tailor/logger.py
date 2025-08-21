@@ -1,5 +1,24 @@
 """
 Module for logging workflow output to files.
+
+This module provides comprehensive logging functionality for the LaTeX Tailor workflow,
+capturing all console output to timestamped log files. It's used by both the CLI interface
+and can be integrated with the web interface for debugging and audit trails.
+
+The WorkflowLogger class redirects stdout/stderr to both console and log files,
+ensuring complete workflow visibility and debugging capabilities.
+
+Usage:
+    # As a context manager (recommended)
+    with WorkflowLogger():
+        # Your workflow code here
+        print("This will be logged to both console and file")
+    
+    # As a decorator
+    @log_workflow
+    def my_workflow():
+        # Function body will be automatically logged
+        pass
 """
 import os
 import sys
