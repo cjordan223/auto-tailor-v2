@@ -31,7 +31,7 @@ providers:
     max_tokens: 2048
     
   gemini:
-    default_model: "gemini-1.5-pro"
+    default_model: "gemini-1.5-flash"
     timeout: 120
     temperature: 0
     top_k: 1
