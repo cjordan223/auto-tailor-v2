@@ -9,7 +9,7 @@
     <!-- File Upload Zone -->
     <div
       ref="dropZone"
-      class="upload-zone p-6 text-center cursor-pointer"
+      class="upload-zone p-4 md:p-6 text-center cursor-pointer"
       :class="{
         'dragover': isDragOver,
         'error': uploadError
@@ -66,7 +66,7 @@
       <textarea
         v-model="textInput"
         placeholder="Paste job description here..."
-        class="w-full h-32 p-3 border border-gray-300 rounded-lg focus-ring resize-none"
+        class="w-full h-24 md:h-32 p-3 border border-gray-300 rounded-lg focus-ring resize-none"
         @input="handleTextInput"
       ></textarea>
     </div>

@@ -10,6 +10,7 @@ import downloadRoutes from './routes/download.js'
 import statusRoutes from './routes/status.js'
 import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
+import reviewRoutes from './routes/review.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 
@@ -63,6 +64,7 @@ app.use('/api/download', downloadRoutes)
 app.use('/api/status', statusRoutes)
 app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)
+app.use('/api/review', reviewRoutes)
 
 // Results endpoint
 app.get('/api/results/:jobId', async (req, res) => {
@@ -93,18 +95,36 @@ app.get('/api/results/:jobId', async (req, res) => {
       files.edits = `/api/download/${jobId}/edits`
     }
 
+    // Get review data if completed
+    let reviewData = null
+    let suggestedAdditions = []
+    
+    if (status === 'completed') {
+      try {
+        // Call the review API to get actual data (use Ollama to avoid rate limits)
+        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json&provider=ollama`)
+        if (reviewResponse.ok) {
+          const reviewResult = await reviewResponse.json()
+          if (reviewResult.success && reviewResult.data) {
+            reviewData = reviewResult.data
+            suggestedAdditions = reviewResult.data.raw_edits?.suggested_additions || []
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch review data:', error.message)
+        // Fall back to empty array if review fails
+        suggestedAdditions = []
+      }
+    }
+
     const resultData = {
       jobId,
       status,
       progress,
       step,
       files,
-      suggestedAdditions: [
-        {
-          term: 'Example Skill',
-          why: 'Relevant to job requirements'
-        }
-      ],
+      suggestedAdditions,
+      reviewData,
       createdAt: new Date().toISOString()
     }
 

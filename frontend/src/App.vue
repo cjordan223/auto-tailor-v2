@@ -1,7 +1,7 @@
 <template>
-  <div id="app" class="min-h-screen bg-gray-50">
+  <div id="app" class="h-screen flex flex-col bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -32,12 +32,14 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <router-view />
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 min-h-full">
+        <router-view />
+      </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
+    <footer class="bg-white border-t border-gray-200 flex-shrink-0">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
         <div class="text-center text-sm text-gray-500">
           <p>© 2025 Tex-Tailor. AI-powered resume customization.</p>

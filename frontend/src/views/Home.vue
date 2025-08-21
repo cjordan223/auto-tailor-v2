@@ -1,17 +1,17 @@
 <template>
-  <div class="space-y-8">
+  <div class="flex flex-col h-full space-y-6">
     <!-- Header -->
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+    <div class="text-center flex-shrink-0">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
         AI-Powered Resume Customization
       </h1>
-      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+      <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
         Upload a job description to get a perfectly tailored resume and cover letter using our pre-configured baseline template.
       </p>
     </div>
 
     <!-- Main Workflow -->
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto flex-1 flex flex-col relative">
       <!-- Step Indicator -->
       <div class="mb-8">
         <div class="flex items-center justify-center space-x-4">
@@ -37,36 +37,38 @@
       </div>
 
       <!-- Step 1: Job Description Upload -->
-      <div v-if="step === 1" class="mb-8">
-        <div class="max-w-2xl mx-auto">
-          <FileUpload
-            title="Job Description"
-            description="Upload or paste the job description"
-            accept=".txt,.pdf,.doc,.docx"
-            icon="💼"
-            @file-selected="handleJobUpload"
-            @text-input="handleJobText"
-            :file="jobFile"
-            :allow-text-input="true"
-          />
-          
-          <!-- Baseline Resume Info -->
-          <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div class="flex items-start">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">
-                  Using Pre-configured Baseline Resume
-                </h3>
-                <div class="mt-2 text-sm text-blue-700">
-                  <p>Your resume will be customized using our baseline template with LLM markers. This ensures consistent formatting and optimal AI processing.</p>
-                  <p class="mt-1 text-xs text-blue-600">
-                    <em>Custom LaTeX template upload is planned for future releases.</em>
-                  </p>
+      <div v-if="step === 1" class="flex-1 flex flex-col">
+        <div class="max-w-2xl mx-auto flex-1 flex flex-col">
+          <div class="flex-1">
+            <FileUpload
+              title="Job Description"
+              description="Upload or paste the job description"
+              accept=".txt,.pdf,.doc,.docx"
+              icon="💼"
+              @file-selected="handleJobUpload"
+              @text-input="handleJobText"
+              :file="jobFile"
+              :allow-text-input="true"
+            />
+            
+            <!-- Baseline Resume Info -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-blue-800">
+                    Using Pre-configured Baseline Resume
+                  </h3>
+                  <div class="mt-2 text-sm text-blue-700">
+                    <p>Your resume will be customized using our baseline template with LLM markers. This ensures consistent formatting and optimal AI processing.</p>
+                    <p class="mt-1 text-xs text-blue-600">
+                      <em>Custom LaTeX template upload is planned for future releases.</em>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -75,7 +77,7 @@
       </div>
 
       <!-- Step 2: Configuration -->
-      <div v-if="step === 2" class="mb-8">
+      <div v-if="step === 2" class="flex-1">
         <ProviderSelector
           v-model:provider="selectedProvider"
           v-model:model="selectedModel"
@@ -83,8 +85,8 @@
         />
       </div>
 
-      <!-- Step 2: Processing -->
-      <div v-if="step === 3" class="mb-8">
+      <!-- Step 3: Processing -->
+      <div v-if="step === 3" class="flex-1">
         <ProcessingStatus
           :status="processingStatus"
           :progress="processingProgress"
@@ -95,8 +97,27 @@
         />
       </div>
 
-      <!-- Navigation Buttons -->
-      <div class="flex justify-between">
+      <!-- Navigation Buttons - Positioned on sides -->
+      <button
+        v-if="step > 1"
+        @click="previousStep"
+        class="btn btn-secondary absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-8 md:-translate-x-16 hidden md:block"
+      >
+        Previous
+      </button>
+      
+      <button
+        v-if="step < 3"
+        @click="nextStep"
+        :disabled="!canProceed"
+        class="btn btn-primary absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-8 md:translate-x-16 hidden md:block"
+        :class="{ 'opacity-50 cursor-not-allowed': !canProceed }"
+      >
+        {{ step === 2 ? 'Generate Resume' : 'Next' }}
+      </button>
+      
+      <!-- Mobile Navigation Buttons - Bottom for small screens -->
+      <div class="flex justify-between mt-8 md:hidden">
         <button
           v-if="step > 1"
           @click="previousStep"

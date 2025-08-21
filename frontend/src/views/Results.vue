@@ -106,6 +106,34 @@
         </div>
       </div>
 
+      <!-- Review Overview -->
+      <div v-if="results.reviewData?.overview" class="card">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">AI Analysis Overview</h2>
+        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+          <p class="text-gray-700 leading-relaxed">{{ formatOverview(results.reviewData.overview) }}</p>
+        </div>
+        
+        <!-- Statistics -->
+        <div v-if="results.reviewData.statistics" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
+            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.total_chunks_modified }}</div>
+            <div class="text-sm text-gray-600">Chunks Modified</div>
+          </div>
+          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
+            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.skills_sections_updated }}</div>
+            <div class="text-sm text-gray-600">Skills Updated</div>
+          </div>
+          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
+            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.cover_letter_paragraphs }}</div>
+            <div class="text-sm text-gray-600">Cover Letter Changes</div>
+          </div>
+          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
+            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.suggested_additions }}</div>
+            <div class="text-sm text-gray-600">Suggested Additions</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Job Details -->
       <div class="card">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Generation Details</h2>
@@ -257,6 +285,13 @@ const formatDate = (dateString) => {
   } catch (err) {
     return 'Unknown'
   }
+}
+
+const formatOverview = (overview) => {
+  if (!overview) return ''
+  
+  // The backend now returns properly formatted text, so just return as-is
+  return overview
 }
 
 // Lifecycle
