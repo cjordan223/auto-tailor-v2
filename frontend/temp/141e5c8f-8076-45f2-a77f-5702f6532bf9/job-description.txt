@@ -1,0 +1,54 @@
+ About the job
+
+About Us
+
+Foodsmart is the leading telenutrition and foodcare solution, backed by a robust network of Registered Dietitians. Our platform is designed to foster healthier food choices, drive lasting behavior change, and deliver long-term health outcomes. Through our highly personalized, digital platform, we guide our 2.2 million members—including those in employer-sponsored health plans, regional and national Medicaid managed care organizations, Medicare Advantage plans, and commercial insurers—on a tailored journey to eating well while saving time and money.
+
+Foodsmart seamlessly integrates dietary assessments and nutrition counseling with online food ordering and cost-effective meal planning for the entire family, optimizing ingredients both at home and on the go. We partner with national and regional retailers across the U.S., many of whom accept SNAP/EBT, making healthier food more accessible. Additionally, we assist members with SNAP enrollment and management, providing tangible access to nutritious food.In 2024, Foodsmart secured a $200 million investment from TPG’s Rise Fund, which supports entrepreneurs dedicated to achieving the United Nations’ Sustainable Development Goals. This investment will help us expand our reach, particularly to low-income workers who are disproportionately affected by diet-related diseases.
+
+At Foodsmart, Our Mission Is To Make Nutritious Food Accessible And Affordable For Everyone, Regardless Of Economic Status. We Are Committed To a Set Of Core Values That Shape Our Culture And Work Environment
+
+Measured: We make data-driven, truth-seeking decisions.
+
+Impactful: We are fueled by achieving our mission and vision.
+
+Collaborative: We help each other be better and create a positive environment.
+
+Hungry: We maintain a healthy growth mindset, seeking to overcome challenges with courage.
+
+Joyful: We take joy in each other, our work, and the privilege of doing this work.
+
+Whether you're a dietitian, a commercial leader, or a technologist, working at Foodsmart means being part of a team that is passionate, supportive, and driven by a shared purpose. Join us in transforming the way people access and enjoy healthy food.
+
+About The Role
+
+The AI Engineering team at Foodsmart is at the heart of transforming how millions of people access personalized nutrition and care. From building conversational experiences and predictive models to optimizing personalized outreach, the team integrates intelligent systems across the entire member journey. The Senior AI Engineer will play a critical role in designing and deploying solutions that drive real-world impact—like tailoring communications, improving engagement, and reducing missed appointments. We’re looking for someone who thrives in applying modern AI to practical challenges and who’s excited to shape the future of digital foodcare through scalable, thoughtful innovation.
+
+You will
+
+    Develop and maintain AI powered applications
+    Collaborate with front-end engineers to design and implement APIs that effectively serve front-end needs.
+    Establish and uphold development practices, including code reviews and comprehensive testing, to enhance code quality and system performance.
+    Build and deploy models that power real-time personalization, such as dynamic marketing segmentation and smart outreach throttling
+    Fine-tune foundational models (e.g., Hugging Face, OpenAI) to deliver use cases like chatbots, eligibility screening, and appointment scheduling
+    Collaborate with product, engineering, and data teams to integrate AI into backend APIs and member-facing applications
+    Monitor and iterate on model performance, data integrity, and user impact in production environments
+
+You Are
+
+    Firm in your understanding of software engineering principles, with strong knowledge of algorithms and data structures.
+    Proficient with backend development tools and experienced with server architecture.
+    Familiar with database design principles, management systems like SQL or NoSQL, and 
+    A builder at heart—energized by shipping real, intelligent systems that serve millions
+    Comfortable working across the ML stack, from data prep to deploymen
+    Thoughtful about user experience and how AI can reduce friction and improve outcomes
+    Collaborative, curious, and motivated to work across teams and functions
+    Pragmatic—able to balance accuracy, latency, scalability, and maintainability
+
+You Have
+
+    2+ years of experience building and deploying ML/DL models in production settings
+    2+ Experience in developing backend systems using Node.js , TypeScript, or Java
+    Strong skills in Python and ML frameworks like PyTorch, TensorFlow, or Hugging Face
+    Experience with real-time personalization, segmentation, or behavioral modeling
+    Familiarity with MLOps practices and tools like MLflow, Airflow, or SageMaker Pipelines

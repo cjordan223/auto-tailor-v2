@@ -142,10 +142,17 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     // Find the Python CLI script
     const cliPath = path.join(__dirname, '../../../run_workflow_clean.sh')
     
+    // Debug path resolution
+    console.log(`[${jobId}] __dirname: ${__dirname}`)
+    console.log(`[${jobId}] CLI path: ${cliPath}`)
+    console.log(`[${jobId}] Working directory: ${path.join(__dirname, '../..')}`)
+    
     // Check if CLI exists
     try {
       await fs.access(cliPath)
+      console.log(`[${jobId}] CLI script found and accessible`)
     } catch (error) {
+      console.error(`[${jobId}] CLI script not found: ${error.message}`)
       throw new Error(`Python CLI not found at ${cliPath}`)
     }
     
@@ -171,10 +178,16 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     console.log(`[${jobId}] - GEMINI_API_KEY from env: ${process.env.GEMINI_API_KEY ? 'SET' : 'NOT SET'}`)
     console.log(`[${jobId}] - OPENAI_API_KEY from env: ${process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET'}`)
     console.log(`[${jobId}] - Frontend apiKeys:`, Object.keys(apiKeys))
+    console.log(`[${jobId}] - Merged GEMINI_API_KEY: ${mergedEnv.GEMINI_API_KEY ? 'SET' : 'NOT SET'}`)
+    console.log(`[${jobId}] - Merged OPENAI_API_KEY: ${mergedEnv.OPENAI_API_KEY ? 'SET' : 'NOT SET'}`)
+    console.log(`[${jobId}] - Provider: ${provider}, Model: ${model}`)
 
-    // Execute the Python workflow
-    const child = spawn('bash', [cliPath, jobDescriptionPath], {
-      cwd: path.join(__dirname, '../../..'), // Root project directory
+    // Execute the Python workflow directly using venv Python
+    const venvPython = path.join(__dirname, '../../../venv/bin/python')
+    
+    // Run the complete workflow using Python CLI directly
+    const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
+      cwd: path.join(__dirname, '../../..'), // Project root for venv and paths
       stdio: ['pipe', 'pipe', 'pipe'],
       env: mergedEnv
     })
@@ -275,21 +288,21 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
       let statusUpdate = null
       
       // Parse different types of progress indicators
-      if (line.includes('🔄 Processing job description')) {
+      if (line.includes('🔄 Processing job description') || line.includes('🔄 Step 1: Initializing')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 10, 
           step: 'Processing job description...',
           detail: 'Initializing workflow and reading job requirements'
         }
-      } else if (line.includes('✓ Initialization complete')) {
+      } else if (line.includes('✓ Initialization complete') || line.includes('✅ Initialization complete')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 20, 
           step: 'Initialization complete',
           detail: 'Baseline files prepared with LLM markers'
         }
-      } else if (line.includes('Extracted base text to')) {
+      } else if (line.includes('Extracted base text to') || line.includes('✅ Text extraction complete')) {
         const match = line.match(/Found (\d+) editable chunks/)
         const chunks = match ? match[1] : 'multiple'
         statusUpdate = { 
@@ -314,21 +327,21 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
           step: 'AI analysis complete',
           detail: `Generated ${edits} targeted edits based on job requirements`
         }
-      } else if (line.includes('✓') && line.includes('edits applied')) {
+      } else if (line.includes('✓') && line.includes('edits applied') || line.includes('✅ Edits applied')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 70, 
           step: 'Applying edits to documents',
           detail: 'Updating resume and cover letter with AI-generated content'
         }
-      } else if (line.includes('📄 Generating PDFs') || line.includes('render')) {
+      } else if (line.includes('📄 Generating PDFs') || line.includes('render') || line.includes('🔄 Step 6: Rendering PDFs')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 80, 
           step: 'Generating PDF files...',
           detail: 'Compiling LaTeX to PDF using latexmk'
         }
-      } else if (line.includes('✅ Workflow complete')) {
+      } else if (line.includes('✅ Workflow complete') || line.includes('🎉 Workflow completed successfully')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 90, 

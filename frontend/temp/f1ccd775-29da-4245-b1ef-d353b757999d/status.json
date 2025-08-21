@@ -1,0 +1,8 @@
+{
+  "status": "processing",
+  "progress": 40,
+  "step": "AI analysis in progress...",
+  "updatedAt": "2025-08-21T20:04:05.126Z",
+  "detail": "Sending content to AI provider for analysis",
+  "provider": "Gemini"
+}

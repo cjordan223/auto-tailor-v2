@@ -3,6 +3,7 @@ import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
+import dotenv from 'dotenv'
 import uploadRoutes from './routes/upload.js'
 import processRoutes from './routes/process.js'
 import downloadRoutes from './routes/download.js'
@@ -14,6 +15,21 @@ import { requestLogger } from './middleware/requestLogger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// Load .env file
+const envPath = path.join(__dirname, '../../.env')
+const envResult = dotenv.config({ path: envPath })
+
+if (envResult.error) {
+  console.log('📝 No .env file found, using system environment variables')
+} else {
+  console.log('✅ Loaded .env file successfully')
+  // Show which API keys are available (without exposing the actual keys)
+  const hasGemini = !!process.env.GEMINI_API_KEY
+  const hasOpenAI = !!process.env.OPENAI_API_KEY
+  const hasOllama = !!process.env.OLLAMA_BASE_URL
+  console.log(`🔑 API Keys loaded: Gemini: ${hasGemini ? '✓' : '✗'}, OpenAI: ${hasOpenAI ? '✓' : '✗'}, Ollama: ${hasOllama ? '✓' : '✗'}`)
+}
 
 const app = express()
 const PORT = process.env.PORT || 3001

@@ -1,0 +1,30 @@
+{
+  "watch": ["server/", "src/"],
+  "ext": "js,mjs,cjs,json",
+  "ignore": [
+    "out/",
+    "Baseline_Resume/",
+    "Basline_Cover_Letter/",
+    "temp/",
+    "../out/",
+    "../Baseline_Resume/",
+    "../Basline_Cover_Letter/",
+    "../*.pdf",
+    "../*.tex",
+    "../*.aux",
+    "../*.log",
+    "../workflow.log",
+    "*.pdf",
+    "*.tex",
+    "*.aux",
+    "*.log",
+    "*.out",
+    "*.synctex.gz",
+    "*.fdb_latexmk",
+    "*.fls"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
+
