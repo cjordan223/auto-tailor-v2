@@ -1,27 +1,0 @@
-
-bout the job
-About Ramp  At Ramp, we’re rethinking how modern finance teams function in the age of AI. We believe AI isn’t just the next big wave. It’s the new foundation for how business gets done. We’re investing in that future — and in the people bold enough to build it.  Ramp is a financial operations platform designed to save companies time and money. Our all-in-one solution combines payments, corporate cards, vendor management, procurement, travel booking, and automated bookkeeping with built-in intelligence to maximize the impact of every dollar and hour spent. But we’re not just building features powered by AI. We’re building a platform where agents can chase receipts, close books, flag risks, and surface insights. This enables teams to reclaim their time and reinvest in what matters.  More than 40,000 businesses, from family-owned farms to space startups, have saved $10B and 27.5M hours with Ramp. Founded in 2019, Ramp powers the fastest-growing corporate card and bill payment platform in America, and enables over $80 billion in purchases each year.  Ramp’s investors include Thrive Capital, Sands Capital, General Catalyst, Founders Fund, Khosla Ventures, Sequoia Capital, Greylock, and Redpoint, among others, in addition to 100+ angel investors who have been founders or executives of leading companies.  Ramp has been named to Fast Company’s Most Innovative Companies list and LinkedIn’s Top U.S. Startups for more than 3 years, as well as the Forbes Cloud 100, CNBC Disruptor 50, and TIME Magazine’s 100 Most Influential Companies.  About The Role  The Security Engineering team helps make Ramp the most secure place for our customers to collect, manage, and put to work their business’ financial information.  Our work centers in three areas: 
-* Ramp builds products with an eye for security
-* Ramp detects and responds to threats before they cause harm
-* Security powers Ramp’s growth 
-Check out our Engineering Blog for more on our tech stack, mission and values!
-
-What You’ll Do
-
-* Drive our security roadmap for Ramp’s data platform: review our deployments to identify opportunities for improvement
-* Design and build security-focused infrastructure primitives and integrate them into our existing products and development processes
-* Lead remediation of prioritized issues across our technology stack
-* Partner with data, infrastructure, and product teams to design and deploy solutions which are inherently secure 
-What You Need
-
-* Minimum 5 years of experience building software
-* Minimum 5 years of experience building internally facing data tooling using systems like Snowflake, Clickhouse, Fivetran, Hightouch, dbt, Redash, Looker, etc.
-* A strong sense of ownership: you need to drive projects from inception to scaling it in production
-* Desire to work in a fast-paced environment, continuously grow, and master your craft 
-Nice-to-Haves
-
-* Experience with Python (Flask) and Terraform
-* Experience with AWS
-* Experience improving the developer experience and security properties of a internal data tooling
-
-
