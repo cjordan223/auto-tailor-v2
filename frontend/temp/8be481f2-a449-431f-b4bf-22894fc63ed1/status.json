@@ -1,9 +1,0 @@
-{
-  "status": "error",
-  "progress": 0,
-  "step": "Processing failed",
-  "updatedAt": "2025-08-21T07:42:34.294Z",
-  "error": "Process exited with code 1",
-  "stderr": "",
-  "stdout": "[2025-08-21 00:42:34] Starting clean workflow for job description: /Users/connerjordan/Documents/Sandbox_v4/frontend/temp/8be481f2-a449-431f-b4bf-22894fc63ed1/job-description.txt\n/Users/connerjordan/Documents/Sandbox_v4/run_workflow_clean.sh: line 30: venv/bin/activate: No such file or directory\n"
-}
