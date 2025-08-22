@@ -198,6 +198,24 @@
           </select>
         </div>
 
+        <!-- PDF Viewer Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            PDF Viewer Type
+          </label>
+          <select
+            v-model="pdfViewerType"
+            class="w-full p-3 border border-gray-300 rounded-lg focus-ring"
+          >
+            <option value="pdfjs">PDF.js (Clean, Interactive)</option>
+            <option value="iframe">Clean iframe (Simple, Fast)</option>
+            <option value="browser">Browser Default (Full Controls)</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Choose how PDFs are displayed in the results page
+          </p>
+        </div>
+
         <!-- Auto-download Results -->
         <div class="flex items-center justify-between">
           <div>
@@ -247,6 +265,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Workflow Log -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Workflow Log</h2>
+        <button
+          @click="refreshWorkflowLog"
+          :disabled="loadingLog"
+          class="btn btn-secondary"
+        >
+          {{ loadingLog ? '⏳' : '🔄' }} Refresh
+        </button>
+      </div>
+      
+      <div v-if="loadingLog" class="text-center py-8">
+        <div class="text-gray-500">Loading workflow log...</div>
+      </div>
+      
+      <div v-else-if="workflowLog" class="space-y-4">
+        <div class="flex items-center justify-between text-sm text-gray-600">
+          <span>Last updated: {{ formatDate(workflowLog.lastModified) }}</span>
+          <button
+            @click="clearWorkflowLog"
+            class="text-error-600 hover:text-error-700"
+          >
+            Clear Log
+          </button>
+        </div>
+        
+        <div class="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
+          <pre class="text-sm text-gray-700 whitespace-pre-wrap font-mono">{{ workflowLog.log }}</pre>
+        </div>
+      </div>
+      
+      <div v-else class="text-center py-8 text-gray-500">
+        No workflow log found. Run a resume generation to see workflow data.
+      </div>
+    </div>
   </div>
 </template>
 
@@ -285,11 +341,16 @@ const geminiStatus = ref({ available: false })
 const openaiStatus = ref({ available: false })
 const ollamaStatus = ref({ available: false })
 
+// Workflow Log
+const workflowLog = ref(null)
+const loadingLog = ref(false)
+
 // Settings (reactive references to the global settings)
 const apiKeys = settings.apiKeys
 const ollamaUrl = ref(settings.ollamaUrl)
 const defaultProvider = ref(settings.defaultProvider)  
 const autoDownload = ref(settings.autoDownload)
+const pdfViewerType = ref(settings.pdfViewerType || 'pdfjs')
 
 // Methods
 const toggleApiKeyVisibility = (provider) => {
@@ -304,6 +365,7 @@ const saveSettings = async () => {
     settings.ollamaUrl = ollamaUrl.value
     settings.defaultProvider = defaultProvider.value
     settings.autoDownload = autoDownload.value
+    settings.pdfViewerType = pdfViewerType.value
     
     // Save to localStorage (happens automatically via useSettings watcher)
     const success = saveSettingsToStorage()
@@ -372,13 +434,60 @@ const clearHistory = async () => {
   }
 }
 
+const refreshWorkflowLog = async () => {
+  try {
+    loadingLog.value = true
+    const response = await fetch('http://localhost:3001/api/process/log')
+    const data = await response.json()
+    
+    if (data.success) {
+      workflowLog.value = data
+    } else {
+      throw new Error(data.error || 'Failed to fetch workflow log')
+    }
+  } catch (error) {
+    console.error('Failed to fetch workflow log:', error)
+    alert('Failed to fetch workflow log: ' + error.message)
+  } finally {
+    loadingLog.value = false
+  }
+}
+
+const clearWorkflowLog = async () => {
+  if (confirm('Are you sure you want to clear the workflow log? This cannot be undone.')) {
+    try {
+      const response = await fetch('http://localhost:3001/api/process/log', {
+        method: 'DELETE'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        workflowLog.value = null
+        alert('Workflow log cleared!')
+      } else {
+        throw new Error(data.error || 'Failed to clear workflow log')
+      }
+    } catch (error) {
+      console.error('Failed to clear workflow log:', error)
+      alert('Failed to clear workflow log: ' + error.message)
+    }
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'Never'
+  return new Date(dateString).toLocaleString()
+}
+
 // Lifecycle
 onMounted(() => {
   // Sync local refs with global settings
   ollamaUrl.value = settings.ollamaUrl
   defaultProvider.value = settings.defaultProvider
   autoDownload.value = settings.autoDownload
+  pdfViewerType.value = settings.pdfViewerType || 'pdfjs'
   
   checkProviderStatus()
+  refreshWorkflowLog()
 })
 </script>

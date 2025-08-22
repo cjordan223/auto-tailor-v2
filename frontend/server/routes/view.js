@@ -35,6 +35,7 @@ router.get('/:jobId/:fileType', async (req, res) => {
       res.setHeader('Content-Disposition', `inline; filename="${filename}"`)
       res.setHeader('Cache-Control', 'no-cache')
       res.setHeader('X-Frame-Options', 'SAMEORIGIN')
+      res.setHeader('X-Content-Type-Options', 'nosniff')
       
       // Stream the file
       const fileStream = await fs.readFile(filePath)

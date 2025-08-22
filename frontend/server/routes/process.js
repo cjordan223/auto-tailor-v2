@@ -9,7 +9,30 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Create logs directory if it doesn't exist
+const logsDir = path.join(__dirname, '../../logs')
+try {
+  await fs.mkdir(logsDir, { recursive: true })
+} catch (error) {
+  // Directory might already exist, ignore error
+}
+
 const router = express.Router()
+
+/**
+ * Write workflow log entry
+ */
+async function writeWorkflowLog(jobId, message, type = 'info') {
+  try {
+    const timestamp = new Date().toISOString()
+    const logEntry = `[${timestamp}] [${jobId}] [${type.toUpperCase()}] ${message}\n`
+    const logFile = path.join(logsDir, 'workflow.log')
+    
+    await fs.appendFile(logFile, logEntry, 'utf8')
+  } catch (error) {
+    console.error('Failed to write workflow log:', error)
+  }
+}
 
 // Configure multer for file uploads (job description only)
 const storage = multer.diskStorage({
@@ -132,6 +155,9 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
   const statusFile = path.join(tempDir, 'status.json')
   
   try {
+    // Log workflow start
+    await writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}`)
+    
     // Update status
     await updateStatus(statusFile, { 
       status: 'processing', 
@@ -200,6 +226,19 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       stdout += output
       console.log(`[${jobId}] stdout:`, output)
       
+      // Write to workflow log (only meaningful workflow output)
+      const lines = output.split('\n').filter(line => line.trim())
+      for (const line of lines) {
+        // Only log workflow-related output, not API calls or noise
+        if (line.includes('🔄') || line.includes('✅') || line.includes('❌') || 
+            line.includes('📋') || line.includes('🔍') || line.includes('🔧') ||
+            line.includes('📊') || line.includes('🎉') || line.includes('Step') ||
+            line.includes('Created:') || line.includes('Extracted') || line.includes('Saved') ||
+            line.includes('Applied') || line.includes('Comparing') || line.includes('Rendering')) {
+          writeWorkflowLog(jobId, line.trim(), 'workflow')
+        }
+      }
+      
       // Parse output for meaningful progress updates
       parseOutputAndUpdateStatus(statusFile, output, jobId)
     })
@@ -209,6 +248,14 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       stderr += output
       console.error(`[${jobId}] stderr:`, output)
       
+      // Write errors to workflow log
+      const lines = output.split('\n').filter(line => line.trim())
+      for (const line of lines) {
+        if (line.includes('Error') || line.includes('Failed') || line.includes('Warning')) {
+          writeWorkflowLog(jobId, line.trim(), 'error')
+        }
+      }
+      
       // Parse stderr for errors and progress
       parseOutputAndUpdateStatus(statusFile, output, jobId, true)
     })
@@ -216,6 +263,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     child.on('close', async (code) => {
       try {
         if (code === 0) {
+          await writeWorkflowLog(jobId, 'Workflow completed successfully', 'success')
+          
           await updateStatus(statusFile, { 
             status: 'processing', 
             progress: 80,
@@ -252,6 +301,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
           })
           
         } else {
+          await writeWorkflowLog(jobId, `Workflow failed with exit code ${code}`, 'error')
+          
           await updateStatus(statusFile, { 
             status: 'error', 
             progress: 0,
@@ -268,6 +319,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     
   } catch (error) {
     console.error(`Processing error for job ${jobId}:`, error)
+    await writeWorkflowLog(jobId, `Processing error: ${error.message}`, 'error')
+    
     await updateStatus(statusFile, { 
       status: 'error', 
       progress: 0,
@@ -432,5 +485,65 @@ async function updateStatus(statusFile, status) {
     console.error('Error updating status file:', error)
   }
 }
+
+// Endpoint to get workflow log
+router.get('/log', async (req, res) => {
+  try {
+    const logFile = path.join(logsDir, 'workflow.log')
+    
+    try {
+      const logContent = await fs.readFile(logFile, 'utf8')
+      res.json({
+        success: true,
+        log: logContent,
+        lastModified: new Date().toISOString()
+      })
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        res.json({
+          success: true,
+          log: 'No workflow log found yet.',
+          lastModified: null
+        })
+      } else {
+        throw error
+      }
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    })
+  }
+})
+
+// Endpoint to clear workflow log
+router.delete('/log', async (req, res) => {
+  try {
+    const logFile = path.join(logsDir, 'workflow.log')
+    
+    try {
+      await fs.unlink(logFile)
+      res.json({
+        success: true,
+        message: 'Workflow log cleared successfully'
+      })
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        res.json({
+          success: true,
+          message: 'Workflow log was already empty'
+        })
+      } else {
+        throw error
+      }
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    })
+  }
+})
 
 export default router

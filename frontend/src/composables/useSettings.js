@@ -8,7 +8,8 @@ const settings = reactive({
   },
   ollamaUrl: 'http://localhost:11434',
   defaultProvider: 'gemini',
-  autoDownload: false
+  autoDownload: false,
+  pdfViewerType: 'pdfjs'
 })
 
 const isLoaded = ref(false)
@@ -31,7 +32,8 @@ export function useSettings() {
           },
           ollamaUrl: parsed.ollamaUrl || 'http://localhost:11434',
           defaultProvider: parsed.defaultProvider || 'gemini',
-          autoDownload: parsed.autoDownload || false
+          autoDownload: parsed.autoDownload || false,
+          pdfViewerType: parsed.pdfViewerType || 'pdfjs'
         })
       }
       isLoaded.value = true
@@ -50,7 +52,8 @@ export function useSettings() {
         apiKeys: settings.apiKeys,
         ollamaUrl: settings.ollamaUrl,
         defaultProvider: settings.defaultProvider,
-        autoDownload: settings.autoDownload
+        autoDownload: settings.autoDownload,
+        pdfViewerType: settings.pdfViewerType
       }
       localStorage.setItem('tex-tailor-settings', JSON.stringify(toSave))
       return true

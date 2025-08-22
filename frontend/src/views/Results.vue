@@ -32,11 +32,12 @@
 
     <!-- Results Content -->
     <div v-else-if="results && isCompleted" class="space-y-8">
+
       <!-- Document Previews and Downloads -->
       <div class="space-y-6">
-        <div class="grid md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-8">
           <!-- Resume PDF Card -->
-          <div class="card">
+          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <span class="text-2xl mr-2">📄</span>
               Resume PDF
@@ -53,7 +54,7 @@
           </div>
 
           <!-- Cover Letter PDF Card -->
-          <div class="card">
+          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <span class="text-2xl mr-2">💌</span>
               Cover Letter PDF
@@ -70,7 +71,7 @@
           </div>
 
           <!-- Skills Changes Card -->
-          <div class="card">
+          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <span class="text-2xl mr-2">🛠️</span>
               Skills Changes
