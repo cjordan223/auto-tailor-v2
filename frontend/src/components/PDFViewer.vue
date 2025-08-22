@@ -2,15 +2,17 @@
   <div class="pdf-viewer-container">
     <div v-if="loading" class="pdf-loading">
       <div class="text-center py-8">
-        <div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full mx-auto mb-2"></div>
+        <div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full mx-auto mb-2">
+        </div>
         <p class="text-sm text-gray-600">Loading PDF...</p>
       </div>
     </div>
-    
+
     <div v-else-if="error" class="pdf-error">
       <div class="text-center py-8 text-red-600">
         <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-5-2h10l-5-2 5-2H7l5 2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-5-2h10l-5-2 5-2H7l5 2z"></path>
         </svg>
         <p class="text-sm mb-2">{{ error }}</p>
         <p class="text-xs text-gray-500 mb-3">Falling back to browser PDF viewer</p>
@@ -24,56 +26,40 @@
         </div>
       </div>
     </div>
-    
+
     <div v-else class="pdf-viewer">
       <!-- Direct PDF link with preview -->
       <div class="pdf-preview-container">
         <div class="pdf-preview-header">
           <span class="text-sm text-gray-600">PDF Preview</span>
-          <a 
-            :href="pdfUrl" 
-            target="_blank" 
-            class="text-sm text-primary-600 hover:text-primary-800 underline"
-          >
+          <a :href="pdfUrl" target="_blank" class="text-sm text-primary-600 hover:text-primary-800 underline">
             Open in New Tab
           </a>
         </div>
         <div class="pdf-preview-content">
           <!-- Try object element first, fallback to iframe -->
-          <object 
-            ref="pdfFrame"
-            :data="pdfUrl"
-            type="application/pdf"
-            class="pdf-iframe"
-            @load="onLoad"
-            @error="onError"
-            title="PDF Viewer"
-          >
-            <iframe 
-              :src="pdfUrl"
-              class="pdf-iframe"
-              @load="onLoad"
-              @error="onError"
-              title="PDF Viewer Fallback"
-            ></iframe>
+          <object ref="pdfFrame" :data="pdfUrl" type="application/pdf" class="pdf-iframe" @load="onLoad"
+            @error="onError" title="PDF Viewer">
+            <iframe :src="pdfUrl" class="pdf-iframe" @load="onLoad" @error="onError"
+              title="PDF Viewer Fallback"></iframe>
           </object>
         </div>
       </div>
-      
+
       <!-- Fallback message for unsupported browsers -->
       <div v-if="showFallback" class="pdf-fallback">
         <div class="text-center py-8 bg-gray-50 rounded-lg">
           <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
           </svg>
           <p class="text-gray-600 mb-3">PDF preview not supported in this browser</p>
-          <a 
-            :href="pdfUrl" 
-            target="_blank" 
-            class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
+          <a :href="pdfUrl" target="_blank"
+            class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
             </svg>
             Open PDF in New Tab
           </a>
@@ -107,7 +93,13 @@ const pdfFrame = ref(null)
 let loadTimeout = null
 
 // Computed
-const pdfUrl = computed(() => `/api/view/${props.jobId}/${props.fileType}`)
+const pdfUrl = computed(() => {
+  const baseUrl = `/api/view/${props.jobId}/${props.fileType}`
+  // Add comprehensive parameters to hide the sidebar by default in browser PDF viewers
+  // These parameters work across different PDF viewers (Chrome, Firefox, Safari, etc.)
+  const timestamp = Date.now() // Cache busting
+  return `${baseUrl}?t=${timestamp}#toolbar=1&navpanes=0&scrollbar=1&view=FitH&pagemode=none&statusbar=0&messages=0&viewrect=0,0,800,600`
+})
 
 // Methods
 const onLoad = () => {
@@ -145,10 +137,10 @@ const fallbackToIframe = () => {
   error.value = null
   showFallback.value = false
   loading.value = true
-  
+
   // Clear any existing timeout
   clearTimeout(loadTimeout)
-  
+
   // Force reload by changing src
   if (pdfFrame.value) {
     const currentSrc = pdfFrame.value.src
@@ -157,7 +149,7 @@ const fallbackToIframe = () => {
       pdfFrame.value.src = currentSrc
     }, 100)
   }
-  
+
   // Set timeout for loading
   loadTimeout = setTimeout(() => {
     if (loading.value) {
@@ -174,14 +166,14 @@ const openInNewTab = () => {
 const initializePDF = () => {
   console.log('Initializing PDF viewer for:', props.jobId, props.fileType)
   console.log('PDF URL:', pdfUrl.value)
-  
+
   // Clear any existing timeout
   clearTimeout(loadTimeout)
-  
+
   loading.value = true
   error.value = null
   showFallback.value = false
-  
+
   // For PDFs, we'll assume they load successfully after a short delay
   // since many browsers don't fire proper load events for embedded PDFs
   setTimeout(() => {
@@ -190,7 +182,7 @@ const initializePDF = () => {
       onLoad()
     }
   }, 2000)
-  
+
   // Set a longer timeout for actual failure
   loadTimeout = setTimeout(() => {
     if (loading.value) {
