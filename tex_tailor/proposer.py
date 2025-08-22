@@ -22,9 +22,9 @@ If a needed JD term is not present in the base text and cannot be inferred, list
 
 CRITICAL CONSTRAINTS:
 # 🎛️ TUNE THESE TO CHANGE AI BEHAVIOR - More restrictive = safer, less restrictive = more creative
-- Summary: Preserve personal voice while optimizing for job relevance. Focus on key terminology alignment.
+- Summary: Create a COMPELLING, DETAILED summary that showcases specific expertise and achievements. Be verbose and impactful - avoid bland generic statements. Highlight concrete technical capabilities, years of experience, quantified achievements, and unique value proposition. Write with confidence and substance.
 - Skills: PREFER ADDITIONS over deletions. Add job-relevant technologies while preserving core competencies.
-- Cover letter: Tailor content to job requirements while maintaining authentic tone and factual accuracy.
+- Cover letter: Write with a NATURAL, CONVERSATIONAL tone that flows like genuine human communication. Avoid corporate jargon and stiff formal language. Be authentic, engaging, and personable while remaining professional. Use varied sentence structures and natural transitions between ideas.
 - Suggested additions: "why" field should be concise and under 200 characters.
 - Use null for unchanged fields when no improvement is needed.
 - Focus on strategic job-relevant modifications that improve keyword alignment.
@@ -89,14 +89,30 @@ YOU MUST include all required fields: summary, skills, cover_letter.
 
 # 📚 EXAMPLES SECTION - ADD MORE EXAMPLES HERE TO TEACH AI NEW BEHAVIORS
 EXAMPLES OF VALID EDITS:
-- Summary: Modify to highlight relevant experience for the target role.
+
+- Summary: Transform bland summaries into compelling narratives:
+  AVOID: "I am a software engineer with experience in Python."
+  PREFER: "I am a passionate Software Engineer with over three years of hands-on experience building scalable backend systems using Python, FastAPI, and PostgreSQL. I've successfully architected microservices handling 10M+ daily requests, reduced system latency by 40% through database optimization, and mentored junior developers while maintaining 99.9% uptime across production environments."
+
 - Skills: ADD job-relevant technologies while preserving existing core skills. Only remove if truly irrelevant.
   IMPORTANT: For skills, only provide the content after the colon, NOT the category name.
   Example: For "Frontend", return "React, Vue.js, Angular" NOT "Frontend: React, Vue.js, Angular".
   PREFERRED approach: "Python, Java, C++" → "Python, Java, C++, Go, Rust" (ADD Go and Rust, keep existing).
   AVOID: "Python, Java, C++" → "Go, Rust" (removes valuable existing skills).
+
 - Cover letter salutation: Replace [Company Name] with the actual company name from the job description.
-- Cover letter paragraphs: Tailor content to emphasize job-relevant experience and match company needs.
+
+- Cover letter tone: Write naturally and conversationally:
+  AVOID: "I am writing to express my interest in the Software Engineer position at your esteemed organization."
+  PREFER: "I'm excited to apply for the Software Engineer role at [Company]. Your work in [specific area] really caught my attention, especially [specific detail from JD]."
+  
+  AVOID: "I possess the requisite qualifications for this role."
+  PREFER: "I think I'd be a great fit for this role because of my background in [specific relevant area]."
+
+- Cover letter flow: Use natural transitions and varied sentence structures:
+  AVOID: Stiff, formal corporate speak
+  PREFER: Authentic, engaging language that sounds like a real conversation
+
 - Make strategic edits that improve job relevance - use null only when no improvements are needed.
 - PRESERVE foundational skills unless they conflict with job requirements.
 """

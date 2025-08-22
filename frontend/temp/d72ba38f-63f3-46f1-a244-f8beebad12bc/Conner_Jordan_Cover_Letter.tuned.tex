@@ -1,0 +1,195 @@
+% === LLM-META ===
+% {
+%   "doc": "COVER",
+%   "version": "1.0",
+%   "chunks": [
+%     {
+%       "id": "COVER.PREAMBLE",
+%       "editable": false,
+%       "type": "fixed"
+%     },
+%     {
+%       "id": "COVER.HEADER",
+%       "editable": false,
+%       "type": "fixed"
+%     },
+%     {
+%       "id": "COVER.DATE",
+%       "editable": false,
+%       "type": "fixed"
+%     },
+%     {
+%       "id": "COVER.SIGNOFF",
+%       "editable": false,
+%       "type": "fixed"
+%     },
+%     {
+%       "id": "COVER.SALUTATION",
+%       "editable": true,
+%       "type": "salutation"
+%     },
+%     {
+%       "id": "COVER.P1",
+%       "editable": true,
+%       "type": "paragraph"
+%     },
+%     {
+%       "id": "COVER.P2",
+%       "editable": true,
+%       "type": "paragraph"
+%     },
+%     {
+%       "id": "COVER.P3",
+%       "editable": true,
+%       "type": "paragraph"
+%     },
+%     {
+%       "id": "COVER.P4",
+%       "editable": true,
+%       "type": "paragraph"
+%     }
+%   ],
+%   "rules": {
+%     "output": "TEXT ONLY"
+%   }
+% }
+% === /LLM-META ===
+
+% === LLM:LOCK START COVER.PREAMBLE ===
+%-------------------------
+% Cover Letter in Latex — LLM-READY
+% Based on Conner Jordan's Resume Template (MIT)
+%-------------------------
+
+% === LLM-META (DO NOT REMOVE) ===
+% {
+%   "doc": "COVER_LETTER",
+%   "version": "1.0",
+%   "chunks": [
+%     {"id": "COVER.HEADER",      "editable": false},
+%     {"id": "COVER.DATE",        "editable": false},
+%     {"id": "COVER.SALUTATION",  "editable": false},
+%     {"id": "COVER.P1",          "editable": true,  "type": "paragraph"},
+%     {"id": "COVER.P2",          "editable": true,  "type": "paragraph"},
+%     {"id": "COVER.P3",          "editable": true,  "type": "paragraph"},
+%     {"id": "COVER.P4",          "editable": true,  "type": "paragraph"},
+%     {"id": "COVER.SIGNOFF",     "editable": false}
+%   ],
+%   "rules": {
+%     "output": "TEXT ONLY",
+%     "forbidden": ["LaTeX commands", "new macros", "extra paragraphs"],
+%     "max_edits_per_paragraph": 1
+%   }
+% }
+% === /LLM-META ===
+
+\documentclass[letterpaper,11pt]{article}
+
+% === LLM:LOCK START COVER.PREAMBLE ===
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage[hidelinks]{hyperref}
+\usepackage[english]{babel}
+\usepackage{fontawesome5}
+
+\usepackage{CormorantGaramond}
+\usepackage{charter}
+
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+\urlstyle{same}
+
+\definecolor{cvblue}{rgb}{0.054, 0.329, 0.518}
+\definecolor{black}{rgb}{0.075, 0.031, 0.063}
+\definecolor{darkcolor}{rgb}{0.059, 0.271, 0.224}
+\definecolor{SlateGrey}{rgb}{0.180, 0.180, 0.180}
+\definecolor{LightGrey}{rgb}{0.400, 0.400, 0.400}
+
+\raggedbottom
+\raggedright
+
+\newcommand{\companyName}[1]{\textbf{\large#1}}
+\newcommand{\contactInfo}[4]{
+    \begin{center}
+    {\Huge \textbf{#1}}\\[4pt]
+    {\Large #2}\\[8pt]
+    \href{mailto:#3}{
+        \raisebox{-0.15\height}{\faEnvelope\ #3}} ~ | ~
+    \raisebox{-0.15\height}{\faMapMarker\ #4}
+    \end{center}
+}
+% === LLM:LOCK END COVER.PREAMBLE ===
+% === LLM:LOCK END COVER.PREAMBLE ===
+
+\begin{document}
+
+% === LLM:LOCK START COVER.HEADER ===
+\begin{center}
+  {\Huge \textbf{Conner Jordan}}\\[4pt]
+  {\Large San Luis Obispo, CA}\\[4pt]
+  \href{tel:+18059759793}{
+    \raisebox{-0.05\height}{\faPhone\ (805) 975-9793}} ~ | ~
+  \href{mailto:connercharlesjordan@gmail.com}{
+    \raisebox{-0.15\height}{\faEnvelope\ connercharlesjordan@gmail.com}} ~ | ~
+  \raisebox{-0.15\height}{\faMapMarker\ San Luis Obispo, CA} \\
+  \href{https://www.linkedin.com/in/conner-jordan-4b268514a/}{
+    \raisebox{-0.15\height}{\faLinkedin\ linkedin.com/in/conner-jordan-4b268514a}} ~ | ~
+  \href{https://github.com/cjordan223}{
+    \raisebox{-0.15\height}{\faGithub\ github.com/cjordan223}}
+\end{center}
+% === LLM:LOCK END COVER.HEADER ===
+
+
+
+\vspace{16pt}
+
+% === LLM:LOCK START COVER.DATE ===
+\begin{flushright}
+August 13, 2025
+\end{flushright}
+% === LLM:LOCK END COVER.DATE ===
+
+% === LLM:CHUNK START COVER.SALUTATION ===
+
+\textbackslash\{\}noindent
+Hello forml team,
+% === LLM:CHUNK END COVER.SALUTATION ===
+
+\vspace{16pt}
+
+% === LLM:CHUNK START COVER.P1 ===
+I'm applying for the Software Engineer role at forml. I was drawn to your work in redefining how businesses integrate and utilize AI/ML, particularly through scalable back-end solutions using Flask, Redis, and Celery.
+% === LLM:CHUNK END COVER.P1 ===
+
+\vspace{16pt}
+
+% === LLM:CHUNK START COVER.P2 ===
+My core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure that all processes are testable, versioned, and easy to roll back.
+% === LLM:CHUNK END COVER.P2 ===
+
+\vspace{16pt}
+
+% === LLM:CHUNK START COVER.P3 ===
+At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.
+% === LLM:CHUNK END COVER.P3 ===
+
+\vspace{16pt}
+
+% === LLM:CHUNK START COVER.P4 ===
+Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects leaned on the same foundations you need: robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance.
+% === LLM:CHUNK END COVER.P4 ===
+
+\vspace{16pt}
+
+% === LLM:LOCK START COVER.SIGNOFF ===
+Sincerely,  
+Conner Jordan
+% === LLM:LOCK END COVER.SIGNOFF ===
+
+\end{document}

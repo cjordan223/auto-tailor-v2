@@ -209,3 +209,9 @@ __marimo__/
 
 # web ui
 frontend/node_modules
+
+# Tex-Tailor specific ignores
+/out/
+*.fdb_latexmk
+*.aux
+*.out

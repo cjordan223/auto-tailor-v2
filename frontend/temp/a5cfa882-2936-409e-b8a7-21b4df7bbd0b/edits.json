@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "replace": "I am a passionate Software Engineer with over three years of hands-on experience in developing robust backend systems using Python, Flask, and PostgreSQL. My expertise includes designing scalable solutions for high-concurrency applications, optimizing data storage and transit, and implementing CI/CD pipelines. I have successfully reduced system latency by 40% through database optimization and maintained a 99.9% uptime across production environments while mentoring junior developers."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Angular"
+    },
+    "Backend": {
+      "replace": "Flask, Django, FastAPI, Spring Boot"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Terraform, CI/CD (GitHub Actions)"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, MLX"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, OWASP Top 10, API Security"
+    },
+    "Databases": {
+      "replace": "PostgreSQL, MongoDB, Snowflake"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\nDear forml Team,"
+    },
+    "paragraphs": [
+      "I'm excited to apply for the Software Engineer role at forml. Your work in building next-generation cloud infrastructure and AI-driven solutions really caught my attention, especially your focus on scalability and performance.",
+      "My core strengths lie in Python and systems-level development, with a strong emphasis on creating secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing applications with Docker/Kubernetes, provisioning infrastructure with Terraform, and implementing CI/CD pipelines to ensure all processes are testable, versioned, and easy to roll back.",
+      "In my previous role, I engineered a solution that consolidated diverse enterprise systems into a unified platform. This involved automating the end-to-end workflow from data aggregation to remediation, reducing manual effort by over 100 hours per month and improving visibility and response capabilities across thousands of endpoints.",
+      "Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects relied on robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Redis",
+      "why": "The job description mentions Redis as a key technology for scalable back-end solutions."
+    },
+    {
+      "term": "Celery",
+      "why": "The job description specifically lists Celery as a required technology for task queue management and asynchronous processing."
+    }
+  ]
+}

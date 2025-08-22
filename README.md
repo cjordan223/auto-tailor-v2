@@ -13,7 +13,10 @@ Command-line tool for advanced users, scripts, and batch processing.
 ## ✅ CURRENT STATUS: FULLY FUNCTIONAL
 
 **✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
+**✨ NEW**: LaTeX Source Code Viewer - side-by-side LaTeX source and PDF preview with syntax highlighting  
 **✨ NEW**: Embedded PDF viewers - preview your customized resume and cover letter instantly  
+**✨ NEW**: Resilient API fallback system - works even when AI providers are unavailable  
+**✨ NEW**: Enhanced AI prompts - compelling summaries and conversational cover letter tone  
 **✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
 **✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
 **✅ FIXED**: Path handling issues resolved - workflow now works from any directory  
@@ -84,8 +87,90 @@ Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI
 2. **Configure**: Select AI provider (Gemini, OpenAI, Ollama) and model
 3. **Process**: Express server calls Python CLI with uploaded files
 4. **Monitor**: Real-time status updates via JSON status files
-5. **Preview**: Inline PDF viewers for immediate document preview
-6. **Download**: Generated PDFs served via Express endpoints
+5. **Preview**: Side-by-side LaTeX source and PDF preview with syntax highlighting
+6. **Download**: Generated PDFs and LaTeX files served via Express endpoints
+
+### 🔍 LaTeX Source Code Viewer
+
+The Results page now features a **side-by-side LaTeX source and PDF viewer** with advanced capabilities:
+
+#### Features
+- **Syntax Highlighting**: LaTeX commands, environments, comments, math mode, and braces are color-coded
+- **Line Numbers**: Easy reference and navigation through the source code
+- **Copy to Clipboard**: One-click copying of entire LaTeX source for further editing
+- **Responsive Design**: Two-column layout on desktop, stacked on mobile
+- **Real-time Loading**: Fetches LaTeX files via dedicated API endpoint
+- **Error Handling**: Graceful fallbacks if LaTeX files aren't available
+
+#### Technical Implementation
+- **Backend**: New `/api/view/:jobId/:fileType/tex` endpoint serves LaTeX files as `text/plain`
+- **Frontend**: Custom `LaTeXViewer.vue` component with syntax highlighting and copy functionality
+- **File Mapping**: Both `.tex` files automatically copied to temp directory during processing
+- **Layout**: CSS Grid responsive layout with PDF preview on right, LaTeX source on left
+
+#### Syntax Highlighting Colors
+- **Commands**: Green (`\textbf`, `\section`)
+- **Environments**: Red (`\begin{document}`, `\end{itemize}`)
+- **Comments**: Gray italic (`% This is a comment`)
+- **Math Mode**: Orange with background (`$equation$`)
+- **Braces**: Blue (`{`, `}`)
+- **Optional Arguments**: Purple (`[optional]`)
+
+#### Usage
+Users can now:
+1. **Inspect** the generated LaTeX source alongside the PDF
+2. **Copy** LaTeX code for further editing in their preferred LaTeX editor
+3. **Learn** from the AI's LaTeX customizations and structure
+4. **Debug** any formatting issues by examining the source
+
+### 🔄 Resilient API Fallback System
+
+The Results endpoint features a **multi-strategy fallback system** that ensures the UI always displays meaningful data, even when AI providers are unavailable:
+
+#### Strategy 1: Auto-Detect Provider
+- Attempts to call `/api/review?format=json` (no provider specified)
+- Allows the review route to auto-detect available AI providers
+- Uses any configured provider (OpenAI, Gemini, Ollama) automatically
+
+#### Strategy 2: Direct File Fallback
+- If review API fails, reads directly from `out/edits.json`
+- Extracts `suggested_additions` from the edits file
+- Computes statistics in Node.js matching Python CLI logic:
+  - `total_chunks_modified`: Count of non-empty edit sections
+  - `skills_sections_updated`: Number of modified skills categories
+  - `cover_letter_paragraphs`: Count of cover letter paragraph changes
+  - `suggested_additions`: Number of suggested additions
+
+#### Strategy 3: Minimal Default
+- If even file reading fails, provides minimal default data
+- Ensures UI sections always appear with meaningful content
+- Maintains backward compatibility
+
+#### Benefits
+- ✅ **Always Works**: UI sections appear regardless of provider availability
+- ✅ **Provider Agnostic**: No hard dependency on specific AI providers
+- ✅ **Accurate Data**: Computes real statistics from actual edits
+- ✅ **Performance**: Fast fallback with minimal overhead
+- ✅ **Backward Compatible**: Existing UI logic unchanged
+
+#### Example Output
+```json
+{
+  "suggestedAdditions": [
+    {"term": "Flask", "why": "Required by job description"},
+    {"term": "Redis", "why": "Required by job description"}
+  ],
+  "reviewData": {
+    "overview": "Successfully analyzed and customized your resume with 3 modifications, 8 skills updates, and 4 cover letter adjustments. Generated 3 additional recommendations based on the job description.",
+    "statistics": {
+      "total_chunks_modified": 3,
+      "skills_sections_updated": 8,
+      "cover_letter_paragraphs": 4,
+      "suggested_additions": 3
+    }
+  }
+}
+```
 
 ### CLI Architecture
 
@@ -274,6 +359,77 @@ tex-tailor diff --export diff_report.txt
 # Run complete workflow (single command)
 ./run_workflow_clean.sh job_description.txt
 ```
+
+## 🤖 Enhanced AI Prompts & Behavior
+
+The AI instructions have been significantly enhanced to produce **more compelling summaries** and **conversational cover letters**:
+
+### Summary Enhancement
+**Previous Approach**: Generic, bland summaries
+```
+"I am a software engineer with experience in Python."
+```
+
+**New Approach**: Compelling, detailed narratives with substance
+```
+"I am a passionate Software Engineer with over three years of hands-on experience building scalable backend systems using Python, FastAPI, and PostgreSQL. I've successfully architected microservices handling 10M+ daily requests, reduced system latency by 40% through database optimization, and mentored junior developers while maintaining 99.9% uptime across production environments."
+```
+
+### Cover Letter Tone Refinement
+**Previous Approach**: Formal, corporate language
+```
+"I am writing to express my interest in the Software Engineer position at your esteemed organization."
+```
+
+**New Approach**: Natural, conversational tone
+```
+"I'm excited to apply for the Software Engineer role at [Company]. Your work in [specific area] really caught my attention, especially [specific detail from JD]."
+```
+
+### Key Improvements
+- **Verbose & Impactful**: AI creates detailed summaries showcasing specific expertise
+- **Concrete Examples**: Includes years of experience, quantified achievements, technical capabilities
+- **Conversational Flow**: Cover letters sound like genuine human communication
+- **Natural Transitions**: Varied sentence structures and authentic language
+- **Avoid Jargon**: Eliminates stiff formal corporate speak
+- **Personable Professional**: Engaging while maintaining professional quality
+
+### Technical Implementation
+**Location**: `/tex_tailor/proposer.py`
+- Enhanced system prompts with specific examples of good vs. bad writing
+- Detailed guidance on tone, structure, and content
+- Examples showing transformation from bland to compelling content
+
+### Impact on Generated Content
+- **Summaries**: Now highlight unique value propositions and concrete achievements
+- **Cover Letters**: Flow naturally with authentic, engaging language
+- **Skills**: Enhanced with job-relevant technologies while preserving expertise
+- **Overall Quality**: Professional documents that stand out from generic templates
+
+### ✍️ Professional Signature Layout
+
+The LaTeX cover letter template now includes **proper signature spacing**:
+
+**Previous Layout**:
+```latex
+Sincerely,  
+Conner Jordan
+```
+
+**New Layout**:
+```latex
+Sincerely,
+
+\vspace{24pt}
+
+Conner Jordan
+```
+
+**Benefits**:
+- Professional appearance with proper white space for physical signatures
+- Approximately two lines of spacing between "Sincerely," and typed name
+- Industry-standard business letter formatting
+- Ready for printing and signing
 
 ## Generalized Cover Letter System
 
@@ -545,6 +701,10 @@ open out/*.pdf
 - **Real-time Processing**: ✅ Live status updates and progress tracking
 
 ### Recent Major Improvements
+- **✨ NEW: LaTeX Source Code Viewer**: Side-by-side LaTeX source and PDF preview with syntax highlighting and copy functionality
+- **✨ NEW: Resilient API System**: Multi-strategy fallback ensures UI always works, even without AI providers
+- **✨ NEW: Enhanced AI Prompts**: Compelling summaries and conversational cover letters that sound human
+- **✨ NEW: Professional Signature Layout**: Proper LaTeX spacing for business letter formatting
 - **✨ NEW: Web Interface**: Vue.js frontend with drag & drop, real-time processing, beautiful UI
 - **✨ NEW: PDF Viewer Integration**: Embedded PDF viewers for instant document preview without downloads
 - **✨ NEW: Express API**: Backend server bridging web frontend to Python CLI

@@ -1,0 +1,51 @@
+Job Title: Software Engineer
+
+Location: San Francisco Bay Area or Remote
+
+Company: forml
+
+
+About Us:
+
+forml (for machine learning) is a fast-paced early-stage startup redefining the way businesses integrate and utilize AI/ML. Backed by some of the most prestigious names in Venture Capital, we are poised for rapid growth and looking for passionate individuals to join as foundational members.
+
+
+Job Description:
+
+We’re based out of San Mateo, and are seeking a full-time Software Engineer. If you thrive in an energetic environment and are eager to be part of a disruptive venture, we want to hear from you.
+
+
+Responsibilities Include:
+
+    Design and implement scalable back-end solutions utilizing technologies like Flask, Redis, and Celery.
+    Implement best practices and elegant solutions for bringing data intensive web applications to enterprise speed and scale for many concurrent users.
+    Ensure the reliability and performance of big data processing, and design efficient data storage and transit solutions, using databases such as Postgres.
+    Implement and manage application infrastructure and deployment.
+    Conduct thorough code reviews, provide constructive feedback, and mentor future junior team members to foster continuous improvement.
+    Stay abreast of industry trends and emerging technologies, particularly in AI and machine learning, and propose innovative solutions to enhance our products.
+    Proactively identify and address technical challenges, troubleshoot issues, and propose solutions to optimize performance and efficiency.
+
+
+
+Requirements:
+
+    Bachelor's degree in Computer Science, Engineering, or related field (or equivalent experience).
+    2+ years of proven experience as a Software Engineer or similar role, preferably in a startup or fast-paced environment.
+    Proficiency in Python and PostgreSQL.
+    Solid understanding of back-end frameworks like Flask, Redis, and Celery.
+    Solid understanding of or experience with scaling out both cloud-hosted and on-prem industry applications.
+    Solid experience with data engineering principles, such as distributed data engineering, scalable processing of large datasets, and experience with databases such as Postgres.
+    Some experience with containerization frameworks like Docker, and deployment frameworks such as EC2/ECS. Basic understanding of CI/CD pipelines.
+    Passion for learning and staying updated on the latest technologies and industry trends.
+    Excellent problem-solving skills, attention to detail, and ability to thrive in a collaborative team environment.
+    Strong communication skills and ability to effectively articulate technical concepts.
+
+
+
+Preferred but not mandatory:
+
+    Experience with IaC tools such as Terraform or Cloudformation.
+    Passion/Knowledge of AI and machine learning concepts is a plus.
+    Knowledge of frontend frameworks such as Angular, or experience with Typescript is a plus.
+
+

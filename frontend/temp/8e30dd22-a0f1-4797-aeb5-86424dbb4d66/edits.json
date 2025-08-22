@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "replace": "I am a dedicated software engineer with over five years of experience in building robust data tooling and security-focused infrastructure. My expertise lies in Python (Flask), Terraform, AWS, and integrating secure development practices across the full lifecycle from inception to deployment."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js"
+    },
+    "Backend": {
+      "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone)"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\nDear Ramp Team,"
+    },
+    "paragraphs": [
+      "I'm excited to apply for the Security Engineering role at Ramp. Your commitment to building a secure and intelligent financial operations platform resonates with my passion for integrating security into every aspect of software development.\n\nMy background includes extensive experience in Python (Flask) and Terraform, as well as working with Snowflake, Clickhouse, Fivetran, Hightouch, dbt, Redash, Looker, and other data tooling systems. I am particularly drawn to your mission of rethinking how modern finance teams operate through AI-driven solutions.",
+      "In my previous role, I led the development of a unified platform that integrated Rapid7, Jamf, and BigFix, automating workflows from data aggregation to remediation. This initiative not only reduced manual effort by over 100 hours per month but also enhanced visibility and response capabilities across thousands of endpoints.",
+      "I have hands-on experience in developing custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects were built on robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting practices to ensure high availability and performance.",
+      "With a proven track record of driving projects from inception to scaling them in production, I am confident that my skills align well with Ramp's mission to build reliable, secure, and scalable software solutions. I look forward to the opportunity to contribute to your team."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Snowflake",
+      "why": "Enhances relevance for data tooling expertise."
+    },
+    {
+      "term": "Clickhouse",
+      "why": "Relevant for advanced data querying and analytics."
+    },
+    {
+      "term": "Fivetran",
+      "why": "Important for ETL processes in modern data stacks."
+    }
+  ]
+}
