@@ -204,10 +204,38 @@ const upload = multer({
 |----------|--------|-------------|
 | `/api/process` | POST | Start resume processing (job description + baseline template) |
 | `/api/status/:jobId` | GET | Check processing status |
-| `/api/download/:jobId/:fileType` | GET | Download generated files |
+| `/api/download/:jobId/:fileType` | GET | Download generated files (attachment disposition) |
+| `/api/view/:jobId/:fileType` | GET | View PDFs inline for embedded preview (inline disposition) |
+| `/api/results/:jobId` | GET | Get complete job results with skills changes and review data |
 | `/api/providers` | GET | Get available AI providers |
 | `/api/validate` | POST | Validate API keys with real API calls |
 | `/api/health` | GET | Health check |
+
+#### PDF Viewing Endpoints
+
+**Download vs View Endpoints:**
+- **Download**: `/api/download/:jobId/:fileType` - Sets `Content-Disposition: attachment` for file downloads
+- **View**: `/api/view/:jobId/:fileType` - Sets `Content-Disposition: inline` for iframe embedding
+
+**Supported File Types:**
+- `resume` - Generated resume PDF
+- `cover-letter` - Generated cover letter PDF  
+- `edits` - JSON file with all edits (download only)
+
+**Example Usage:**
+```javascript
+// Embed PDF in iframe for preview
+<iframe src="/api/view/abc123/resume" width="100%" height="400px"></iframe>
+
+// Download file
+window.location.href = "/api/download/abc123/resume"
+```
+
+**Security Headers:**
+- `Content-Type: application/pdf`
+- `X-Frame-Options: SAMEORIGIN` (allows iframe embedding from same origin)
+- `Cache-Control: no-cache` (ensures fresh content)
+- CORS headers for cross-origin requests
 
 #### Real-time Output Streaming
 

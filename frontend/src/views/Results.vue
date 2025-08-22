@@ -32,15 +32,16 @@
 
     <!-- Results Content -->
     <div v-else-if="results && isCompleted" class="space-y-8">
-      <!-- Download Section -->
-      <div class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Download Files</h2>
-        <div class="grid md:grid-cols-3 gap-4">
-          <!-- Resume PDF -->
-          <div class="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-all">
-            <div class="text-4xl mb-3">📄</div>
-            <h3 class="font-medium text-gray-900 mb-2">Resume PDF</h3>
-            <p class="text-sm text-gray-600 mb-4">Your customized resume</p>
+      <!-- Document Previews and Downloads -->
+      <div class="space-y-6">
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Resume PDF Card -->
+          <div class="card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span class="text-2xl mr-2">📄</span>
+              Resume PDF
+            </h3>
+            <PDFViewer :job-id="jobId" file-type="resume" class="mb-4" />
             <button
               @click="downloadFile('resume')"
               :disabled="downloading.resume"
@@ -51,11 +52,13 @@
             </button>
           </div>
 
-          <!-- Cover Letter PDF -->
-          <div class="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-all">
-            <div class="text-4xl mb-3">💌</div>
-            <h3 class="font-medium text-gray-900 mb-2">Cover Letter PDF</h3>
-            <p class="text-sm text-gray-600 mb-4">Your customized cover letter</p>
+          <!-- Cover Letter PDF Card -->
+          <div class="card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span class="text-2xl mr-2">💌</span>
+              Cover Letter PDF
+            </h3>
+            <PDFViewer :job-id="jobId" file-type="cover-letter" class="mb-4" />
             <button
               @click="downloadFile('cover-letter')"
               :disabled="downloading.coverLetter"
@@ -66,18 +69,74 @@
             </button>
           </div>
 
-          <!-- Edits JSON -->
-          <div class="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-all">
-            <div class="text-4xl mb-3">📋</div>
-            <h3 class="font-medium text-gray-900 mb-2">Edit Details</h3>
-            <p class="text-sm text-gray-600 mb-4">JSON file with all changes</p>
+          <!-- Skills Changes Card -->
+          <div class="card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span class="text-2xl mr-2">🛠️</span>
+              Skills Changes
+            </h3>
+            <div class="h-96 overflow-y-auto mb-4">
+              <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="space-y-4">
+                <div
+                  v-for="(changes, category) in results.skillsChanges"
+                  :key="category"
+                  class="border border-gray-200 rounded-lg p-4"
+                >
+                  <h4 class="text-sm font-medium text-gray-900 mb-3">{{ category }}</h4>
+                  
+                  <!-- Skills Added -->
+                  <div v-if="changes.added.length > 0" class="mb-3">
+                    <h5 class="text-xs font-medium text-green-700 mb-2 flex items-center">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                      </svg>
+                      Added ({{ changes.added.length }})
+                    </h5>
+                    <div class="flex flex-wrap gap-1">
+                      <span
+                        v-for="skill in changes.added"
+                        :key="skill"
+                        class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium"
+                      >
+                        {{ skill }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Skills Removed -->
+                  <div v-if="changes.removed.length > 0">
+                    <h5 class="text-xs font-medium text-red-700 mb-2 flex items-center">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                      </svg>
+                      Removed ({{ changes.removed.length }})
+                    </h5>
+                    <div class="flex flex-wrap gap-1">
+                      <span
+                        v-for="skill in changes.removed"
+                        :key="skill"
+                        class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium line-through"
+                      >
+                        {{ skill }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-center py-8 text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-sm">No skills changes were made</p>
+              </div>
+            </div>
             <button
               @click="downloadFile('edits')"
               :disabled="downloading.edits"
               class="btn btn-secondary w-full"
             >
               <span v-if="downloading.edits">Downloading...</span>
-              <span v-else>Download Edits</span>
+              <span v-else>Download Edit Details</span>
             </button>
           </div>
         </div>
@@ -106,60 +165,6 @@
         </div>
       </div>
 
-      <!-- Skills Changes -->
-      <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Skills Changes</h2>
-        <p class="text-gray-600 mb-4">
-          The following skills were modified to better align with the job requirements:
-        </p>
-        <div class="space-y-6">
-          <div
-            v-for="(changes, category) in results.skillsChanges"
-            :key="category"
-            class="border border-gray-200 rounded-lg p-6"
-          >
-            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ category }}</h3>
-            
-            <!-- Skills Added -->
-            <div v-if="changes.added.length > 0" class="mb-4">
-              <h4 class="text-sm font-medium text-green-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Added Skills ({{ changes.added.length }})
-              </h4>
-              <div class="flex flex-wrap gap-2">
-                <span
-                  v-for="skill in changes.added"
-                  :key="skill"
-                  class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium"
-                >
-                  {{ skill }}
-                </span>
-              </div>
-            </div>
-            
-            <!-- Skills Removed -->
-            <div v-if="changes.removed.length > 0">
-              <h4 class="text-sm font-medium text-red-700 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                </svg>
-                Removed Skills ({{ changes.removed.length }})
-              </h4>
-              <div class="flex flex-wrap gap-2">
-                <span
-                  v-for="skill in changes.removed"
-                  :key="skill"
-                  class="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full font-medium line-through"
-                >
-                  {{ skill }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Review Overview -->
       <div v-if="results.reviewData?.overview" class="card">
@@ -228,6 +233,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
+import PDFViewer from '../components/PDFViewer.vue'
 
 const route = useRoute()
 const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()

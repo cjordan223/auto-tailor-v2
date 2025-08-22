@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 import uploadRoutes from './routes/upload.js'
 import processRoutes from './routes/process.js'
 import downloadRoutes from './routes/download.js'
+import viewRoutes from './routes/view.js'
 import statusRoutes from './routes/status.js'
 import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
@@ -61,6 +62,7 @@ app.get('/health', (req, res) => {
 app.use('/api/upload', uploadRoutes)
 app.use('/api/process', processRoutes)
 app.use('/api/download', downloadRoutes)
+app.use('/api/view', viewRoutes) // Dedicated view routes for inline PDF viewing
 app.use('/api/status', statusRoutes)
 app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)

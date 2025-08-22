@@ -13,6 +13,7 @@ Command-line tool for advanced users, scripts, and batch processing.
 ## ✅ CURRENT STATUS: FULLY FUNCTIONAL
 
 **✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
+**✨ NEW**: Embedded PDF viewers - preview your customized resume and cover letter instantly  
 **✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
 **✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
 **✅ FIXED**: Path handling issues resolved - workflow now works from any directory  
@@ -83,7 +84,8 @@ Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI
 2. **Configure**: Select AI provider (Gemini, OpenAI, Ollama) and model
 3. **Process**: Express server calls Python CLI with uploaded files
 4. **Monitor**: Real-time status updates via JSON status files
-5. **Download**: Generated PDFs served via Express endpoints
+5. **Preview**: Inline PDF viewers for immediate document preview
+6. **Download**: Generated PDFs served via Express endpoints
 
 ### CLI Architecture
 
@@ -544,6 +546,7 @@ open out/*.pdf
 
 ### Recent Major Improvements
 - **✨ NEW: Web Interface**: Vue.js frontend with drag & drop, real-time processing, beautiful UI
+- **✨ NEW: PDF Viewer Integration**: Embedded PDF viewers for instant document preview without downloads
 - **✨ NEW: Express API**: Backend server bridging web frontend to Python CLI
 - **✅ Path Handling Fix**: Resolved critical path resolution issues - workflow now works from any directory
 - **✅ File Upload Integration**: Complete API integration for job description processing

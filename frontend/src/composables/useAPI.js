@@ -135,6 +135,13 @@ export function useAPI() {
   }
 
   /**
+   * Get PDF URL for viewing inline (no download)
+   */
+  const getPDFViewUrl = (jobId, fileType) => {
+    return `/api/view/${jobId}/${fileType}`
+  }
+
+  /**
    * Get available providers and models
    */
   const getProviders = async () => {
@@ -215,6 +222,7 @@ export function useAPI() {
     processResume,
     checkStatus,
     downloadFile,
+    getPDFViewUrl,
     getProviders,
     getResults,
     getHistory,
