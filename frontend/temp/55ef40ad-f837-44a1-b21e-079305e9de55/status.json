@@ -1,0 +1,10 @@
+{
+  "status": "error",
+  "progress": 0,
+  "step": "Processing failed",
+  "detail": "An error occurred during processing. Check logs for details.",
+  "error": "Process exited with code 2",
+  "updatedAt": "2025-08-21T18:41:38.506Z",
+  "stderr": "Usage: python -m tex_tailor.cli workflow [OPTIONS] JOB_DESCRIPTION\nTry 'python -m tex_tailor.cli workflow --help' for help.\n\nError: No such option: --quiet\n",
+  "stdout": ""
+}

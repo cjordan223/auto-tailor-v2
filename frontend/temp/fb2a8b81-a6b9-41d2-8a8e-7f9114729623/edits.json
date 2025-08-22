@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "replace": "I am a passionate DevOps Engineer with over three years of experience in building and maintaining robust CI/CD pipelines, automating deployment processes on AWS, managing infrastructure as code (Terraform), and ensuring system security and compliance. My expertise includes containerization with Docker and Kubernetes orchestration, along with strong scripting skills in Bash and Python."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash"
+    },
+    "Frontend": {
+      "replace": ""
+    },
+    "Backend": {
+      "replace": ""
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS (EC2, S3, RDS, EKS), Google Cloud Platform, Azure, Docker, Kubernetes (EKS), Lambda, Ansible, Terraform, CI/CD (GitLab CI, Jenkins)"
+    },
+    "AI & LLM Tools": {
+      "replace": ""
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\\noindent\nHello Velocity Games team,"
+    },
+    "paragraphs": [
+      "I'm applying for the DevOps Engineer role at Velocity Games. I was drawn to your work in building and maintaining robust cloud infrastructure that supports immersive online multiplayer gaming experiences.\nMy core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure that all processes are testable, versioned, and easy to roll back.",
+      "At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.",
+      "Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects leaned on the same foundations you need: robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance.\nI am comfortable owning the entire lifecycle of a solution, from design through deployment and operations. This includes architecting and implementing features, instrumenting pipelines, documenting APIs and system contracts, and collaborating closely with cross-functional teams.",
+      "If your mandate is to build reliable, secure, and scalable software that solves complex problems in the gaming industry, I would like to help you ship that."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "gaming industry",
+      "why": "To highlight experience relevant to the gaming sector."
+    },
+    {
+      "term": "high-traffic applications",
+      "why": "To emphasize expertise in handling large-scale, low-latency systems."
+    }
+  ]
+}

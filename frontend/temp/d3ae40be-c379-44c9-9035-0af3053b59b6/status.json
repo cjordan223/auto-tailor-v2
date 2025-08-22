@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "progress": 100,
+  "step": "Processing complete!",
+  "detail": "Compiling LaTeX to PDF using latexmk",
+  "updatedAt": "2025-08-22T02:40:26.248Z",
+  "files": [
+    "Conner_Jordan_Software_Engineer.tuned.pdf",
+    "Conner_Jordan_Cover_Letter.tuned.pdf",
+    "edits.json"
+  ],
+  "completedAt": "2025-08-22T02:40:26.248Z"
+}

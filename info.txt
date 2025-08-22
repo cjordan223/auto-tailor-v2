@@ -1,6 +1,104 @@
 # Tex-Tailor Implementation Guide
 # Internal documentation for developers and customization
 
+## 🌐 WEB INTERFACE OVERVIEW
+
+The web interface provides a modern UI for the Python CLI backend:
+
+### Architecture
+```
+Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI Providers
+```
+
+### Key Files
+- `frontend/src/` - Vue.js frontend application
+- `frontend/server/` - Express.js API server
+- `frontend/package.json` - Dependencies and scripts
+
+### Quick Start
+```bash
+cd frontend
+npm install
+npm run dev  # Starts both frontend and backend
+```
+
+## 🎨 WEB INTERFACE CUSTOMIZATION
+
+### Frontend Styling
+**File:** `frontend/src/assets/style.css`
+- Tailwind CSS configuration for colors, themes
+- Custom component styles and animations
+
+### UI Components
+**Directory:** `frontend/src/components/`
+- `FileUpload.vue` - Drag & drop interface for job descriptions only
+- `ProviderSelector.vue` - AI provider selection cards with real-time API key status
+- `ProcessingStatus.vue` - Real-time progress indicators
+
+**Key Features:**
+- **ProviderSelector**: Shows ✓ configured / ⚠ required status for each provider
+- **Smart Linking**: Directs users to Settings page when API keys are missing
+- **Real-time Updates**: Status updates immediately when keys are configured
+
+**Note:** Resume upload functionality has been simplified. The system now uses a pre-configured baseline resume template with LLM markers for optimal processing. Custom resume template upload will be added in future releases.
+
+### Views/Pages
+**Directory:** `frontend/src/views/`
+- `Home.vue` - Main workflow page (job description → provider selection only)
+- `Results.vue` - Download and results dashboard  
+- `Settings.vue` - Configuration page
+
+### API Integration
+**File:** `frontend/src/composables/useAPI.js`
+- HTTP client for backend communication
+- File upload and download handling
+- API key transmission to backend during processing
+- Error management and retry logic
+- Real-time API key validation functionality
+
+### Settings Management
+**File:** `frontend/src/composables/useSettings.js`
+- Global reactive settings state management
+- Browser localStorage persistence with auto-save
+- API key storage and retrieval methods
+- Settings validation and default handling
+
+### Server Configuration
+**File:** `frontend/server/index.js`
+- Express.js server setup and middleware
+- API routes and CORS configuration
+- Job description file handling and subprocess management
+- Uses hardcoded baseline resume template path: `Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex`
+
+### API Key Processing
+**File:** `frontend/server/routes/process.js`
+- Accepts API keys from frontend requests as JSON
+- Merges with environment variables (frontend takes precedence)
+- Passes merged environment to Python CLI subprocess
+- Secure handling: keys only transmitted during processing, not stored on server
+
+### API Key Validation
+**File:** `frontend/server/routes/validate.js`
+- Real API validation endpoints for all providers
+- Makes actual API calls to verify key validity
+- Handles rate limits, timeouts, and connection errors
+- Secure validation: keys not logged or stored
+
+### Real-time Output Streaming
+**File:** `frontend/server/routes/process.js`
+- **Output Parsing Engine**: `parseOutputAndUpdateStatus()` function analyzes CLI stdout/stderr
+- **Progress Mapping**: Maps CLI messages to meaningful progress percentages and descriptions
+- **Error Categorization**: Intelligent detection of API auth, timeout, rate limit, and general errors
+- **Provider Detection**: Automatically identifies which AI provider is being used
+- **Status Enhancement**: Rich status updates with step, detail, provider, and error information
+
+### Enhanced ProcessingStatus Component
+**File:** `frontend/src/components/ProcessingStatus.vue`
+- **Detailed Progress Display**: Shows step descriptions and explanations
+- **Provider Visibility**: Displays which AI provider is actively processing
+- **Smart Error Handling**: Categorized error messages with actionable guidance
+- **Rich Information**: Same detailed experience as direct CLI usage
+
 ## WHERE TO TUNE THE MODEL & ADD PERSONALITY
 
 ### 🧠 MAIN PROMPT SYSTEM (PRIMARY LOCATION)

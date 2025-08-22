@@ -1,0 +1,60 @@
+ About the job
+
+About Ten One Aerospace
+
+
+Founded in 2020 in Washington, DC, Ten One Aerospace provides engineering services and products for the aerospace industry, specializing in astrodynamics, controls, and autonomy for space missions. Our focus is on spacecraft GNC systems and flight software (FSW). Ten One Aerospace is developing a full suite of GNC capabilities for space missions, including RPO and docking across all orbital regimes.
+
+
+Spacecraft RPO is a challenging, highly specialized, multidisciplinary field of aerospace engineering, extending beyond traditional GNC, and it is critical to space missions such as debris removal, on-orbit servicing, refueling, and in-space manufacturing. At Ten One Aerospace, we aim to make RPO safe and affordable to lower the entry barriers for new space companies and enable a robust space economy.
+
+
+When you join Ten One Aerospace, you’ll be a vital part of a passionate and supportive team dedicated to pushing the frontiers of aerospace technology. You’ll be empowered and given autonomy to propose improvements or innovations based on your observations and expertise. Our culture thrives on mentorship and intellectual growth as we seek to build a team of world-class experts on this critical skill set of spacefaring tomorrow.
+
+
+Position Overview
+
+
+We are seeking a Software Engineer who is excited to apply their experience in embedded systems and flight software development to a dynamic and growing aerospace company. This role involves hands-on design, development, integration, and testing of embedded flight software systems for spacecraft.
+
+
+This is an opportunity to contribute directly to next-generation spaceflight missions in a fast-paced, collaborative, and innovative environment.
+
+
+Key Responsibilities
+
+    Design, develop, and maintain embedded software in C/C++ and Python for real-time aerospace systems.
+    Work with real-time operating systems (RTOS) such as VxWorks or embedded Linux.
+    Develop and integrate software for spacecraft avionics, sensors, GNC systems, and communication systems.
+    Implement software unit tests and integration tests using GoogleTest, PyTest, or similar frameworks.
+    Develop build systems and integration pipelines using CMake and GitLab CI/CD tools.
+    Interface with spacecraft hardware through communication protocols such as UDP, TCP/IP, UART, and SpaceWire.
+    Collaborate with systems engineers, GNC engineers, and hardware teams to define software requirements and interfaces.
+    Document software designs, test procedures, and verification results.
+    Participate in critical design and code reviews, and support spacecraft integration and test campaigns.
+
+
+Required Qualifications
+
+    B.S. or M.S. in Computer Engineering, Electrical Engineering, Aerospace Engineering, Computer Science, or a related technical discipline.
+    Proficient in C/C++ and Python programming for embedded systems.
+    Experience cross compiling and working with ARM or other embedded architectures
+    Experience using Git for source control and GitLab for continuous integration.
+    Experience with Visual Studio & VS Code
+    Familiarity with CMake build system.
+    Strong understanding of embedded systems concepts and debugging hardware/software interfaces.
+    Ability to work independently and collaboratively within multidisciplinary engineering teams.
+    Strong written and verbal communication skills.
+    Must be authorized to work in the USA without sponsorship.
+
+
+Desired Skills
+
+    Experience with NASA’s Core Flight System (cFS) or other flight software frameworks.
+    Experience with containerization (Docker) in development workflows.
+    Familiarity with fault detection, isolation, and recovery (FDIR) concepts for spacecraft.
+    Previous experience supporting space missions, spacecraft integration and test, or satellite servicing missions.
+    Familiarity with flight dynamics, GNC algorithms, or robotics software frameworks.
+    Current security clearance or ability to obtain one is a plus.
+
+

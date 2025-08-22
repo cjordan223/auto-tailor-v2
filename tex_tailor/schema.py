@@ -349,23 +349,28 @@ def load_and_validate_edits(edits_file: str, base_text_file: str) -> Dict[str, A
 
 
 def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
-    """Clean edits JSON by removing null values and empty strings."""
+    """Clean edits JSON by replacing null values with empty strings."""
     cleaned = json.loads(json.dumps(edits))  # Deep copy
 
-    # Remove null summary
+    # Replace null summary with empty string
     if "summary" in cleaned and cleaned["summary"].get("replace") is None:
-        cleaned["summary"]["replace"] = None
+        cleaned["summary"]["replace"] = ""
 
-    # Clean skills
+    # Clean skills - replace null values with empty strings
     if "skills" in cleaned:
         for skill_name in list(cleaned["skills"].keys()):
             if cleaned["skills"][skill_name].get("replace") is None:
-                cleaned["skills"][skill_name]["replace"] = None
+                cleaned["skills"][skill_name]["replace"] = ""
+
+    # Clean cover letter salutation
+    if "cover_letter" in cleaned and "salutation" in cleaned["cover_letter"]:
+        if cleaned["cover_letter"]["salutation"].get("replace") is None:
+            cleaned["cover_letter"]["salutation"]["replace"] = ""
 
     # Clean cover letter paragraphs
     if "cover_letter" in cleaned and "paragraphs" in cleaned["cover_letter"]:
         for i, paragraph in enumerate(cleaned["cover_letter"]["paragraphs"]):
             if paragraph is None:
-                cleaned["cover_letter"]["paragraphs"][i] = None
+                cleaned["cover_letter"]["paragraphs"][i] = ""
 
     return cleaned

@@ -158,7 +158,8 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
 
     try:
         quiet = ctx.obj.get('quiet', False) if ctx.obj else False
-        propose_and_save_edits(jd, base_text, out, provider, model, quiet=quiet)
+        propose_and_save_edits(
+            jd, base_text, out, provider, model, quiet=quiet)
         click.echo("✓ Edit proposal complete")
     except Exception as e:
         click.echo(f"Error during proposal: {e}", err=True)
@@ -181,7 +182,7 @@ def apply(ctx, edits: Optional[str], resume: Optional[str], cover: Optional[str]
         resume = default_paths["baseline_resume"]
     if not cover:
         cover = default_paths["baseline_cover"]
-    
+
     # Validate input files
     if not Path(edits).exists():
         click.echo(f"Error: Edits file not found: {edits}", err=True)
@@ -226,7 +227,7 @@ def diff(ctx, original_resume: Optional[str], original_cover: Optional[str],
         original_resume = default_paths["baseline_resume"]
     if not original_cover:
         original_cover = default_paths["baseline_cover"]
-    
+
     if tuned_resume and tuned_cover:
         # Use specified files
         if not Path(tuned_resume).exists():
@@ -369,7 +370,8 @@ def status():
             click.echo(f"   ✓ {file}")
     else:
         click.echo("   ✗ No tuned .tex files found")
-        click.echo(f"   → Run: tex-tailor apply --edits {default_paths['edits']}")
+        click.echo(
+            f"   → Run: tex-tailor apply --edits {default_paths['edits']}")
 
     # Check PDFs
     pdf_files = list(out_dir.glob("*.pdf")) if out_dir.exists() else []
@@ -431,11 +433,13 @@ def open(out_dir: Optional[str]):
         try:
             if sys.platform == "darwin":
                 # Force use of Preview on macOS to avoid Adobe Reader caching issues
-                subprocess.run(["open", "-a", "Preview", str(pdf_file)], check=True)
+                subprocess.run(
+                    ["open", "-a", "Preview", str(pdf_file)], check=True)
             elif sys.platform == "linux":
                 subprocess.run(["xdg-open", str(pdf_file)], check=True)
             elif sys.platform == "win32":
-                subprocess.run(["start", str(pdf_file)], check=True, shell=True)
+                subprocess.run(["start", str(pdf_file)],
+                               check=True, shell=True)
             else:
                 click.echo(f"Unsupported platform: {sys.platform}")
                 click.echo("Could not automatically open PDF files.")
@@ -455,7 +459,7 @@ def log():
 @click.argument("job_description", type=click.Path(exists=True))
 def workflow(job_description: str, with_logging: bool):
     """Run the complete workflow with optional logging."""
-    
+
     if with_logging:
         with WorkflowLogger():
             run_workflow_steps(job_description)
@@ -470,7 +474,7 @@ def run_workflow_steps(job_description: str):
         click.echo("🔄 Step 1: Initializing...")
         init_files()
         click.echo("✅ Initialization complete")
-        
+
         # Step 2: Extract
         click.echo("🔄 Step 2: Extracting content...")
         default_paths = get_default_paths()
@@ -478,28 +482,41 @@ def run_workflow_steps(job_description: str):
         cover_file = default_paths["baseline_cover"]
         extract_to_json(resume_file, cover_file, default_paths["base_text"])
         click.echo("✅ Text extraction complete")
-        
+
         # Step 3: Propose edits
         click.echo("🔄 Step 3: Proposing edits...")
-        propose_and_save_edits(job_description, default_paths["base_text"], default_paths["edits"], "auto")
+        # Auto-detect provider
+        if os.getenv("OPENAI_API_KEY"):
+            provider = "openai"
+            click.echo("OPENAI_API_KEY found, using OpenAI provider.")
+        elif os.getenv("GEMINI_API_KEY"):
+            provider = "gemini"
+            click.echo("GEMINI_API_KEY found, using Gemini provider.")
+        else:
+            provider = "ollama"
+            click.echo("No API keys found, defaulting to Ollama provider.")
+
+        propose_and_save_edits(
+            job_description, default_paths["base_text"], default_paths["edits"], provider)
         click.echo("✅ Edit proposal complete")
-        
+
         # Step 4: Apply edits
         click.echo("🔄 Step 4: Applying edits...")
-        apply_edits_with_validation(resume_file, cover_file, default_paths["edits"])
+        apply_edits_with_validation(
+            resume_file, cover_file, default_paths["edits"])
         click.echo("✅ Edits applied")
-        
+
         # Step 5: Show diffs
         click.echo("🔄 Step 5: Showing differences...")
         show_diffs()
-        
+
         # Step 6: Render PDFs
         click.echo("🔄 Step 6: Rendering PDFs...")
         render_pdfs(config.paths.output_dir)
         click.echo("✅ PDF rendering complete")
-        
+
         click.echo("🎉 Workflow completed successfully!")
-        
+
     except Exception as e:
         click.echo(f"❌ Workflow failed: {e}", err=True)
         sys.exit(1)
@@ -510,18 +527,19 @@ def render_pdfs(out_dir: str):
     out_path = Path(out_dir)
     if not out_path.exists():
         raise RuntimeError(f"Output directory not found: {out_dir}")
-    
+
     tex_files = list(out_path.glob("*.tuned.tex"))
     if not tex_files:
         raise RuntimeError("No tuned .tex files found")
-    
+
     for tex_file in tex_files:
         result = subprocess.run([
             "latexmk", "-pdf", tex_file.name
         ], capture_output=True, text=True, cwd=out_path)
-        
+
         if result.returncode != 0:
-            raise RuntimeError(f"PDF rendering failed for {tex_file.name}: {result.stderr}")
+            raise RuntimeError(
+                f"PDF rendering failed for {tex_file.name}: {result.stderr}")
 
 
 if __name__ == "__main__":

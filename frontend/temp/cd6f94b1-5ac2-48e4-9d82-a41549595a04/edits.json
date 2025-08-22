@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "replace": "I am a highly motivated and results-oriented software engineer with a proven track record in developing robust and innovative solutions for complex systems. My expertise lies in embedded systems, real-time software development, and flight software (FSW) development using C/C++ and Python.  I have a strong understanding of aerospace engineering principles and experience working with real-time operating systems (RTOS) such as VxWorks and embedded Linux. I am proficient in software testing methodologies, utilizing frameworks like GoogleTest and PyTest, and experienced in building and integrating software for spacecraft avionics, sensors, and GNC systems. My experience spans the entire software development lifecycle, from requirements gathering to deployment and maintenance, with a focus on delivering high-quality, reliable, and maintainable code."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, C/C++, Java"
+    },
+    "Frontend": {
+      "replace": "null"
+    },
+    "Backend": {
+      "replace": "null"
+    },
+    "Cloud & DevOps": {
+      "replace": "Docker, Git, GitLab CI/CD, CMake"
+    },
+    "AI & LLM Tools": {
+      "replace": "null"
+    },
+    "Automation & Productivity": {
+      "replace": "null"
+    },
+    "Security & Operating Systems": {
+      "replace": "null"
+    },
+    "Databases": {
+      "replace": "null"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "Hello Ten One Aerospace team,"
+    },
+    "paragraphs": [
+      "I am writing to express my keen interest in the Software Engineer position at Ten One Aerospace, as advertised on [Platform where you saw the advertisement].  Ten One Aerospace's commitment to advancing spacecraft GNC systems and flight software (FSW) for critical space missions, particularly in the challenging area of RPO and docking, deeply resonates with my passion for aerospace engineering and software development.",
+      "My core strengths lie in embedded systems development using C/C++ and Python, complemented by my experience with real-time operating systems (RTOS) such as VxWorks and embedded Linux.  I am adept at designing, developing, integrating, and testing embedded flight software systems, and I am proficient in using GoogleTest and PyTest for software unit and integration testing. My experience with CMake build systems and GitLab CI/CD pipelines ensures efficient and reliable software development workflows.",
+      "In my previous role at [Previous Company Name], I was responsible for [ Briefly describe a relevant project or accomplishment that highlights skills mentioned in the JD, quantifying achievements whenever possible.  For example:  \"developing and deploying a real-time control system for a robotic arm, resulting in a 15% improvement in operational efficiency.\"  Focus on skills like embedded systems, C/C++, Python, RTOS, testing frameworks, and CI/CD.]. This experience directly aligns with the requirements of this role, particularly in the areas of embedded software development, real-time systems, and rigorous testing procedures.",
+      "I am confident that my skills and experience make me a strong candidate for this position. I am eager to contribute my expertise to Ten One Aerospace's mission of making RPO safe and affordable, and I am excited about the opportunity to work on next-generation spaceflight missions within your innovative and collaborative team. Thank you for your time and consideration. I look forward to hearing from you soon."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "SpaceWire",
+      "why": "The JD mentions SpaceWire as a communication protocol; adding this demonstrates familiarity with relevant aerospace communication standards."
+    },
+    {
+      "term": "VxWorks",
+      "why": "The JD explicitly mentions VxWorks as a desired RTOS; including this highlights relevant experience."
+    },
+    {
+      "term": "ARM architecture",
+      "why": "The JD specifies experience with ARM or other embedded architectures; this addition strengthens the application."
+    },
+    {
+      "term": "FDIR",
+      "why": "Familiarity with FDIR is a desired skill; mentioning it shows awareness of critical spacecraft operational considerations."
+    }
+  ]
+}

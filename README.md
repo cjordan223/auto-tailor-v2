@@ -1,17 +1,49 @@
-# LaTeX Tailor
+# Tex-Tailor
 
-A deterministic CLI tool that tailors LaTeX résumés and cover letters to job descriptions using LLMs, while preserving document structure and preventing LaTeX corruption.
+AI-powered resume and cover letter customization with both CLI and modern web interface. Tailors LaTeX documents to job descriptions using LLMs while preserving document structure and preventing corruption.
+
+## 🎯 **Two Ways to Use Tex-Tailor**
+
+### 🌐 **Web Interface (Recommended for Most Users)**
+Modern Vue.js frontend with drag & drop, real-time processing, and beautiful UI.
+
+### 💻 **CLI Interface (Power Users & Automation)**
+Command-line tool for advanced users, scripts, and batch processing.
 
 ## ✅ CURRENT STATUS: FULLY FUNCTIONAL
 
-**Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping, file structure  
-**New**: Generalized cover letter with LLM placeholder instructions for dynamic content generation  
-**Fixed**: Removed overly restrictive validation constraints - LLM now has freedom to make quality edits  
-**Fixed**: Simplified CLI interface with sensible defaults and better environment variable support  
-**Fixed**: Cover letter salutation now dynamically replaces [Company Name] with actual company name  
-**Progress**: 100% success rate with quality-focused edits vs previous 10% failure rate  
+**✨ NEW**: Modern Vue.js web interface with drag & drop, real-time processing, and beautiful UI  
+**✨ NEW**: Embedded PDF viewers - preview your customized resume and cover letter instantly  
+**✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
+**✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
+**✅ FIXED**: Path handling issues resolved - workflow now works from any directory  
+**✅ FIXED**: File upload and processing integration fully functional  
+**Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping  
+**Enhanced**: Generalized cover letter with LLM placeholder instructions for dynamic content  
+**Improved**: Removed restrictive validation constraints - 100% success rate vs previous 10%  
+**Streamlined**: Simplified CLI with auto-detection and sensible defaults
 
-## Quick Start
+## 🚀 Quick Start
+
+### 🌐 Web Interface (Easiest)
+
+```bash
+# 1. Start the web application
+cd frontend
+npm install
+npm run dev
+
+# 2. Open http://localhost:3000 in your browser
+# 3. Configure API keys in Settings (first time only)
+# 4. Upload or paste job description
+# 5. Select AI provider (Gemini recommended)  
+# 6. Download customized resume and cover letter PDFs
+
+# Note: Uses pre-configured baseline resume template
+# Both frontend (port 3000) and backend (port 3001) will start automatically
+```
+
+### 💻 CLI Interface
 
 ```bash
 # 1. Install the package
@@ -37,9 +69,27 @@ tex-tailor render
 
 # 8. OR: Run complete workflow with one command
 ./run_workflow_clean.sh job_description.txt
+
+# ✅ VERIFIED: Path handling fixed - works from any directory
 ```
 
-## How It Works
+## 🏗️ Architecture
+
+### Web Interface Flow
+```
+Vue.js Frontend (port 3000) → Express.js API (port 3001) → Python CLI → AI Provider → Generated Files
+```
+
+1. **Upload**: Drag & drop resume template and job description
+2. **Configure**: Select AI provider (Gemini, OpenAI, Ollama) and model
+3. **Process**: Express server calls Python CLI with uploaded files
+4. **Monitor**: Real-time status updates via JSON status files
+5. **Preview**: Inline PDF viewers for immediate document preview
+6. **Download**: Generated PDFs served via Express endpoints
+
+### CLI Architecture
+
+The CLI tool uses a sophisticated marker system to safely edit LaTeX documents:
 
 ### 1. **Marker System** 
 The tool inserts special comment markers around editable content:
@@ -74,15 +124,44 @@ Only CHUNK content is sent to LLMs. LaTeX commands stay protected.
 - Validates no LaTeX commands in responses
 - Enforces edit limits (≤2 changes per section)
 
-## Installation
+## 📦 Installation
 
 ### Prerequisites
+
+**For CLI only:**
 - Python 3.8+
 - LaTeX distribution (for PDF rendering)
-- LLM provider (Ollama or Gemini)
 - ChkTeX (for LaTeX linting) - included with TeX Live
 
+**For Web Interface (additional):**
+- Node.js 18+
+- npm or yarn
+
+**AI Providers (choose one):**
+- Google Gemini API key (recommended)
+- OpenAI API key
+- Ollama local installation
+
 ### Setup
+
+**Web Interface (Recommended):**
+```bash
+# 1. Clone repository
+git clone <repo-url>
+cd tex-tailor
+
+# 2. Install Python CLI
+pip install -e .
+
+# 3. Install and start web interface
+cd frontend
+npm install
+npm run dev
+
+# 4. Open http://localhost:3000
+```
+
+**CLI Only:**
 ```bash
 # Clone and install
 git clone <repository>
@@ -373,6 +452,25 @@ python -m unittest tex_tailor.tests.test_extractor -v
 
 ## Troubleshooting
 
+### Recent Fixes (August 2025)
+
+**✅ Path Handling Issues - RESOLVED**
+- **Problem**: CLI workflow would hang after "🔄 Processing job description..." message
+- **Root Cause**: Relative path resolution causing Python CLI to fail finding job description files
+- **Solution**: `run_workflow_clean.sh` now converts all paths to absolute paths
+- **Status**: ✅ Fully resolved - workflow works from any directory
+
+**✅ File Upload Integration - RESOLVED**  
+- **Problem**: Web interface file uploads not processing correctly
+- **Root Cause**: Path handling issues between frontend and backend
+- **Solution**: Complete API integration with proper file handling
+- **Status**: ✅ Fully functional - drag & drop job descriptions work perfectly
+
+**✅ Real-time Processing - RESOLVED**
+- **Problem**: Limited visibility into processing progress
+- **Solution**: Live CLI output streaming with detailed status updates
+- **Status**: ✅ Complete - see exact progress and detailed output
+
 ### Common Commands
 ```bash
 # Reset working files (baselines stay untouched)
@@ -400,9 +498,41 @@ open out/*.pdf
 - All providers now achieve ~100% success rate with quality-focused validation
 - Use `./run_workflow_clean.sh` for streamlined single-command workflow
 
+### Verification Checklist
+
+**✅ To verify everything is working:**
+
+1. **CLI Workflow Test**:
+   ```bash
+   ./run_workflow_clean.sh test_jd.txt
+   # Should complete successfully with PDF generation
+   ```
+
+2. **Web Interface Test**:
+   ```bash
+   cd frontend && npm run dev
+   # Open http://localhost:3000
+   # Upload a job description file
+   # Should process and generate PDFs
+   ```
+
+3. **API Health Check**:
+   ```bash
+   curl http://localhost:3001/health
+   # Should return: {"status":"healthy","service":"tex-tailor-api"}
+   ```
+
+4. **Frontend Health Check**:
+   ```bash
+   curl http://localhost:3000 | head -3
+   # Should return HTML content
+   ```
+
 ## Current Status & Metrics
 
 ### ✅ Current Status (August 2025)
+- **Web Interface**: ✅ Modern Vue.js frontend with drag & drop, real-time processing
+- **API Server**: ✅ Express.js backend bridging web frontend to Python CLI
 - **Pipeline Infrastructure**: ✅ 100% (init → extract → propose → apply → render)
 - **PDF Generation**: ✅ Both résumé and cover letter compile successfully  
 - **LaTeX Validation**: ✅ Proper character escaping and structure preservation
@@ -410,8 +540,17 @@ open out/*.pdf
 - **File Structure**: ✅ All custom LaTeX commands preserved correctly
 - **Generalized Cover Letter**: ✅ Dynamic content generation with LLM placeholders
 - **Configuration Management**: ✅ Centralized config system with smart defaults
+- **Path Handling**: ✅ Fixed - workflow works from any directory
+- **File Upload**: ✅ API integration fully functional
+- **Real-time Processing**: ✅ Live status updates and progress tracking
 
 ### Recent Major Improvements
+- **✨ NEW: Web Interface**: Vue.js frontend with drag & drop, real-time processing, beautiful UI
+- **✨ NEW: PDF Viewer Integration**: Embedded PDF viewers for instant document preview without downloads
+- **✨ NEW: Express API**: Backend server bridging web frontend to Python CLI
+- **✅ Path Handling Fix**: Resolved critical path resolution issues - workflow now works from any directory
+- **✅ File Upload Integration**: Complete API integration for job description processing
+- **✅ Real-time Processing**: Live status updates with detailed CLI output streaming
 - **✅ Generalized Cover Letter**: Implemented LLM placeholder system for dynamic content generation
 - **✅ Validation Overhaul**: Removed artificial constraints that caused 90% failure rates
 - **✅ Quality Focus**: LLM now has freedom to make meaningful, job-relevant improvements
@@ -420,6 +559,72 @@ open out/*.pdf
 - **✅ Environment Variables**: Full support for OPENAI_MODEL, GEMINI_MODEL, OLLAMA_MODEL
 - **✅ Enhanced Workflow**: Single-command processing with `./run_workflow_clean.sh`
 - **✅ Configuration Management**: Centralized all hardcoded values into configurable system
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+**AI Provider API Keys:**
+```bash
+# Google Gemini (recommended)
+export GEMINI_API_KEY="your_gemini_api_key"
+
+# OpenAI (high quality)
+export OPENAI_API_KEY="your_openai_api_key"
+
+# Ollama (local - no key needed)
+export OLLAMA_BASE_URL="http://localhost:11434"
+```
+
+**Model Selection:**
+```bash
+# Override default models
+export GEMINI_MODEL="gemini-1.5-pro"
+export OPENAI_MODEL="gpt-4o"
+export OLLAMA_MODEL="qwen2.5:14b-instruct"
+```
+
+**Web Interface:**
+```bash
+# Server configuration (optional)
+export PORT=3001
+export FRONTEND_URL="http://localhost:3000"
+```
+
+### Web Interface Settings
+
+Configure API keys and preferences through the **Settings** page at `http://localhost:3000/settings`:
+
+#### API Key Management
+- **Secure Storage**: API keys stored in browser localStorage (never sent to server except during processing)
+- **Real-time Validation**: Test button (🧪) to verify keys work with actual API calls
+- **Visual Status**: Provider cards show ✓ configured / ⚠ required status
+- **Fallback Support**: Environment variables still work as backup
+
+#### Real-time Processing Visibility
+- **Detailed Progress**: See actual CLI output, not just percentages
+- **Step-by-Step Updates**: Know exactly what's happening (e.g., "Extracted 14 editable chunks")
+- **Provider Detection**: See which AI provider is actively being used
+- **Smart Error Messages**: Categorized errors with actionable guidance
+- **Same CLI Experience**: Get the rich information you're used to from direct CLI usage
+
+#### Provider Configuration
+- **Gemini**: Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **OpenAI**: Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+- **Ollama**: Configure server URL (default: http://localhost:11434)
+
+#### Additional Settings
+- **Default Provider**: Choose preferred AI provider
+- **Auto-download**: Automatically download generated files when processing completes
+- **Processing History**: View and clear previous jobs
+
+### CLI Configuration
+
+The CLI automatically detects available providers and uses sensible defaults. See `info.txt` for detailed customization options including:
+
+- AI personality tuning in `tex_tailor/proposer.py`
+- Validation strictness in `tex_tailor/schema.py`  
+- Model parameters in `tex_tailor/config.py`
 
 ## LaTeX Quality Control
 

@@ -1,6 +1,6 @@
 # Configuration Management
 
-Tex-tailor uses a centralized configuration system located in `tex_tailor/config.py`. This eliminates hardcoded values scattered throughout the codebase and makes the application easier to customize.
+Tex-tailor uses a centralized configuration system for both CLI and web interface. The CLI configuration is in `tex_tailor/config.py`, while the web interface has its own settings management system.
 
 ## ✅ Implementation Status: COMPLETE
 
@@ -9,7 +9,12 @@ All hardcoded values have been successfully centralized:
 - ✅ File paths and directory structures configurable  
 - ✅ CLI commands use smart defaults with runtime path resolution
 - ✅ Environment variable overrides preserved and enhanced
+- ✅ Web interface configuration system implemented
+- ✅ API server configuration with Express.js
 - ✅ Backward compatibility maintained
+- ✅ Path handling issues resolved - workflow works from any directory
+- ✅ File upload integration fully functional
+- ✅ Real-time processing with live CLI output streaming
 
 ## Configuration Structure
 
@@ -81,6 +86,219 @@ export OLLAMA_BASE_URL="http://192.168.1.100:11434"
 tex-tailor propose --jd job.txt --provider ollama
 tex-tailor propose --jd job.txt --provider openai
 tex-tailor propose --jd job.txt --provider gemini
+```
+
+## Web Interface Configuration
+
+### Frontend (Vue.js)
+
+The web frontend configuration is handled through:
+
+1. **Environment Variables**: Set in `.env` file or system environment
+2. **Settings Page**: User interface at `http://localhost:3000/settings`
+3. **Local Storage**: Browser-based settings persistence
+
+#### Environment Variables
+```bash
+# API Server Configuration
+PORT=3001                           # Express.js server port
+FRONTEND_URL=http://localhost:3000   # CORS allowed origin
+
+# AI Provider API Keys (same as CLI)
+GEMINI_API_KEY=your_gemini_key
+OPENAI_API_KEY=your_openai_key
+OLLAMA_BASE_URL=http://localhost:11434
+
+# Model Overrides (same as CLI)
+GEMINI_MODEL=gemini-1.5-pro
+OPENAI_MODEL=gpt-4o
+OLLAMA_MODEL=qwen2.5:14b-instruct
+```
+
+#### Settings Page Configuration
+
+Access via `http://localhost:3000/settings`:
+
+**API Key Management:**
+- **Secure Input**: Password-masked input fields with show/hide toggle
+- **Real-time Validation**: Test button (🧪) makes actual API calls to verify keys
+- **Visual Feedback**: Status indicators show ✓ configured / ⚠ required / ❌ invalid
+- **Automatic Storage**: Keys saved to browser localStorage on input
+- **Direct Links**: Quick access to provider API key pages
+
+**Provider Configuration:**
+- **Gemini Setup**: API key from Google AI Studio with validation
+- **OpenAI Setup**: API key from OpenAI Platform with validation  
+- **Ollama Setup**: Server URL configuration with connection testing
+- **Default Provider**: Choose preferred AI provider for new jobs
+- **Auto-download**: Automatically download generated files when processing completes
+
+**Additional Features:**
+- **Processing History**: View and clear previous jobs
+- **Backend Status**: Real-time connection indicator
+- **Settings Export**: All settings stored in localStorage
+
+#### Local Storage Settings
+
+Settings are persisted in browser local storage:
+```javascript
+{
+  "apiKeys": {
+    "gemini": "user_provided_key",    // Securely stored, only sent during processing
+    "openai": "user_provided_key"     // Validated with real API calls
+  },
+  "ollamaUrl": "http://localhost:11434",  // Server URL for local models
+  "defaultProvider": "gemini",            // Auto-selected on new jobs
+  "autoDownload": false                   // Auto-download completed files
+}
+```
+
+#### API Key Security
+- **Browser Storage**: Keys stored in localStorage, never transmitted except during processing
+- **Environment Fallback**: System environment variables used if localStorage keys not available
+- **Frontend Priority**: Browser-stored keys override environment variables
+- **Validation**: Real API calls test key validity before first use
+
+### Backend (Express.js)
+
+The Express.js API server configuration:
+
+#### Server Configuration
+```javascript
+// server/index.js
+const PORT = process.env.PORT || 3001
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000'
+
+// CORS configuration
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}))
+```
+
+#### File Upload Configuration
+```javascript
+// Multer configuration for job description uploads only
+const storage = multer.diskStorage({
+  destination: 'temp/',  // Temporary file storage
+  filename: (req, file, cb) => {
+    // UUID-based unique filenames
+  }
+})
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },  // 10MB limit
+  fileFilter: (req, file, cb) => {
+    // Job descriptions only: .txt, .pdf, .doc, .docx
+    const allowedTypes = ['.txt', '.pdf', '.doc', '.docx']
+    const ext = path.extname(file.originalname).toLowerCase()
+    cb(null, allowedTypes.includes(ext))
+  }
+})
+```
+
+#### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/process` | POST | Start resume processing (job description + baseline template) |
+| `/api/status/:jobId` | GET | Check processing status |
+| `/api/download/:jobId/:fileType` | GET | Download generated files (attachment disposition) |
+| `/api/view/:jobId/:fileType` | GET | View PDFs inline for embedded preview (inline disposition) |
+| `/api/results/:jobId` | GET | Get complete job results with skills changes and review data |
+| `/api/providers` | GET | Get available AI providers |
+| `/api/validate` | POST | Validate API keys with real API calls |
+| `/api/health` | GET | Health check |
+
+#### PDF Viewing Endpoints
+
+**Download vs View Endpoints:**
+- **Download**: `/api/download/:jobId/:fileType` - Sets `Content-Disposition: attachment` for file downloads
+- **View**: `/api/view/:jobId/:fileType` - Sets `Content-Disposition: inline` for iframe embedding
+
+**Supported File Types:**
+- `resume` - Generated resume PDF
+- `cover-letter` - Generated cover letter PDF  
+- `edits` - JSON file with all edits (download only)
+
+**Example Usage:**
+```javascript
+// Embed PDF in iframe for preview
+<iframe src="/api/view/abc123/resume" width="100%" height="400px"></iframe>
+
+// Download file
+window.location.href = "/api/download/abc123/resume"
+```
+
+**Security Headers:**
+- `Content-Type: application/pdf`
+- `X-Frame-Options: SAMEORIGIN` (allows iframe embedding from same origin)
+- `Cache-Control: no-cache` (ensures fresh content)
+- CORS headers for cross-origin requests
+
+#### Real-time Output Streaming
+
+The Express.js backend now provides real-time streaming of Python CLI output:
+
+**Output Parsing Engine:**
+```javascript
+// Parse CLI stdout/stderr in real-time
+parseOutputAndUpdateStatus(statusFile, output, jobId)
+
+// Intelligent progress mapping
+"🔄 Processing job description" → 10% "Processing job description..."
+"✓ Initialization complete" → 20% "Baseline files prepared"
+"Generated 12 edits" → 60% "Generated 12 targeted edits"
+```
+
+**Enhanced Status Response:**
+```json
+{
+  "status": "processing",
+  "progress": 40,
+  "step": "AI analysis in progress...",
+  "detail": "Sending content to AI provider for analysis",
+  "provider": "Gemini",
+  "error": null,
+  "updatedAt": "2025-08-21T07:00:00.000Z"
+}
+```
+
+**✅ Recent Fixes Applied:**
+- **Path Resolution**: All file paths now converted to absolute paths for reliable CLI execution
+- **File Upload**: Complete integration between frontend upload and backend processing
+- **Real-time Updates**: Live streaming of CLI output with detailed progress tracking
+
+**Error Categorization:**
+- API Authentication → "Invalid or missing API key"
+- Timeout → "AI provider request timed out"
+- Rate Limit → "API rate limit reached"
+- General → "Processing error with logs"
+
+### Development vs Production
+
+#### Development Configuration
+```bash
+# Start both frontend and backend
+cd frontend
+npm run dev  # Starts both servers concurrently
+
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:3001
+```
+
+#### Production Configuration
+```bash
+# Build frontend
+npm run build
+
+# Start production server
+npm run server
+
+# Or deploy separately:
+# - Frontend: Deploy 'dist' to Vercel/Netlify
+# - Backend: Deploy Express.js to Railway/Render
 ```
 
 ## CLI Changes
@@ -212,6 +430,16 @@ def __post_init__(self):
 ## Migration
 
 **✅ FULLY BACKWARD COMPATIBLE**: Existing scripts and environment variables continue to work without modification.
+
+## ✅ Verification Status (August 2025)
+
+**All systems verified and working:**
+- ✅ **CLI Workflow**: `./run_workflow_clean.sh test_jd.txt` completes successfully
+- ✅ **Web Interface**: Frontend (port 3000) and backend (port 3001) both functional
+- ✅ **File Upload**: Job description uploads process correctly
+- ✅ **Path Handling**: Works from any directory with absolute path resolution
+- ✅ **Real-time Processing**: Live status updates with detailed CLI output
+- ✅ **PDF Generation**: Both resume and cover letter PDFs generated successfully
 
 ### What Changed
 - Hardcoded defaults removed from CLI option decorators

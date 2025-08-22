@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "replace": "Passionate and driven software engineer with a proven track record of developing innovative and robust full-stack solutions for mobile games and apps.  Experience spans the entire software development lifecycle, from conception to deployment, with a focus on clean, efficient, and maintainable code. Proven ability to build products utilized by thousands of developers daily, reaching billions of users globally. Expertise in Python and JavaScript, along with cloud technologies (AWS, GCP, Azure) and NoSQL databases (MongoDB, Google Datastore)."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, JavaScript"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js, HTML, CSS"
+    },
+    "Backend": {
+      "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone)"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks, Google Datastore"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "Hello ByteBrew team,"
+    },
+    "paragraphs": [
+      "I am writing to express my keen interest in the Full Stack Engineer position at ByteBrew, as advertised on [Platform where you saw the ad - add this].  The opportunity to contribute to a platform used by thousands of game developers daily, impacting billions of users globally, is incredibly exciting.",
+      "My expertise aligns perfectly with ByteBrew's requirements.  I have a strong portfolio of shipped mobile game and app projects, showcasing my proficiency in full-stack development using JavaScript, SQL, HTML, and CSS, along with extensive experience in cloud providers (AWS, GCP, Azure), NoSQL databases (MongoDB, Google Datastore), and data warehousing (BigQuery, Redshift, Hadoop).  My experience building and deploying scalable, secure, and observable systems is directly applicable to your needs.",
+      "In a previous role, I engineered a solution that consolidated diverse enterprise systems (Rapid7, Jamf, BigFix) into a unified platform, automating the workflow and reducing manual effort by over 100 hours per month. This involved robust system architecture, strong authentication, and disciplined monitoring—all crucial for maintaining high availability and performance.  I am adept at architecting and implementing features, instrumenting pipelines, documenting APIs, and collaborating effectively within cross-functional teams.",
+      "I am confident in my ability to quickly integrate into your team and contribute meaningfully to ByteBrew's continued success. My passion for building innovative and impactful software solutions, combined with my proven track record, makes me an ideal candidate for this role. Thank you for your time and consideration."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Mobile Game Development",
+      "why": "The JD explicitly mentions experience building mobile games and apps, which is a significant part of my background."
+    },
+    {
+      "term": "Data Warehousing",
+      "why": "The JD mentions experience with data warehouses (Hadoop, Redshift, or BigQuery), and I have experience with BigQuery and Redshift."
+    }
+  ]
+}

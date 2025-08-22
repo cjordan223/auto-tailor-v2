@@ -1,0 +1,42 @@
+ASK: Simplify Frontend to Job Description Only
+
+  Objective: Modify the Vue.js frontend to only accept job descriptions, not resume uploads. Use the pre-configured baseline
+  resume with LLM markers.
+
+  Changes Needed:
+
+  1. Home.vue - Remove Resume Upload:
+    - Remove the first FileUpload component (resume template)
+    - Keep only the job description upload
+    - Update step indicator to be 2-step instead of 3-step
+    - Update canProceed logic to only check for job description
+  2. Update UI Flow:
+    - Step 1: Upload/paste job description only
+    - Step 2: Configure AI provider
+    - Step 3: Process and download results
+  3. Backend API Changes:
+    - Modify server/routes/process.js to use hardcoded baseline resume path
+    - Remove resume file handling from multer configuration
+    - Use the existing Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex
+  4. Add Future Enhancement Comment:
+  // TODO: Custom LaTeX upload support
+  // Currently uses pre-configured baseline resume with LLM markers
+  // Future: Allow users to upload custom LaTeX templates
+  // Requires: Marker detection, template validation, chunk extraction
+  5. Update Documentation:
+    - Add note in frontend README about current limitation
+    - Explain that custom templates are a planned feature
+    - Document the baseline template requirement
+
+  Files to Modify:
+  - frontend/src/views/Home.vue
+  - frontend/src/components/FileUpload.vue (make resume prop optional)
+  - frontend/server/routes/process.js
+  - frontend/README.md
+
+  Testing:
+  - Verify job description upload still works
+  - Confirm processing uses baseline resume automatically
+  - Test both text input and file upload for job descriptions
+
+  This keeps the current scope manageable while laying groundwork for future custom template support.

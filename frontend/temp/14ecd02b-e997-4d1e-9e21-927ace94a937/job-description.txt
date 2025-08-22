@@ -1,0 +1,39 @@
+ About the job
+
+Junior Node.js Developer – Remote (US-based)
+
+
+About the Company:
+
+We are recruiting on behalf of a fast-growing telehealth company specializing in employee wellbeing and weight loss. The company has witnessed significant growth in recent years and focuses on creating innovative tools and technologies that enhance both mental and physical health for organizations and their employees.
+
+
+Role Overview:
+
+The company is seeking a Junior Node.js Developer to join their engineering team. You will report to the VP of Engineering and work alongside a team of approximately five engineers. This is a fully remote role based anywhere in the United States.
+
+
+Requirements:
+
+Candidates must have hands-on experience with all of the following technologies:
+
+    Node.js
+    TypeScript
+    Apollo Server
+    GraphQL
+    PostgreSQL
+    Vue.js
+
+
+Responsibilities:
+
+    Collaborate with the engineering team to design, build, and maintain scalable applications.
+    Work with modern web technologies to deliver innovative telehealth solutions.
+    Participate in code reviews, testing, and continuous improvement processes.
+
+
+Why Apply:
+
+    Be part of a fast-growing company making a real impact on employee health and wellbeing.
+    Work remotely from anywhere in the U.S.
+    Join a small, collaborative, and supportive engineering team.
