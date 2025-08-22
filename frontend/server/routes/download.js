@@ -18,6 +18,8 @@ router.get('/:jobId/:fileType', async (req, res) => {
     const fileMap = {
       'resume': 'Conner_Jordan_Software_Engineer.tuned.pdf',
       'cover-letter': 'Conner_Jordan_Cover_Letter.tuned.pdf',
+      'resume-tex': 'Conner_Jordan_Software_Engineer.tuned.tex',
+      'cover-letter-tex': 'Conner_Jordan_Cover_Letter.tuned.tex',
       'edits': 'edits.json'
     }
     
@@ -32,7 +34,14 @@ router.get('/:jobId/:fileType', async (req, res) => {
       await fs.access(filePath)
       
       // Set appropriate headers
-      const contentType = filename.endsWith('.pdf') ? 'application/pdf' : 'application/json'
+      let contentType = 'application/octet-stream'
+      if (filename.endsWith('.pdf')) {
+        contentType = 'application/pdf'
+      } else if (filename.endsWith('.tex')) {
+        contentType = 'text/plain'
+      } else if (filename.endsWith('.json')) {
+        contentType = 'application/json'
+      }
       res.setHeader('Content-Type', contentType)
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
       

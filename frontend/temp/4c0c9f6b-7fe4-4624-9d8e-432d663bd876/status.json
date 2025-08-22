@@ -1,0 +1,7 @@
+{
+  "status": "processing",
+  "progress": 80,
+  "step": "Generating PDF files...",
+  "detail": "Compiling LaTeX to PDF using latexmk",
+  "updatedAt": "2025-08-22T05:41:38.203Z"
+}

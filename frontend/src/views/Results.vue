@@ -34,60 +34,101 @@
     <div v-else-if="results && isCompleted" class="space-y-8">
 
       <!-- Document Previews and Downloads -->
-      <div class="space-y-6">
-        <div class="grid grid-cols-1 gap-8">
-          <!-- Resume PDF Card -->
-          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <span class="text-2xl mr-2">📄</span>
-              Resume PDF
-            </h3>
-            <PDFViewer :job-id="jobId" file-type="resume" class="mb-4" />
-            <button
-              @click="downloadFile('resume')"
-              :disabled="downloading.resume"
-              class="btn btn-primary w-full"
-            >
-              <span v-if="downloading.resume">Downloading...</span>
-              <span v-else>Download Resume</span>
-            </button>
+      <div class="space-y-8">
+        <!-- Resume Section -->
+        <div class="card">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="text-2xl mr-3">📄</span>
+            Resume
+          </h3>
+          
+          <!-- Two-column layout for LaTeX and PDF -->
+          <div class="grid lg:grid-cols-2 gap-6 mb-6">
+            <!-- LaTeX Source Column -->
+            <div class="space-y-4">
+              <h4 class="text-md font-medium text-gray-800 flex items-center">
+                <span class="text-lg mr-2">📝</span>
+                LaTeX Source
+              </h4>
+              <LaTeXViewer :job-id="jobId" file-type="resume" />
+            </div>
+            
+            <!-- PDF Preview Column -->
+            <div class="space-y-4">
+              <h4 class="text-md font-medium text-gray-800 flex items-center">
+                <span class="text-lg mr-2">📋</span>
+                PDF Preview
+              </h4>
+              <PDFViewer :job-id="jobId" file-type="resume" />
+            </div>
           </div>
+          
+          <button
+            @click="downloadFile('resume')"
+            :disabled="downloading.resume"
+            class="btn btn-primary w-full"
+          >
+            <span v-if="downloading.resume">Downloading...</span>
+            <span v-else>Download Resume PDF</span>
+          </button>
+        </div>
 
-          <!-- Cover Letter PDF Card -->
-          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <span class="text-2xl mr-2">💌</span>
-              Cover Letter PDF
-            </h3>
-            <PDFViewer :job-id="jobId" file-type="cover-letter" class="mb-4" />
-            <button
-              @click="downloadFile('cover-letter')"
-              :disabled="downloading.coverLetter"
-              class="btn btn-primary w-full"
-            >
-              <span v-if="downloading.coverLetter">Downloading...</span>
-              <span v-else>Download Cover Letter</span>
-            </button>
+        <!-- Cover Letter Section -->
+        <div class="card">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="text-2xl mr-3">💌</span>
+            Cover Letter
+          </h3>
+          
+          <!-- Two-column layout for LaTeX and PDF -->
+          <div class="grid lg:grid-cols-2 gap-6 mb-6">
+            <!-- LaTeX Source Column -->
+            <div class="space-y-4">
+              <h4 class="text-md font-medium text-gray-800 flex items-center">
+                <span class="text-lg mr-2">📝</span>
+                LaTeX Source
+              </h4>
+              <LaTeXViewer :job-id="jobId" file-type="cover-letter" />
+            </div>
+            
+            <!-- PDF Preview Column -->
+            <div class="space-y-4">
+              <h4 class="text-md font-medium text-gray-800 flex items-center">
+                <span class="text-lg mr-2">📋</span>
+                PDF Preview
+              </h4>
+              <PDFViewer :job-id="jobId" file-type="cover-letter" />
+            </div>
           </div>
+          
+          <button
+            @click="downloadFile('cover-letter')"
+            :disabled="downloading.coverLetter"
+            class="btn btn-primary w-full"
+          >
+            <span v-if="downloading.coverLetter">Downloading...</span>
+            <span v-else>Download Cover Letter PDF</span>
+          </button>
+        </div>
 
-          <!-- Skills Changes Card -->
-          <div class="card" style="width: 800px; height: 800px; margin: 0 auto;">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <span class="text-2xl mr-2">🛠️</span>
-              Skills Changes
-            </h3>
-            <div class="h-96 overflow-y-auto mb-4">
-              <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="space-y-4">
-                <div
-                  v-for="(changes, category) in results.skillsChanges"
-                  :key="category"
-                  class="border border-gray-200 rounded-lg p-4"
-                >
-                  <h4 class="text-sm font-medium text-gray-900 mb-3">{{ category }}</h4>
-                  
-                  <!-- Skills Added -->
-                  <div v-if="changes.added.length > 0" class="mb-3">
-                    <h5 class="text-xs font-medium text-green-700 mb-2 flex items-center">
+        <!-- Skills Changes Card -->
+        <div class="card">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span class="text-2xl mr-3">🛠️</span>
+            Skills Changes
+          </h3>
+          <div class="h-96 overflow-y-auto mb-4">
+            <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="space-y-4">
+              <div
+                v-for="(changes, category) in results.skillsChanges"
+                :key="category"
+                class="border border-gray-200 rounded-lg p-4"
+              >
+                <h4 class="text-sm font-medium text-gray-900 mb-3">{{ category }}</h4>
+                
+                <!-- Skills Added -->
+                <div v-if="changes.added.length > 0" class="mb-3">
+                  <h5 class="text-xs font-medium text-green-700 mb-2 flex items-center">
                       <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                       </svg>
@@ -123,23 +164,22 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div v-else class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p class="text-sm">No skills changes were made</p>
-              </div>
             </div>
-            <button
-              @click="downloadFile('edits')"
-              :disabled="downloading.edits"
-              class="btn btn-secondary w-full"
-            >
-              <span v-if="downloading.edits">Downloading...</span>
-              <span v-else>Download Edit Details</span>
-            </button>
+            <div v-else class="text-center py-8 text-gray-500">
+              <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <p class="text-sm">No skills changes were made</p>
+            </div>
           </div>
+          <button
+            @click="downloadFile('edits')"
+            :disabled="downloading.edits"
+            class="btn btn-secondary w-full"
+          >
+            <span v-if="downloading.edits">Downloading...</span>
+            <span v-else>Download Edit Details</span>
+          </button>
         </div>
       </div>
 
@@ -235,6 +275,7 @@ import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import PDFViewer from '../components/PDFViewer.vue'
+import LaTeXViewer from '../components/LaTeXViewer.vue'
 
 const route = useRoute()
 const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()

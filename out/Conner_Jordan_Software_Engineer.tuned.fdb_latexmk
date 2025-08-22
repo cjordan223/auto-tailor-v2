@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1755807992.68923 "Conner_Jordan_Software_Engineer.tuned.tex" "Conner_Jordan_Software_Engineer.tuned.pdf" "Conner_Jordan_Software_Engineer.tuned" 1755807993.26035 0
+["pdflatex"] 1755843806.70498 "Conner_Jordan_Software_Engineer.tuned.tex" "Conner_Jordan_Software_Engineer.tuned.pdf" "Conner_Jordan_Software_Engineer.tuned" 1755843807.35506 0
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/fontawesome5/fa5brands0.enc" 1622837620 2920 d63721872b8c77041b88e51b8f7c291d ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc" 1622837620 3042 0e2b14b9be7d01075a4c4591d5d1781b ""
@@ -103,9 +103,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1749444579 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "Conner_Jordan_Software_Engineer.tuned.aux" 1755807993.20735 839 fdea370480f4eadde956ae1dbbba69f6 "pdflatex"
-  "Conner_Jordan_Software_Engineer.tuned.out" 1755807993.20777 594 7e5ea8bb2460e13c84afb1a1339c1d6f "pdflatex"
-  "Conner_Jordan_Software_Engineer.tuned.tex" 1755807992.56491 9504 a6bc35a2401d22f15e4339431ce6353a ""
+  "Conner_Jordan_Software_Engineer.tuned.aux" 1755843807.28887 839 fdea370480f4eadde956ae1dbbba69f6 "pdflatex"
+  "Conner_Jordan_Software_Engineer.tuned.out" 1755843807.2893 594 7e5ea8bb2460e13c84afb1a1339c1d6f "pdflatex"
+  "Conner_Jordan_Software_Engineer.tuned.tex" 1755843806.59187 9253 cd57c952874ad48a1cab3c3678cf77a3 ""
   (generated)
   "Conner_Jordan_Software_Engineer.tuned.aux"
   "Conner_Jordan_Software_Engineer.tuned.log"

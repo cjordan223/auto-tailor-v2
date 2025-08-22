@@ -278,6 +278,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
           const outputFiles = [
             'Conner_Jordan_Software_Engineer.tuned.pdf',
             'Conner_Jordan_Cover_Letter.tuned.pdf',
+            'Conner_Jordan_Software_Engineer.tuned.tex',
+            'Conner_Jordan_Cover_Letter.tuned.tex',
             'edits.json'
           ]
           

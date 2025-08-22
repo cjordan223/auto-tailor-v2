@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "replace": "Passionate and driven software engineer with 5+ years of experience building innovative and robust solutions. Proven ability to design, develop, and deploy secure, scalable, and observable software using Python and various cloud platforms (AWS, Azure, GCP). Expertise in building internally facing data tooling using Snowflake, Clickhouse, Fivetran, Hightouch, dbt, Redash, and Looker.  Adept at working across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash, Go"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js"
+    },
+    "Backend": {
+      "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins), Snowflake, Clickhouse, Fivetran, Hightouch, dbt, Redash, Looker"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone)"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "Hello Ramp team,"
+    },
+    "paragraphs": [
+      "I'm applying for the Security Engineering role at Ramp. I was drawn to your work in building a secure data platform and integrating security into your development processes.",
+      "My core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I have extensive experience working with data tooling and cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines.  My experience with Snowflake, Clickhouse, Fivetran, Hightouch, dbt, Redash, and Looker directly aligns with your requirements.",
+      "At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints. This experience directly translates to improving Ramp's data platform security and efficiency.",
+      "My experience in building robust system architecture, implementing strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance aligns perfectly with Ramp's security needs. I am comfortable owning the entire lifecycle of a solution, from design through deployment and operations, and I am confident in my ability to quickly ramp up on any specific technology stack your team uses. I am eager to contribute to Ramp's mission of building the most secure platform for managing business financial information."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Data Security",
+      "why": "To highlight expertise in securing sensitive financial data, a critical aspect of the role."
+    },
+    {
+      "term": "Incident Response",
+      "why": "To emphasize experience in handling security incidents, a key responsibility in the role."
+    },
+    {
+      "term": "Cloud Security",
+      "why": "To showcase expertise in securing cloud-based infrastructure, relevant to Ramp's data platform."
+    }
+  ]
+}

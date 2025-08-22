@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "progress": 100,
+  "step": "Processing complete!",
+  "detail": "Finalizing output files and cleaning up",
+  "updatedAt": "2025-08-22T05:38:23.961Z",
+  "files": [
+    "Conner_Jordan_Software_Engineer.tuned.pdf",
+    "Conner_Jordan_Cover_Letter.tuned.pdf",
+    "edits.json"
+  ],
+  "completedAt": "2025-08-22T05:38:23.961Z"
+}

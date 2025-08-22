@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1755807993.32547 "Conner_Jordan_Cover_Letter.tuned.tex" "Conner_Jordan_Cover_Letter.tuned.pdf" "Conner_Jordan_Cover_Letter.tuned" 1755807993.73899 0
+["pdflatex"] 1755843807.4265 "Conner_Jordan_Cover_Letter.tuned.tex" "Conner_Jordan_Cover_Letter.tuned.pdf" "Conner_Jordan_Cover_Letter.tuned" 1755843807.9268 0
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/fontawesome5/fa5brands0.enc" 1622837620 2920 d63721872b8c77041b88e51b8f7c291d ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc" 1622837620 3042 0e2b14b9be7d01075a4c4591d5d1781b ""
@@ -91,9 +91,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1749444579 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "Conner_Jordan_Cover_Letter.tuned.aux" 1755807993.69224 280 6b828094e00234c0864beebb1893eb25 "pdflatex"
-  "Conner_Jordan_Cover_Letter.tuned.out" 1755807993.57227 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "Conner_Jordan_Cover_Letter.tuned.tex" 1755807992.56597 6152 b9d4ffc7b53e72377b72c2397994f98f ""
+  "Conner_Jordan_Cover_Letter.tuned.aux" 1755843807.87243 280 6b828094e00234c0864beebb1893eb25 "pdflatex"
+  "Conner_Jordan_Cover_Letter.tuned.out" 1755843807.7256 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "Conner_Jordan_Cover_Letter.tuned.tex" 1755843806.59289 5957 acac211aa7102e5c8321d4485d7ae17c ""
   (generated)
   "Conner_Jordan_Cover_Letter.tuned.aux"
   "Conner_Jordan_Cover_Letter.tuned.log"
