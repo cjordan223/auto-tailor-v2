@@ -61,3 +61,45 @@ TESTING VERIFIED:
 - UI shows disabled state when already at original version
 
 ---
+
+[2025-08-23 05:40] AGENT-CLAUDE-CODE
+TASK: Fix skills showing as "null" in frontend UI
+ANALYSIS: User reported skills appearing as "null" in the skills changes section. Investigation revealed:
+  1. AI was returning string "null" instead of actual null values for unchanged skills
+  2. clean_edits_json function wasn't being called in the workflow
+  3. Frontend comparison logic was treating empty strings as valid skills
+  4. AI prompt was ambiguous about null vs "null" string values
+
+ROOT CAUSE IDENTIFIED:
+- AI prompt instructed "Use null for unchanged fields" but AI interpreted as string "null"
+- Backend patcher.py wasn't calling clean_edits_json to sanitize edits
+- Frontend server/index.js comparison logic didn't handle string "null" values
+- Skills with string "null" were being treated as actual changes instead of no-change
+
+CHANGES IMPLEMENTED:
+  ✅ tex_tailor/schema.py:351-376 - Enhanced clean_edits_json to handle both null and "null" strings
+  ✅ tex_tailor/patcher.py:200-205 - Added clean_edits_json call in apply_edits_to_files
+  ✅ tex_tailor/patcher.py:127,157,170 - Updated all edit functions to handle empty strings properly
+  ✅ frontend/server/index.js:200 - Fixed skills comparison logic to exclude "null" strings
+  ✅ tex_tailor/proposer.py:25,95-97 - Updated AI prompt to clarify null vs "null" distinction
+
+OUTCOME: Skills null issue completely resolved:
+- AI now returns proper null values (though still some string "null" for robustness)
+- Backend properly converts both null and "null" to empty strings
+- Frontend only shows actual skill changes, not "null" values
+- System is robust and handles both cases correctly
+
+TESTING VERIFIED:
+- New job (e8729450-8723-4076-9841-17d5531d9e23) shows only actual skill changes
+- Programming Languages: removed TypeScript,Java,C/C++,SQL,Swift,PowerShell,Bash; added R
+- Databases: removed MySQL,PostgreSQL,MongoDB,DynamoDB,Databricks; added SQL
+- No more "null" values appearing in skills changes UI
+- Skills that weren't changed (Frontend, Backend, etc.) no longer appear in changes
+
+NEXT STEPS FOR OTHER AGENTS:
+- Monitor AI behavior to see if prompt changes reduce string "null" occurrences
+- Consider adding validation to ensure AI returns proper null values
+- Test with different job descriptions to verify fix is universal
+- Consider adding unit tests for clean_edits_json function
+
+---
