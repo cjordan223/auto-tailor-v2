@@ -205,7 +205,8 @@ app.get('/api/results/:jobId', async (req, res) => {
         skillsChanges = {}
         for (const [category, newSkillData] of Object.entries(newSkills)) {
           const originalSkill = originalSkills[category] || ''
-          const newSkill = newSkillData.replace || originalSkill
+          // Handle null/empty values properly - if replace is null/empty/"null", use original
+          const newSkill = (newSkillData.replace && newSkillData.replace.trim() && newSkillData.replace !== "null") ? newSkillData.replace : originalSkill
           
           if (originalSkill !== newSkill) {
             // Parse skills into arrays for comparison

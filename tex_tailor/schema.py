@@ -76,7 +76,7 @@ FORBIDDEN_LATEX_PATTERNS = [
     r'\\begin\{',       # Environment start - would break LaTeX structure
     r'\\end\{',         # Environment end - would break LaTeX structure
     r'\\section',       # Section command - would break document hierarchy
-    r'\\documentclass', # Document class - would break document structure
+    r'\\documentclass',  # Document class - would break document structure
     r'\\usepackage',    # Package import - would break document structure
 ]
 
@@ -193,7 +193,7 @@ def validate_skills_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # 🎛️ CONSTRAINT REMOVED: Previously had replacement count limits  
+    # 🎛️ CONSTRAINT REMOVED: Previously had replacement count limits
     # Allow reasonable skill additions for job relevance - focus on quality over arbitrary limits
     # To re-enable limits, uncomment and modify the validation logic below:
     # replacements = count_replacements(original, new)
@@ -349,28 +349,30 @@ def load_and_validate_edits(edits_file: str, base_text_file: str) -> Dict[str, A
 
 
 def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
-    """Clean edits JSON by replacing null values with empty strings."""
+    """Clean edits JSON by replacing null values and "null" strings with empty strings."""
     cleaned = json.loads(json.dumps(edits))  # Deep copy
 
     # Replace null summary with empty string
     if "summary" in cleaned and cleaned["summary"].get("replace") is None:
         cleaned["summary"]["replace"] = ""
 
-    # Clean skills - replace null values with empty strings
+    # Clean skills - replace null values and "null" strings with empty strings
     if "skills" in cleaned:
         for skill_name in list(cleaned["skills"].keys()):
-            if cleaned["skills"][skill_name].get("replace") is None:
+            replace_value = cleaned["skills"][skill_name].get("replace")
+            if replace_value is None or replace_value == "null":
                 cleaned["skills"][skill_name]["replace"] = ""
 
     # Clean cover letter salutation
     if "cover_letter" in cleaned and "salutation" in cleaned["cover_letter"]:
-        if cleaned["cover_letter"]["salutation"].get("replace") is None:
+        replace_value = cleaned["cover_letter"]["salutation"].get("replace")
+        if replace_value is None or replace_value == "null":
             cleaned["cover_letter"]["salutation"]["replace"] = ""
 
     # Clean cover letter paragraphs
     if "cover_letter" in cleaned and "paragraphs" in cleaned["cover_letter"]:
         for i, paragraph in enumerate(cleaned["cover_letter"]["paragraphs"]):
-            if paragraph is None:
+            if paragraph is None or paragraph == "null":
                 cleaned["cover_letter"]["paragraphs"][i] = ""
 
     return cleaned

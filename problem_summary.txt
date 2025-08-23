@@ -45,3 +45,24 @@ INFORMATION NEEDED FOR FURTHER DEBUGGING:
 5. **Timing Analysis**:
    * Correlate the frontend's `forceRefresh` calls with the backend's PDF file update times. Is the 500ms delay sufficient?
    * Measure the actual time it takes for the PDF to appear in the viewer after a successful recompilation.
+
+SOLUTIONS IMPLEMENTED:
+1. **Skills Null Issue - FIXED** ✅:
+   - **Root Cause**: AI was returning string `"null"` instead of actual null values, and frontend comparison logic was treating empty strings as valid skills
+   - **Backend Fix**: 
+     - Added `clean_edits_json` function call in `apply_edits_to_files` to convert both null values and string `"null"` to empty strings
+     - Updated `apply_resume_edits`, `apply_cover_letter_edits` to properly handle empty strings
+     - Changed condition from `if new_skill:` to `if new_skill is not None and new_skill.strip():` for better null/empty handling
+   - **Frontend Fix**:
+     - Updated skills comparison logic to handle string `"null"` values properly
+     - Changed condition to `(newSkillData.replace && newSkillData.replace.trim() && newSkillData.replace !== "null")` to exclude "null" strings
+   - **AI Prompt Improvement**:
+     - Updated AI prompt to explicitly request actual null values, not string "null"
+     - Added examples to clarify the difference between `null` and `"null"`
+   - **Result**: Skills no longer show as "null" in the UI, only actual changes are displayed
+
+2. **PDF Refresh Improvements**:
+   - Increased delay from 500ms to 2000ms for better file system consistency
+   - Enhanced `forceRefresh` function with better loading states and error handling
+   - Added more aggressive cache busting with multiple parameters
+   - Improved iframe reload mechanism with proper URL updates
