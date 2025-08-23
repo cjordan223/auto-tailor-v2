@@ -1,0 +1,55 @@
+Company Name: 
+CyberCoders 
+
+Title: AI Systems Engineer
+
+Location: FULLY remote!
+
+Salary: $175k-$250k base + RSUs + Full Benefits
+
+Requirements: 3+ years of Systems Engineering/DevOps/AI Infrastructure, AI, Python/Golang/Rust, and HPC experience
+
+Our HPC infrastructure goes beyond just the GPU - allowing companies to train, iterate, and deploy AI & ML projects faster than ever! We specialize in high-performance GPU cloud solutions tailored for AI & ML projects and cutting-edge infrastructure (including GPU clusters, high-speed networking, and scalable storage) to support demanding workloads. Our services are designed to optimize performance, reliability, and affordability for AI researchers, ML engineers, and enterprises.
+
+We're currently experiencing MASSIVE GROWTH... Our revenue grew over 95% in the last YEAR! We have made several acquisitions and formed several partnerships during this period of growth, and we need YOUR HELP to keep it going... We're currently seeking a talented and highly motivated AI Systems Engineer to design, build, and optimize the infrastructure that powers AI-driven applications. You'll work at the intersection of hardware, software, and data - enabling efficient deployment of AI models and solutions at scale.
+
+The ideal candidates have a strong background in systems engineering, high-performance computing, software defined networking, and general software development, with some experience in machine learning and deploying/maintaining AI systems in production.
+
+What You'll Be Doing
+
+    AI Infrastructure Design and Development:
+        Design and implement scalable AI/ML infrastructure. 
+        Optimize AI pipelines for performance and reliability.
+        Integrate AI models using CI/CD best practices.
+    Model Deployment and Optimization:
+        Deploy AI models in various environments (cloud, edge, on-premises).
+        Optimize inference performance for latency, throughput, and energy efficiency.
+        Use tools like TensorRT and ONNX to accelerate models.
+    Systems Engineering:
+        Maintain HPC clusters, GPUs, and distributed systems.
+        Develop tools for system monitoring and troubleshooting.
+        Ensure AI system reliability through proactive maintenance.
+    Collaboration and Cross-Functional Work:
+        Align AI systems with overall product architecture.
+        Support AI researchers with efficient data pipelines and computing environments.
+    Security and Compliance:
+        Ensure compliance with security standards and data privacy regulations.
+        Secure sensitive data and models in production.
+    Emerging Technology Integration:
+        Stay updated with AI and machine learning advancements.
+        Integrate new tools and methods to enhance systems.
+
+What You Need For This Position
+
+    5+ years of Systems Engineering, DevOps, or AI/ML Infrastructure experience
+    2+ years of experience in High Performance Computing
+    Experience building cloud computing platforms (from scratch is a huge plus)
+    Hands-on experience with AI frameworks (TensorFlow, PyTorch, etc.)
+    Experience deploying AI/ML models in production environments
+    Strong knowledge of distributed systems & HPC for AI workloads
+    Experience with containerization & orchestration tools (Docker, Kubernetes, etc.)
+    Programming skills in Golang, Python, or Rust
+    Familiarity with AI platform tools (Mosaic AI, Run.AI, SageMaker, Vetex AI, etc.)
+    Familiarity with Infiniband and/or RoCEv2 networking, & NCCL
+    Proficiency in using AI hardware accelerators (GPUs, TPUs, etc)
+    BS in Computer Science, Engineering, or related (Master's degree is a huge plus)

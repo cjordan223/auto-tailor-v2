@@ -8,7 +8,6 @@ from typing import Dict, Any, Tuple
 
 # LaTeX escape mappings
 LATEX_ESCAPE_MAP = {
-    '\\': r'\textbackslash{}',
     '{': r'\{',
     '}': r'\}',
     '#': r'\#',
@@ -20,16 +19,77 @@ LATEX_ESCAPE_MAP = {
     '^': r'\textasciicircum{}'
 }
 
+# Common LaTeX commands that should NOT be escaped
+LATEX_COMMANDS = [
+    r'\\noindent',
+    r'\\textbf',
+    r'\\textit',
+    r'\\emph',
+    r'\\underline',
+    r'\\vspace',
+    r'\\hspace',
+    r'\\section',
+    r'\\subsection',
+    r'\\item',
+    r'\\begin',
+    r'\\end',
+    r'\\newline',
+    r'\\linebreak',
+    r'\\pagebreak',
+    r'\\par',
+    r'\\\\',
+]
+
 
 def latex_escape(text: str) -> str:
-    """Escape special LaTeX characters in text."""
+    """Escape special LaTeX characters in text while preserving LaTeX commands."""
     if not text:
         return text
 
+    # Simple approach: use a comprehensive regex to identify and preserve LaTeX commands
+    # This pattern matches: \command, \command{...}, \command[...], etc.
+    latex_command_pattern = r'\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\[\]]*\])*'
+    
+    # Find all LaTeX commands and their positions
+    commands = []
+    for match in re.finditer(latex_command_pattern, text):
+        commands.append((match.start(), match.end(), match.group()))
+    
+    # Build result by processing text in segments
+    result = ""
+    last_end = 0
+    
+    for start, end, command in commands:
+        # Process text before this command (escape special chars)
+        before_text = text[last_end:start]
+        result += escape_content_only(before_text)
+        
+        # Add the command as-is (but escape braces that are part of content within braces)
+        result += command
+        
+        last_end = end
+    
+    # Process any remaining text after the last command
+    if last_end < len(text):
+        result += escape_content_only(text[last_end:])
+    
+    return result
+
+
+def escape_content_only(text: str) -> str:
+    """Escape LaTeX special characters in content text (not commands)."""
+    if not text:
+        return text
+        
     escaped = text
+    
+    # Handle backslashes first (before other escaping)
+    escaped = escaped.replace('\\', r'\textbackslash{}')
+    
+    # Then escape other special characters
     for char, replacement in LATEX_ESCAPE_MAP.items():
         escaped = escaped.replace(char, replacement)
-
+    
     return escaped
 
 

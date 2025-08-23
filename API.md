@@ -422,6 +422,13 @@ Cache-Control: no-cache (for sensitive endpoints)
 - **File Upload**: Limited by file size and format validation
 - **Processing**: One job per session to prevent resource abuse
 - **API Calls**: Standard Express.js rate limiting
+- **Frontend Protection**: 5-second minimum interval between requests
+- **AI Provider Limits**: 
+  - Gemini 1.5 Flash: 15 RPM (production)
+  - Gemini 1.5 Pro: 2 RPM (high quality)
+  - Gemini 1.0 Pro: 60 RPM (testing/development)
+- **Exponential Backoff**: Automatic retry with 2, 4, 8 second delays
+- **429 Error Handling**: Graceful degradation with user-friendly messages
 
 ## 📊 Performance & Monitoring
 

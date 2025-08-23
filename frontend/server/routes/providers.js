@@ -12,8 +12,9 @@ router.get('/', async (req, res) => {
         available: !!process.env.GEMINI_API_KEY,
         recommended: true,
         models: [
-          { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Fast and efficient' },
-          { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Higher quality' }
+          { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Fast and efficient (Recommended)' },
+          { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Higher quality, slower' },
+          { id: 'gemini-1.0-pro', name: 'Gemini 1.0 Pro', description: 'High rate limits (60 RPM), good for testing' }
         ]
       },
       {

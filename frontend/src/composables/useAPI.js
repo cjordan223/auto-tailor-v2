@@ -29,11 +29,38 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('API Error:', error.response?.data || error.message)
+    
+    // Handle rate limit errors specifically
+    if (error.response?.status === 429) {
+      const retryAfter = error.response?.headers['retry-after'] || 60
+      error.message = `Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`
+    }
+    
     return Promise.reject(error)
   }
 )
 
+// Rate limiting state
+const lastRequestTime = new Map()
+const MIN_REQUEST_INTERVAL = 5000 // 5 seconds between requests
+
 export function useAPI() {
+  
+  /**
+   * Check if enough time has passed since the last request for rate limiting
+   */
+  const checkRateLimit = (endpoint) => {
+    const now = Date.now()
+    const lastTime = lastRequestTime.get(endpoint) || 0
+    const timeSinceLastRequest = now - lastTime
+    
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest
+      throw new Error(`Rate limit: Please wait ${Math.ceil(waitTime / 1000)} seconds before making another request`)
+    }
+    
+    lastRequestTime.set(endpoint, now)
+  }
   
   /**
    * Upload a file to the server
@@ -57,6 +84,8 @@ export function useAPI() {
    */
   const processResume = async ({ jobDescription, provider, model }) => {
     try {
+      // Check rate limiting before making the request
+      checkRateLimit('process')
       const formData = new FormData()
       
       // Add job description (file or text)
@@ -157,7 +186,7 @@ export function useAPI() {
             id: 'gemini',
             name: 'Google Gemini',
             available: false,
-            models: ['gemini-1.5-flash', 'gemini-1.5-pro']
+            models: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro']
           },
           {
             id: 'openai', 

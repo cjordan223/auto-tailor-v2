@@ -1,0 +1,27 @@
+# Gemini API Rate Limits
+
+## Model Comparison
+
+| Model | Requests Per Minute (RPM) | Tokens Per Minute (TPM) | Requests Per Day (RPD) | Use Case |
+|-------|---------------------------|-------------------------|------------------------|----------|
+| Gemini 1.5 Flash | 15 RPM | 1,000,000 TPM | 1,500 RPD | **Production (Recommended)** |
+| Gemini 1.5 Pro | 2 RPM | 1,000,000 TPM | 50 RPD | High-quality tasks |
+| Gemini 1.0 Pro | 60 RPM | 1,000,000 TPM | 1,500 RPD | **Testing & Development** |
+
+## Rate Limiting Strategy
+
+### Current Implementation
+- **Single API Call**: One call per workflow to `propose_edits()`
+- **Retry Logic**: Up to 3 total calls (1 initial + 2 retries with exponential backoff)
+- **Frontend Protection**: 5-second minimum interval between requests
+- **Exponential Backoff**: 2, 4, 8 second delays between retries
+
+### Recommendations
+- **Development/Testing**: Use Gemini 1.0 Pro (60 RPM)
+- **Production**: Use Gemini 1.5 Flash (15 RPM)
+- **High Quality**: Use Gemini 1.5 Pro (2 RPM) for critical applications
+
+## Error Handling
+- **429 Status**: Rate limit exceeded - system implements backoff and user-friendly messages
+- **Frontend Protection**: Prevents rapid successive requests
+- **Graceful Degradation**: System handles rate limits smoothly

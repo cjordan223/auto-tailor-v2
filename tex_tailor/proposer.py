@@ -8,6 +8,7 @@ Module for LLM calls (Ollama, Gemini, OpenAI) to propose edits.
 import os
 import json
 import requests
+import time
 from typing import Dict, Any, Optional
 from .schema import validate_edits, validate_skills_against_inventory
 from .config import config, get_api_config_for_provider
@@ -413,6 +414,10 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
                 if attempt < max_retries:
                     print(
                         f"Validation failed (attempt {attempt + 1}): {violations}")
+                    # Exponential backoff: wait 2^attempt seconds (2, 4, 8...)
+                    backoff_time = 2 ** attempt
+                    print(f"Retrying in {backoff_time} seconds to avoid rate limits...")
+                    time.sleep(backoff_time)
                     continue
                 else:
                     raise ValueError(
@@ -427,6 +432,10 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
             last_error = f"Error: {e}"
             if attempt < max_retries:
                 print(f"Error on attempt {attempt + 1}: {e}")
+                # Exponential backoff: wait 2^attempt seconds (2, 4, 8...)
+                backoff_time = 2 ** attempt
+                print(f"Retrying in {backoff_time} seconds to avoid rate limits...")
+                time.sleep(backoff_time)
                 continue
             else:
                 raise RuntimeError(

@@ -175,6 +175,11 @@ const startProcessing = async () => {
   } catch (error) {
     processingStatus.value = 'error'
     processingError.value = error.message
+    
+    // If it's a rate limit error, go back to step 2 so user can try again
+    if (error.message.includes('Rate limit') || error.message.includes('Please wait')) {
+      step.value = 2
+    }
   }
 }
 

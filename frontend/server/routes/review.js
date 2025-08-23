@@ -14,18 +14,20 @@ router.get('/', async (req, res) => {
     const { format = 'json', provider } = req.query
     
     // Execute the Python CLI review command
-    const venvPython = path.join(__dirname, '../../../venv/bin/python')
+    // Use full path to Python since Node.js may not find it in PATH
+    const pythonCmd = '/opt/homebrew/opt/python@3.13/bin/python3.13'
     
     const args = ['-m', 'tex_tailor.cli', 'review', '--format', format]
     if (provider) {
       args.push('--provider', provider)
     }
     
-    const child = spawn(venvPython, args, {
+    const child = spawn(pythonCmd, args, {
       cwd: path.join(__dirname, '../../..'), // Project root
       stdio: ['pipe', 'pipe', 'pipe'],
       env: {
         ...process.env,
+        PYTHONPATH: path.join(__dirname, '../../..'), // Add project root to Python path
         ...(provider && { PROVIDER: provider })
       }
     })

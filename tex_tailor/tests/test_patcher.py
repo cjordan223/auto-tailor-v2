@@ -19,7 +19,7 @@ class TestLatexEscape(unittest.TestCase):
             ("x^2", "x\\textasciicircum{}2"),  # Caret
             ("~/.bashrc", "\\textasciitilde{}/.bashrc"),  # Tilde
             ("{brackets}", "\\{brackets\\}"),  # Braces
-            ("path\\file.txt", "path\\textbackslash\\{\\}file.txt"),  # Backslash
+            ("path\\file.txt", "path\\textbackslash{}file.txt"),  # Backslash
             ("#hashtag", "\\#hashtag"),  # Hash
         ]
         
@@ -39,6 +39,22 @@ class TestLatexEscape(unittest.TestCase):
         expected = "Price: \\$10 \\& up (100\\% guaranteed!) \\textasciitilde{}user/file.txt"
         result = latex_escape(input_text)
         self.assertEqual(result, expected)
+    
+    def test_latex_command_preservation(self):
+        """Test that LaTeX commands are preserved and not escaped."""
+        test_cases = [
+            ("\\noindent Hello team,", "\\noindent Hello team,"),  # noindent command
+            ("\\textbf{Bold text}", "\\textbf\\{Bold text\\}"),  # textbf with braces
+            ("\\noindent Hello & welcome", "\\noindent Hello \\& welcome"),  # Command + special chars
+            ("Some text\\\\new line", "Some text\\\\new line"),  # Line break command
+            ("\\vspace{10pt}", "\\vspace\\{10pt\\}"),  # vspace command
+            ("Price: $5 \\textit{italic} text", "Price: \\$5 \\textit\\{italic\\} text"),  # Mixed content
+        ]
+        
+        for input_text, expected in test_cases:
+            with self.subTest(input=input_text):
+                result = latex_escape(input_text)
+                self.assertEqual(result, expected)
 
 
 class TestChunkReplacement(unittest.TestCase):

@@ -42,6 +42,14 @@ npm run dev  # Starts both frontend and backend
 
 **Note:** Resume upload functionality has been simplified. The system now uses a pre-configured baseline resume template with LLM markers for optimal processing. Custom resume template upload will be added in future releases.
 
+### Rate Limiting & Error Handling
+**File:** `frontend/src/composables/useAPI.js`
+- **Frontend Protection**: 5-second minimum interval between requests
+- **Rate Limit Detection**: Specific handling for 429 status codes
+- **User-Friendly Messages**: Clear countdown timers and error explanations
+- **Exponential Backoff**: Backend implements 2, 4, 8 second delays between retries
+- **Graceful Degradation**: System handles rate limits smoothly with automatic recovery
+
 ### Views/Pages
 **Directory:** `frontend/src/views/`
 - `Home.vue` - Main workflow page (job description → provider selection only)

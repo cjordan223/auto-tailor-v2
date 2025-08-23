@@ -8,7 +8,8 @@ Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
 - **Pre-configured Baseline Resume** - Uses optimized LaTeX template with LLM markers
 - **Real-time Processing** - Live status updates during AI processing  
 - **LaTeX Source Code Viewer** - Side-by-side LaTeX source and PDF preview with syntax highlighting
-- **Provider Selection** - Choose between Gemini, OpenAI, or Ollama
+- **Provider Selection** - Choose between Gemini (1.5 Flash, 1.5 Pro, 1.0 Pro), OpenAI, or Ollama
+- **Rate Limiting Protection** - Exponential backoff and frontend request throttling
 - **Results Dashboard** - Download generated PDFs and LaTeX files, view analysis
 - **Resilient Fallback System** - Works even when AI providers are unavailable
 - **Settings Management** - Configure API keys and preferences

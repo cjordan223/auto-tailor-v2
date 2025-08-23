@@ -1,0 +1,72 @@
+ About the job
+
+Sidekick is hiring a Founding Engineer to join the core team.
+
+
+The real estate industry is undergoing a massive shift, and AI is about to reshape how millions of agents operate daily. Sidekick is first to market with a verticalized solution, has strong early traction, and is backed by leaders who’ve built and sold category-defining products.
+
+
+We’re building the AI-powered operating system for residential real estate agents to streamline workflows, boost productivity, and unlock new growth opportunities. Sidekick combines advanced large language models with deeply integrated domain-specific tools to handle the complexity of real estate—from data to transaction management and daily operations. We’ve hit product-market fit and are growing rapidly. Here’s why now is a great time to join Sidekick:
+
+
+Accelerating Product Market Fit
+
+We’re solving urgent, high-value problems for real estate professionals and have seen rapid adoption from top agents, brokerages and MLSs across the U.S.
+
+
+Industry-Defining Partnerships
+
+We’re working hand-in-hand with some of the most forward-thinking brokerages and real estate leaders to shape the future of AI in the industry.
+
+
+Elite, Cross-Functional Team
+
+Our team includes seasoned operators, engineers, designers, with deep industry experience.
+
+
+Generative AI, Purpose-Built
+
+At Sidekick, engineers work directly with foundation model APIs and our own proprietary data pipelines to build AI-native workflows that reimagine how agents operate—from lead to close.
+
+
+Compensation & Ownership
+
+We offer competitive salary, generous equity, and the opportunity to make a foundational impact at an early-stage company with breakout momentum.
+
+
+This is a high impact role that requires both strategic thinking and hands-on execution, reporting directly to the CTO.
+
+
+Responsibilities
+
+You will develop and improve our AI systems, including:
+
+    Fine-tuning large language models on real estate-specific workflows and communications for workflows like listing description generation, client response drafting, task management, and lead follow-up.
+    Building evaluation frameworks to ensure high-quality and safe model outputs.
+    Designing and implementing novel search and question-answering algorithms over real estate data (e.g., listings, market trends, CRM activity).
+    Collecting, structuring, and indexing fragmented industry datasets from MLSs, brokerage platforms, and public sources to support agents with MLS search, pricing analysis, comp generation, and deal insights.
+    Building and orchestrating large systems of interconnected LLMs to power end-to-end agent workflows,
+    Solving challenging engineering problems around low-latency interactions, expensive model inference, and tool/model integration.
+
+
+Impact
+
+    Work directly with our CTO and founders.
+    Own technically challenging problems at the frontier of applied LLMs—like grounding generative output in proprietary real estate data, aligning agent-facing assistants with high recall, and minimizing latency under production load.
+    Inform, design, and architect distributed systems that are highly scalable, reliable, and optimized for performance
+    Be a thought leader on the latest trends and industry standards, including adoption of new tools, technologies, and process improvements
+
+
+Required Qualifications
+
+    Experience developing AI centric products, data science, and machine learning systems
+    Proficiency operating composable LLMs, including model training and fine-tuning
+    Familiarity with AI platforms and tools, including proprietary and open-source offerings
+    Proven experience building and operating large-scale distributed systems
+    Strong expertise in AWS, Google Cloud, or Azure cloud platforms
+    Experience with CI/CD, infrastructure as code (IaC), and container orchestration
+    Solid understanding of microservice architectures, REST, GraphQL, and RPC
+    Extensive experience in languages such as Typescript, Go, Python, and Java
+    Proficiency in front-end stacks such as React, Vue, and Tailwind
+    Excellent communication skills and ability to collaborate with cross-functional teams
+

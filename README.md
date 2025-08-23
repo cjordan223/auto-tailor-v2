@@ -19,6 +19,8 @@ Command-line tool for advanced users, scripts, and batch processing.
 **✨ NEW**: Enhanced AI prompts - compelling summaries and conversational cover letter tone  
 **✨ NEW**: Express.js API server bridges web frontend to Python CLI backend  
 **✨ NEW**: Real-time CLI output streaming - see detailed progress, not just percentages  
+**✨ NEW**: Rate limiting protection - exponential backoff and frontend request throttling  
+**✨ NEW**: Gemini 1.0 Pro support - 60 RPM rate limit for testing and development  
 **✅ FIXED**: Path handling issues resolved - workflow now works from any directory  
 **✅ FIXED**: File upload and processing integration fully functional  
 **Working**: Complete end-to-end pipeline, PDF generation, LaTeX compilation, character escaping  
@@ -263,7 +265,12 @@ tex-tailor --help
 ```bash
 # Set API key
 export GEMINI_API_KEY="your-api-key-here"
-export GEMINI_MODEL="gemini-1.5-pro"  # optional, defaults to gemini-1.5-flash
+export GEMINI_MODEL="gemini-1.5-flash"  # optional, defaults to gemini-1.5-flash
+
+# Available models:
+# - gemini-1.5-flash: Fast and efficient (15 RPM) - Recommended for production
+# - gemini-1.5-pro: Higher quality, slower (2 RPM) - For high-quality tasks
+# - gemini-1.0-pro: High rate limits (60 RPM) - For testing and development
 ```
 
 ### Option B: OpenAI
@@ -647,12 +654,15 @@ open out/*.pdf
 ```
 
 ### Performance Tips
-- **Gemini 1.5-Flash** (recommended): Fast, high-quality results with excellent success rate
+- **Gemini 1.5-Flash** (recommended): Fast, high-quality results with excellent success rate (15 RPM)
+- **Gemini 1.0-Pro**: High rate limits (60 RPM) - perfect for testing and development
+- **Gemini 1.5-Pro**: Highest quality, slower (2 RPM) - for critical applications
 - **OpenAI GPT-4o-mini**: Reliable results, good for complex job descriptions
 - **Local Ollama**: Privacy-focused option for sensitive documents
 - Job descriptions >2000 words may hit token limits
 - All providers now achieve ~100% success rate with quality-focused validation
 - Use `./run_workflow_clean.sh` for streamlined single-command workflow
+- **Rate Limiting**: System includes exponential backoff and frontend protection
 
 ### Verification Checklist
 
@@ -739,7 +749,7 @@ export OLLAMA_BASE_URL="http://localhost:11434"
 **Model Selection:**
 ```bash
 # Override default models
-export GEMINI_MODEL="gemini-1.5-pro"
+export GEMINI_MODEL="gemini-1.5-flash"  # or gemini-1.0-pro for testing
 export OPENAI_MODEL="gpt-4o"
 export OLLAMA_MODEL="qwen2.5:14b-instruct"
 ```

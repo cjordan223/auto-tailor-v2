@@ -41,6 +41,7 @@ providers:
     temperature: 0
     top_k: 1
     max_tokens: 2048
+    # Available models: gemini-1.5-flash (15 RPM), gemini-1.5-pro (2 RPM), gemini-1.0-pro (60 RPM)
 ```
 
 ### API Endpoints

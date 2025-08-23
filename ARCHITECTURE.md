@@ -258,7 +258,8 @@ EXAMPLES OF VALID EDITS:
 ### AI Response Validation
 - **JSON Schema Validation**: All AI responses validated against strict schemas
 - **Business Rule Enforcement**: Additional validation for content quality
-- **Retry Logic**: Automatic retries with detailed error feedback
+- **Retry Logic**: Automatic retries with exponential backoff (2, 4, 8 second delays)
+- **Rate Limiting**: Frontend protection (5-second intervals) and AI provider rate limit awareness
 - **Factual Integrity**: AI cannot modify dates, employers, or quantified metrics
 
 ## 🧪 Development & Testing

@@ -2,6 +2,30 @@
 # Date: August 21, 2025
 # Summary: Resolved critical hanging workflow issues and improved system reliability
 
+## 🆕 LATEST UPDATES (August 2025)
+
+### Rate Limiting Improvements - NEW
+**Problem**: Frequent 429 rate limit errors during testing with Gemini 1.5 Flash (15 RPM limit)
+**Solution**: Implemented comprehensive rate limiting protection
+
+**Files Changed**:
+- `tex_tailor/proposer.py` - Added exponential backoff with time delays
+- `frontend/src/composables/useAPI.js` - Added frontend rate limiting protection
+- `frontend/src/views/Home.vue` - Enhanced error handling for rate limits
+- `frontend/server/routes/providers.js` - Added Gemini 1.0 Pro model option
+
+**Key Improvements**:
+- **Exponential Backoff**: 2, 4, 8 second delays between retries
+- **Frontend Protection**: 5-second minimum interval between requests
+- **Gemini 1.0 Pro**: Added 60 RPM model for testing and development
+- **User-Friendly Messages**: Clear countdown timers and error explanations
+- **Graceful Degradation**: System handles rate limits smoothly
+
+**Rate Limit Comparison**:
+- Gemini 1.5 Flash: 15 RPM (production)
+- Gemini 1.5 Pro: 2 RPM (high quality)
+- Gemini 1.0 Pro: 60 RPM (testing/development)
+
 ## 🚨 CRITICAL ISSUES RESOLVED
 
 ### 1. Path Handling Issues - FIXED
