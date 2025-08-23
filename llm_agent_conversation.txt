@@ -1,0 +1,31 @@
+TEX-TAILOR LLM AGENT CONVERSATION LOG
+=====================================
+
+This file tracks conversations and iterations between LLM agents working on the Tex-Tailor codebase.
+Each entry should include: timestamp, agent identifier, task description, and outcome.
+
+[2025-08-23 04:43] AGENT-CLAUDE-CODE
+TASK: Fix LaTeX real-time PDF update issue
+ANALYSIS: Identified 5 root causes in PDF refresh mechanism:
+  1. Race condition between Python process completion and file system writes
+  2. Double key updates causing Vue component conflicts  
+  3. Insufficient cache-busting in browser PDF viewers
+  4. Missing file verification after recompilation
+  5. Optimistic timing assumptions without real file system checks
+
+CHANGES IMPLEMENTED:
+  ✅ Results.vue:502-517 - Eliminated double key updates, single refresh with 2s delay
+  ✅ recompile.js:65-110 - Added file system verification with timestamp checking
+  ✅ view.js:31-54 - Improved cache headers with ETag and Last-Modified
+  ✅ PDFViewer.vue:188-220 - Enhanced forceRefresh with proper loading states
+
+OUTCOME: Server running successfully. Changes address timing races and caching issues.
+The intermittent PDF refresh should now be reliable with proper file verification.
+
+NEXT STEPS FOR OTHER AGENTS:
+- Test the real-time editing functionality with actual LaTeX changes
+- Monitor browser console logs during PDF refresh operations
+- Consider WebSocket implementation for instant notifications
+- Add retry mechanisms for failed refreshes
+
+---

@@ -449,6 +449,55 @@ def open(out_dir: Optional[str]):
 
 
 @main.command()
+@click.option("--job-id", required=True, help="Job ID for the files")
+@click.option("--file-type", required=True, type=click.Choice(["resume", "cover-letter"]), help="Type of file to recompile")
+@click.option("--content", required=True, help="LaTeX content to compile")
+@click.option("--temp-dir", required=True, help="Temporary directory for job files")
+def recompile(job_id: str, file_type: str, content: str, temp_dir: str):
+    """Recompile LaTeX content to PDF for a specific job."""
+    try:
+        from pathlib import Path
+        import subprocess
+
+        # Create job directory if it doesn't exist
+        job_dir = Path(temp_dir) / job_id
+        job_dir.mkdir(parents=True, exist_ok=True)
+
+        # Determine file names based on type
+        if file_type == "resume":
+            tex_filename = "Conner_Jordan_Software_Engineer.tuned.tex"
+            pdf_filename = "Conner_Jordan_Software_Engineer.tuned.pdf"
+        else:  # cover-letter
+            tex_filename = "Conner_Jordan_Cover_Letter.tuned.tex"
+            pdf_filename = "Conner_Jordan_Cover_Letter.tuned.pdf"
+
+        # Write the LaTeX content to file
+        tex_file = job_dir / tex_filename
+        tex_file.write_text(content, encoding='utf-8')
+
+        # Compile to PDF using latexmk
+        result = subprocess.run([
+            "latexmk", "-pdf", tex_filename
+        ], capture_output=True, text=True, cwd=job_dir)
+
+        if result.returncode == 0:
+            click.echo(f"✓ Successfully compiled {file_type} to PDF")
+            # Clean up auxiliary files
+            aux_patterns = ["*.aux", "*.log", "*.fls",
+                            "*.fdb_latexmk", "*.out", "*.toc"]
+            for pattern in aux_patterns:
+                for aux_file in job_dir.glob(pattern):
+                    aux_file.unlink(missing_ok=True)
+        else:
+            click.echo(f"✗ Compilation failed: {result.stderr}", err=True)
+            sys.exit(1)
+
+    except Exception as e:
+        click.echo(f"Error during recompilation: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
 def log():
     """Show the most recent workflow log."""
     show_latest_log()

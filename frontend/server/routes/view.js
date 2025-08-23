@@ -28,12 +28,24 @@ router.get('/:jobId/:fileType', async (req, res) => {
     const filePath = path.join(tempDir, filename)
     
     try {
-      await fs.access(filePath)
+      const stats = await fs.stat(filePath)
+      const lastModified = stats.mtime.toUTCString()
+      const etag = `"${stats.size}-${stats.mtime.getTime()}"`
       
-      // Set headers for inline PDF viewing
+      // Check if client has current version
+      const clientETag = req.headers['if-none-match']
+      if (clientETag === etag) {
+        return res.status(304).send() // Not Modified
+      }
+      
+      // Set headers for inline PDF viewing with proper cache control
       res.setHeader('Content-Type', 'application/pdf')
       res.setHeader('Content-Disposition', `inline; filename="${filename}"`)
-      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.setHeader('Pragma', 'no-cache')
+      res.setHeader('Expires', '0')
+      res.setHeader('ETag', etag)
+      res.setHeader('Last-Modified', lastModified)
       res.setHeader('X-Frame-Options', 'SAMEORIGIN')
       res.setHeader('X-Content-Type-Options', 'nosniff')
       

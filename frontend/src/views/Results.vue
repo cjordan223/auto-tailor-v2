@@ -163,7 +163,8 @@
                 <span class="text-lg mr-2">📝</span>
                 LaTeX Source
               </h4>
-              <LaTeXViewer :job-id="jobId" file-type="resume" />
+              <LaTeXEditor :job-id="jobId" file-type="resume" @content-changed="onResumeContentChanged"
+                @save="onResumeSave" @revert="onResumeRevert" />
             </div>
 
             <!-- PDF Preview Column -->
@@ -171,8 +172,9 @@
               <h4 class="text-md font-medium text-gray-800 flex items-center">
                 <span class="text-lg mr-2">📋</span>
                 PDF Preview
+                <span v-if="recompiling.resume" class="ml-2 text-sm text-blue-600">(Recompiling...)</span>
               </h4>
-              <PDFViewer :job-id="jobId" file-type="resume" />
+              <PDFViewer ref="resumePdfViewer" :key="resumePdfKey" :job-id="jobId" file-type="resume" />
             </div>
           </div>
 
@@ -197,7 +199,8 @@
                 <span class="text-lg mr-2">📝</span>
                 LaTeX Source
               </h4>
-              <LaTeXViewer :job-id="jobId" file-type="cover-letter" />
+              <LaTeXEditor :job-id="jobId" file-type="cover-letter" @content-changed="onCoverLetterContentChanged"
+                @save="onCoverLetterSave" @revert="onCoverLetterRevert" />
             </div>
 
             <!-- PDF Preview Column -->
@@ -205,8 +208,9 @@
               <h4 class="text-md font-medium text-gray-800 flex items-center">
                 <span class="text-lg mr-2">📋</span>
                 PDF Preview
+                <span v-if="recompiling.coverLetter" class="ml-2 text-sm text-blue-600">(Recompiling...)</span>
               </h4>
-              <PDFViewer :job-id="jobId" file-type="cover-letter" />
+              <PDFViewer ref="coverLetterPdfViewer" :key="coverLetterPdfKey" :job-id="jobId" file-type="cover-letter" />
             </div>
           </div>
 
@@ -253,7 +257,7 @@ import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import PDFViewer from '../components/PDFViewer.vue'
-import LaTeXViewer from '../components/LaTeXViewer.vue'
+import LaTeXEditor from '../components/LaTeXEditor.vue'
 
 const route = useRoute()
 const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()
@@ -273,6 +277,21 @@ const downloading = ref({
   coverLetter: false,
   edits: false
 })
+
+// Real-time editing state
+const resumeContent = ref('')
+const coverLetterContent = ref('')
+const resumePdfKey = ref(0)
+const coverLetterPdfKey = ref(0)
+const recompiling = ref({
+  resume: false,
+  coverLetter: false
+})
+
+// PDF viewer refs
+const resumePdfViewer = ref(null)
+const coverLetterPdfViewer = ref(null)
+
 let pollTimer = null
 
 // Computed
@@ -281,7 +300,11 @@ const isDownloadingAll = computed(() =>
   Object.values(downloading.value).some(d => d)
 )
 const isProcessing = computed(() => statusData.value?.status === 'processing')
-const isCompleted = computed(() => statusData.value?.status === 'completed')
+const isCompleted = computed(() => {
+  const completed = statusData.value?.status === 'completed'
+  console.log('isCompleted computed:', completed, 'statusData:', statusData.value)
+  return completed
+})
 const statusProgress = computed(() => Number(statusData.value?.progress || 0))
 const headerTitle = computed(() => {
   if (isProcessing.value) return 'Generating Your Resume...'
@@ -302,9 +325,12 @@ const loadResults = async () => {
     loading.value = true
     error.value = null
 
+    console.log('Loading results for jobId:', jobId.value)
     const data = await getResults(jobId.value)
+    console.log('Results loaded:', data)
     results.value = data
   } catch (err) {
+    console.error('Error loading results:', err)
     error.value = err.message
   } finally {
     loading.value = false
@@ -313,18 +339,23 @@ const loadResults = async () => {
 
 const pollStatus = async () => {
   try {
+    console.log('Polling status for jobId:', jobId.value)
     const data = await checkStatus(jobId.value)
+    console.log('Status data received:', data)
     statusData.value = data
     if (data.status === 'completed') {
+      console.log('Job completed, stopping polling and loading results')
       clearInterval(pollTimer)
       pollTimer = null
       await loadResults()
     } else if (data.status === 'error') {
+      console.log('Job error, stopping polling')
       clearInterval(pollTimer)
       pollTimer = null
       error.value = data.error || 'Processing failed'
     }
   } catch (err) {
+    console.log('Polling error (expected for 404s):', err.message)
     // Keep polling; transient 404 while job initializes is expected
   }
 }
@@ -375,19 +406,161 @@ const formatOverview = (overview) => {
   return overview
 }
 
+// Real-time editing event handlers
+const onResumeContentChanged = (content) => {
+  console.log('Resume content changed, length:', content.length)
+  resumeContent.value = content
+  // Trigger recompilation after a delay to avoid too many requests
+  debouncedRecompileResume()
+}
+
+const onCoverLetterContentChanged = (content) => {
+  coverLetterContent.value = content
+  // Trigger recompilation after a delay to avoid too many requests
+  debouncedRecompileCoverLetter()
+}
+
+const onResumeSave = async (content) => {
+  try {
+    await recompileLatex('resume', content)
+    console.log('Resume saved and recompiled')
+  } catch (err) {
+    console.error('Failed to save resume:', err)
+  }
+}
+
+const onCoverLetterSave = async (content) => {
+  try {
+    await recompileLatex('cover-letter', content)
+    console.log('Cover letter saved and recompiled')
+  } catch (err) {
+    console.error('Failed to save cover letter:', err)
+  }
+}
+
+const onResumeRevert = (content) => {
+  resumeContent.value = content
+  console.log('Resume changes reverted')
+}
+
+const onCoverLetterRevert = (content) => {
+  coverLetterContent.value = content
+  console.log('Cover letter changes reverted')
+}
+
+// Debounced recompilation functions
+let resumeRecompileTimeout = null
+let coverLetterRecompileTimeout = null
+
+const debouncedRecompileResume = () => {
+  if (resumeRecompileTimeout) {
+    clearTimeout(resumeRecompileTimeout)
+  }
+  resumeRecompileTimeout = setTimeout(() => {
+    if (resumeContent.value) {
+      console.log('Debounced recompile triggered for resume')
+      recompileLatex('resume', resumeContent.value)
+    }
+  }, 2000) // 2 second delay
+}
+
+const debouncedRecompileCoverLetter = () => {
+  if (coverLetterRecompileTimeout) {
+    clearTimeout(coverLetterRecompileTimeout)
+  }
+  coverLetterRecompileTimeout = setTimeout(() => {
+    if (coverLetterContent.value) {
+      recompileLatex('cover-letter', coverLetterContent.value)
+    }
+  }, 2000) // 2 second delay
+}
+
+// Recompile LaTeX content
+const recompileLatex = async (fileType, content) => {
+  if (recompiling.value[fileType]) {
+    return // Already recompiling
+  }
+
+  try {
+    recompiling.value[fileType] = true
+
+    const response = await fetch(`/api/recompile/${jobId.value}/${fileType}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Recompilation failed: ${response.statusText}`)
+    }
+
+    const result = await response.json()
+
+    if (result.success) {
+      console.log(`${fileType} recompiled successfully`)
+
+      // Wait for backend to confirm file is ready, then force refresh once
+      setTimeout(() => {
+        if (fileType === 'resume') {
+          resumePdfKey.value++ // Single key update
+          if (resumePdfViewer.value) {
+            resumePdfViewer.value.forceRefresh()
+          }
+        } else {
+          coverLetterPdfKey.value++ // Single key update
+          if (coverLetterPdfViewer.value) {
+            coverLetterPdfViewer.value.forceRefresh()
+          }
+        }
+      }, 2000) // Increased to 2 seconds for file system consistency
+    } else {
+      throw new Error(result.error || 'Recompilation failed')
+    }
+  } catch (err) {
+    console.error(`Failed to recompile ${fileType}:`, err)
+    // You might want to show an error notification to the user here
+  } finally {
+    recompiling.value[fileType] = false
+  }
+}
+
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   if (!jobId.value) {
     error.value = 'No job ID provided'
     loading.value = false
     return
   }
-  // Start polling status immediately and every 2s
-  pollStatus()
-  pollTimer = setInterval(pollStatus, 2000)
+
+  console.log('Component mounted, checking initial status...')
+
+  // Check initial status first
+  try {
+    const initialStatus = await checkStatus(jobId.value)
+    console.log('Initial status:', initialStatus)
+    statusData.value = initialStatus
+
+    if (initialStatus.status === 'completed') {
+      console.log('Job already completed, loading results directly')
+      await loadResults()
+      // Don't start polling since it's already done
+    } else {
+      console.log('Job not completed, starting polling')
+      // Start polling status every 2s
+      pollTimer = setInterval(pollStatus, 2000)
+    }
+  } catch (err) {
+    console.log('Initial status check failed, starting polling anyway:', err.message)
+    // Start polling status every 2s
+    pollTimer = setInterval(pollStatus, 2000)
+  }
 })
 
 onBeforeUnmount(() => {
   if (pollTimer) clearInterval(pollTimer)
+  if (resumeRecompileTimeout) clearTimeout(resumeRecompileTimeout)
+  if (coverLetterRecompileTimeout) clearTimeout(coverLetterRecompileTimeout)
 })
 </script>
