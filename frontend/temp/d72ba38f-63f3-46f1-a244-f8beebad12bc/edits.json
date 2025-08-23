@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "replace": "I am a passionate Software Engineer with over two years of experience in developing robust back-end solutions using Python and PostgreSQL. My expertise includes designing scalable systems with Flask, Redis, and Celery, ensuring high performance and reliability for enterprise applications."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript, Java, C/C++, SQL"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Angular, Tailwind CSS, MUI, Vite, Next.js"
+    },
+    "Backend": {
+      "replace": "Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful & GraphQL API Development"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, LM Studio, Ollama, MLX"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response"
+    },
+    "Databases": {
+      "replace": "MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\\noindent\nHello forml team,"
+    },
+    "paragraphs": [
+      "I'm applying for the Software Engineer role at forml. I was drawn to your work in redefining how businesses integrate and utilize AI/ML, particularly through scalable back-end solutions using Flask, Redis, and Celery.",
+      "My core strengths are in Python and systems-level development, with a focus on building secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure that all processes are testable, versioned, and easy to roll back.",
+      "At a previous role, I engineered a solution that consolidated diverse enterprise systems—including Rapid7, Jamf, and BigFix—into a unified platform. I automated the end-to-end workflow from data aggregation to remediation, which reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints.",
+      "Earlier, I developed custom automation and tooling to analyze system behavior, identify anomalies, and harden production environments. These projects leaned on the same foundations you need: robust system architecture, strong authentication and secrets management, and disciplined monitoring and alerting to maintain high availability and performance."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Flask",
+      "why": "Enhances relevance for backend development using Flask framework."
+    },
+    {
+      "term": "Redis",
+      "why": "Improves alignment with job description's requirement of Redis usage."
+    },
+    {
+      "term": "Celery",
+      "why": "Strengthens connection to the job requirements involving Celery for task queues."
+    }
+  ]
+}

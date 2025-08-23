@@ -7,8 +7,10 @@ Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
 - **Job Description Upload** - Upload or paste job descriptions for AI customization
 - **Pre-configured Baseline Resume** - Uses optimized LaTeX template with LLM markers
 - **Real-time Processing** - Live status updates during AI processing  
+- **LaTeX Source Code Viewer** - Side-by-side LaTeX source and PDF preview with syntax highlighting
 - **Provider Selection** - Choose between Gemini, OpenAI, or Ollama
-- **Results Dashboard** - Download generated PDFs and view changes
+- **Results Dashboard** - Download generated PDFs and LaTeX files, view analysis
+- **Resilient Fallback System** - Works even when AI providers are unavailable
 - **Settings Management** - Configure API keys and preferences
 - **Responsive Design** - Works on desktop, tablet, and mobile
 
@@ -76,11 +78,13 @@ frontend/
 ├── src/
 │   ├── components/          # Reusable Vue components
 │   │   ├── FileUpload.vue   # Drag & drop file upload
+│   │   ├── LaTeXViewer.vue  # LaTeX source code viewer with syntax highlighting
+│   │   ├── PDFViewer.vue    # Embedded PDF preview
 │   │   ├── ProviderSelector.vue # AI provider selection
 │   │   └── ProcessingStatus.vue # Real-time status updates
 │   ├── views/               # Page components
 │   │   ├── Home.vue         # Main workflow page (job description only)
-│   │   ├── Results.vue      # Results and downloads
+│   │   ├── Results.vue      # Results with side-by-side LaTeX/PDF viewing
 │   │   └── Settings.vue     # Configuration page
 │   ├── composables/         # Reusable logic
 │   │   └── useAPI.js        # API communication
@@ -131,6 +135,8 @@ This template includes LLM markers for optimal AI processing and consistent form
 ### File Management  
 - `POST /api/upload` - Upload individual files
 - `GET /api/download/:jobId/:fileType` - Download generated files
+- `GET /api/view/:jobId/:fileType` - View PDF files inline
+- `GET /api/view/:jobId/:fileType/tex` - View LaTeX source files
 
 ### Configuration
 - `GET /api/providers` - Get available AI providers
@@ -154,6 +160,29 @@ This template includes LLM markers for optimal AI processing and consistent form
 - Real-time progress updates
 - Step-by-step workflow display
 - Error handling and retry options
+
+### LaTeXViewer
+- **Syntax Highlighting**: Color-coded LaTeX commands, environments, comments, math mode
+- **Line Numbers**: Easy code reference and navigation
+- **Copy to Clipboard**: One-click copying with visual feedback
+- **Responsive Design**: Adapts to different screen sizes
+- **Error Handling**: Graceful fallbacks for missing files
+- **Real-time Loading**: Fetches LaTeX source via API
+- **Monospace Font**: Proper code display with syntax highlighting
+
+#### Syntax Highlighting Features
+- **Commands**: Green highlighting for `\textbf`, `\section`, etc.
+- **Environments**: Red highlighting for `\begin{document}`, `\end{itemize}`
+- **Comments**: Gray italic for `% comments`
+- **Math Mode**: Orange with background for `$equations$`
+- **Braces**: Blue highlighting for `{` and `}`
+- **Optional Arguments**: Purple for `[optional]` parameters
+
+### PDFViewer
+- **Inline Preview**: Embedded PDF viewing without downloads
+- **Fallback Support**: Browser compatibility handling
+- **Loading States**: Visual feedback during PDF loading
+- **Error Recovery**: Graceful handling of PDF load failures
 
 ## 🔄 Development Workflow
 

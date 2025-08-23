@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "replace": "I am a passionate Software Engineer with over three years of hands-on experience in developing robust backend systems using Python, Flask, and PostgreSQL. My expertise includes designing scalable solutions for high-concurrency applications, optimizing data storage and transit, and implementing CI/CD pipelines. I have successfully led projects that reduced system latency by 40% through database optimization and improved team efficiency through mentorship and code reviews."
+  },
+  "skills": {
+    "Programming Languages": {
+      "replace": "Python, TypeScript"
+    },
+    "Frontend": {
+      "replace": "React.js, Vue.js, Angular"
+    },
+    "Backend": {
+      "replace": "Flask, Django, FastAPI"
+    },
+    "Cloud & DevOps": {
+      "replace": "AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Terraform, CI/CD (GitHub Actions)"
+    },
+    "AI & LLM Tools": {
+      "replace": "Claude Code, LangChain, MLX"
+    },
+    "Automation & Productivity": {
+      "replace": "Git, Postman, Selenium, GitHub Copilot, Shell Scripting"
+    },
+    "Security & Operating Systems": {
+      "replace": "Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, OWASP Top 10, API Security"
+    },
+    "Databases": {
+      "replace": "PostgreSQL, MongoDB, Snowflake"
+    }
+  },
+  "cover_letter": {
+    "salutation": {
+      "replace": "\n\nDear forml Team,"
+    },
+    "paragraphs": [
+      "I'm excited to apply for the Software Engineer role at forml. Your work in redefining how businesses integrate and utilize AI/ML really caught my attention, especially your focus on building scalable backend solutions with Flask and Redis.",
+      "My core strengths lie in Python and systems-level development, focusing on creating secure, observable, and scalable software solutions. I am adept at working across cloud environments like AWS, Azure, and GCP, containerizing with Docker/Kubernetes, provisioning with Terraform, and implementing CI/CD pipelines to ensure all processes are testable, versioned, and easy to roll back.",
+      "In my previous role, I engineered a solution that consolidated diverse enterprise systems into a unified platform. This project reduced manual effort by over 100 hours per month and improved the organization's visibility and response capabilities across thousands of endpoints. My experience in automating end-to-end workflows from data aggregation to remediation has equipped me with the skills needed for your team.",
+      "I am comfortable owning the entire lifecycle of a solution, from design through deployment and operations. This includes architecting and implementing features, instrumenting pipelines, documenting APIs and system contracts, and collaborating closely with cross-functional teams. I look forward to contributing my expertise in building reliable, secure, and scalable software that solves complex problems."
+    ]
+  },
+  "suggested_additions": [
+    {
+      "term": "Flask",
+      "why": "Required by the job description"
+    },
+    {
+      "term": "Redis",
+      "why": "Required by the job description"
+    },
+    {
+      "term": "Celery",
+      "why": "Required by the job description"
+    }
+  ]
+}
