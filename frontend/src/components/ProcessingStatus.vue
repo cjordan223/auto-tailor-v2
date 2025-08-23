@@ -37,6 +37,13 @@
         {{ statusDescription }}
       </p>
       
+      <!-- Rotating Tips (only during processing) -->
+      <div v-if="status === 'processing'" class="mb-3">
+        <p class="text-sm text-primary-600 font-medium animate-pulse">
+          💡 {{ currentTip }}
+        </p>
+      </div>
+      
       <!-- Detailed Step Information -->
       <div v-if="step || detail || provider" class="text-sm space-y-1">
         <p v-if="step" class="font-medium text-gray-800">
@@ -104,13 +111,27 @@
         Try Again
       </button>
       
-      <button
-        v-if="status === 'completed'"
-        @click="$emit('view-results')"
-        class="btn btn-success"
-      >
-        View Results
-      </button>
+      <!-- Done state CTAs -->
+      <div v-if="status === 'completed'" class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+        <button
+          @click="$emit('download-kit')"
+          class="btn btn-primary"
+        >
+          Download Kit (ZIP)
+        </button>
+        <button
+          @click="$emit('open-resume')"
+          class="btn btn-secondary"
+        >
+          Open Résumé
+        </button>
+        <button
+          @click="$emit('open-cover-letter')"
+          class="btn btn-secondary"
+        >
+          Open Cover Letter
+        </button>
+      </div>
       
       <button
         v-if="status === 'processing'"
@@ -124,7 +145,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   status: {
@@ -141,7 +162,7 @@ const props = defineProps({
   provider: String
 })
 
-const emit = defineEmits(['retry', 'view-results', 'cancel'])
+const emit = defineEmits(['retry', 'view-results', 'cancel', 'download-kit', 'open-resume', 'open-cover-letter'])
 
 // Processing steps
 const processingSteps = [
@@ -154,18 +175,49 @@ const processingSteps = [
   'Generating PDF files...'
 ]
 
+// Rotating tips
+const rotatingTips = [
+  'Mapping your skills to the role…',
+  'Extracting keywords for ATS alignment…',
+  'Keeping LaTeX structure intact…',
+  'Normalizing tense and voice…'
+]
+
+const currentTipIndex = ref(0)
+let tipRotationTimer = null
+
 // Current step based on progress
 const currentStep = computed(() => {
   return Math.floor((props.progress / 100) * processingSteps.length)
 })
 
+// Current rotating tip
+const currentTip = computed(() => {
+  return rotatingTips[currentTipIndex.value]
+})
+
+// Start/stop tip rotation
+const startTipRotation = () => {
+  if (tipRotationTimer) return
+  tipRotationTimer = setInterval(() => {
+    currentTipIndex.value = (currentTipIndex.value + 1) % rotatingTips.length
+  }, 3000) // Rotate every 3 seconds
+}
+
+const stopTipRotation = () => {
+  if (tipRotationTimer) {
+    clearInterval(tipRotationTimer)
+    tipRotationTimer = null
+  }
+}
+
 // Status text and descriptions
 const statusText = computed(() => {
   switch (props.status) {
     case 'processing':
-      return 'Generating Your Resume...'
+      return 'Building your Application Kit'
     case 'completed':
-      return 'Resume Generated Successfully!'
+      return 'Application Kit Ready!'
     case 'error':
       return 'Generation Failed'
     default:
@@ -174,15 +226,39 @@ const statusText = computed(() => {
 })
 
 const statusDescription = computed(() => {
+  const totalSteps = processingSteps.length
+  const currentStepNum = currentStep.value + 1
+  const activeStep = processingSteps[currentStep.value] || 'Processing...'
+  
   switch (props.status) {
     case 'processing':
-      return 'AI is analyzing your job description and customizing your resume. This usually takes 30-60 seconds.'
+      return `Step ${currentStepNum} of ${totalSteps}: ${activeStep}`
     case 'completed':
-      return 'Your tailored resume and cover letter are ready for download!'
+      return 'Your customized resume and cover letter are ready!'
     case 'error':
       return 'Something went wrong during processing. Please check the error details below.'
     default:
       return 'Click generate to start the AI customization process.'
   }
+})
+
+// Watch for status changes to start/stop tip rotation
+watch(() => props.status, (newStatus) => {
+  if (newStatus === 'processing') {
+    startTipRotation()
+  } else {
+    stopTipRotation()
+  }
+}, { immediate: true })
+
+// Lifecycle
+onMounted(() => {
+  if (props.status === 'processing') {
+    startTipRotation()
+  }
+})
+
+onBeforeUnmount(() => {
+  stopTipRotation()
 })
 </script>

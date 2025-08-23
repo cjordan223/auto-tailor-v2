@@ -63,7 +63,8 @@
       <!-- Step 3: Processing -->
       <div v-if="step === 3" class="flex-1">
         <ProcessingStatus :status="processingStatus" :progress="processingProgress" :error="processingError"
-          :step="processingStep" :detail="processingDetail" :provider="processingProvider" />
+          :step="processingStep" :detail="processingDetail" :provider="processingProvider" 
+          @download-kit="handleDownloadKit" @open-resume="handleOpenResume" @open-cover-letter="handleOpenCoverLetter" />
       </div>
 
       <!-- Navigation Buttons - Fixed positioning to prevent layout shifts -->
@@ -105,6 +106,7 @@ const processingError = ref(null)
 const processingStep = ref('')
 const processingDetail = ref('')
 const processingProvider = ref('')
+const currentJobId = ref(null)
 
 // Computed
 const canProceed = computed(() => {
@@ -166,12 +168,35 @@ const startProcessing = async () => {
       model: selectedModel.value
     })
 
+    currentJobId.value = result.jobId
     // Navigate directly to results page without setting completion status
     router.push(`/results/${result.jobId}`)
 
   } catch (error) {
     processingStatus.value = 'error'
     processingError.value = error.message
+  }
+}
+
+// Event handlers for ProcessingStatus CTAs
+const handleDownloadKit = () => {
+  if (currentJobId.value) {
+    // Navigate to results page which has download all functionality
+    router.push(`/results/${currentJobId.value}`)
+  }
+}
+
+const handleOpenResume = () => {
+  if (currentJobId.value) {
+    // Open resume PDF in new tab
+    window.open(`/api/view/${currentJobId.value}/resume`, '_blank')
+  }
+}
+
+const handleOpenCoverLetter = () => {
+  if (currentJobId.value) {
+    // Open cover letter PDF in new tab  
+    window.open(`/api/view/${currentJobId.value}/cover-letter`, '_blank')
   }
 }
 </script>

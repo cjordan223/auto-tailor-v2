@@ -32,8 +32,33 @@
       <!-- Review Overview -->
       <div v-if="results.reviewData?.overview" class="card">
         <h2 class="text-xl font-semibold text-gray-900 mb-6">AI Analysis Overview</h2>
-        <div class="bg-gray-50 p-4 rounded-lg mb-6">
-          <p class="text-gray-700 leading-relaxed">{{ formatOverview(results.reviewData.overview) }}</p>
+        <div class="space-y-6">
+          <!-- Job Description Section -->
+          <div v-if="getJobSection(results.reviewData.overview)"
+            class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-semibold text-blue-900 mb-3 flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6">
+                </path>
+              </svg>
+              What This Job Is About
+            </h3>
+            <p class="text-blue-800 leading-relaxed">{{ getJobSection(results.reviewData.overview) }}</p>
+          </div>
+
+          <!-- Customization Strategy Section -->
+          <div v-if="getCustomizationSection(results.reviewData.overview)"
+            class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
+            <h3 class="text-lg font-semibold text-green-900 mb-3 flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              How We Customized Your Resume
+            </h3>
+            <p class="text-green-800 leading-relaxed">{{ getCustomizationSection(results.reviewData.overview) }}</p>
+          </div>
         </div>
 
         <!-- Statistics -->
@@ -206,21 +231,14 @@
           <div class="grid lg:grid-cols-2 gap-6 mb-6">
             <!-- LaTeX Source Column -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-800 flex items-center">
-                <span class="text-lg mr-2">📝</span>
-                LaTeX Source
-              </h4>
+
               <LaTeXEditor :job-id="jobId" file-type="resume" @content-changed="onResumeContentChanged"
                 @save="onResumeSave" @revert="onResumeRevert" @reset="onResumeReset" />
             </div>
 
             <!-- PDF Preview Column -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-800 flex items-center">
-                <span class="text-lg mr-2">📋</span>
-                PDF Preview
-                <span v-if="recompiling.resume" class="ml-2 text-sm text-blue-600">(Recompiling...)</span>
-              </h4>
+
               <PDFViewer ref="resumePdfViewer" :key="resumePdfKey" :job-id="jobId" file-type="resume" />
             </div>
           </div>
@@ -242,21 +260,14 @@
           <div class="grid lg:grid-cols-2 gap-6 mb-6">
             <!-- LaTeX Source Column -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-800 flex items-center">
-                <span class="text-lg mr-2">📝</span>
-                LaTeX Source
-              </h4>
+
               <LaTeXEditor :job-id="jobId" file-type="cover-letter" @content-changed="onCoverLetterContentChanged"
                 @save="onCoverLetterSave" @revert="onCoverLetterRevert" @reset="onCoverLetterReset" />
             </div>
 
             <!-- PDF Preview Column -->
             <div class="space-y-4">
-              <h4 class="text-md font-medium text-gray-800 flex items-center">
-                <span class="text-lg mr-2">📋</span>
-                PDF Preview
-                <span v-if="recompiling.coverLetter" class="ml-2 text-sm text-blue-600">(Recompiling...)</span>
-              </h4>
+
               <PDFViewer ref="coverLetterPdfViewer" :key="coverLetterPdfKey" :job-id="jobId" file-type="cover-letter" />
             </div>
           </div>
@@ -451,6 +462,54 @@ const formatOverview = (overview) => {
 
   // The backend now returns properly formatted text, so just return as-is
   return overview
+}
+
+const getJobSection = (overview) => {
+  if (!overview) return ''
+
+  // First, try to parse as JSON (fallback for when AI returns JSON)
+  try {
+    const jsonData = JSON.parse(overview)
+    if (jsonData.what_this_job_is_about) {
+      return jsonData.what_this_job_is_about
+    }
+  } catch (e) {
+    // Not JSON, continue with text parsing
+  }
+
+  // Look for the job section in plain text
+  const jobMatch = overview.match(/WHAT THIS JOB IS ABOUT:?\s*(.*?)(?=HOW WE CUSTOMIZED|$)/s)
+  if (jobMatch) {
+    return jobMatch[1].trim()
+  }
+
+  // Fallback: try to find the first paragraph if no clear section headers
+  const paragraphs = overview.split('\n\n').filter(p => p.trim())
+  return paragraphs[0] || overview
+}
+
+const getCustomizationSection = (overview) => {
+  if (!overview) return ''
+
+  // First, try to parse as JSON (fallback for when AI returns JSON)
+  try {
+    const jsonData = JSON.parse(overview)
+    if (jsonData.how_we_customized_your_resume) {
+      return jsonData.how_we_customized_your_resume
+    }
+  } catch (e) {
+    // Not JSON, continue with text parsing
+  }
+
+  // Look for the customization section in plain text
+  const customMatch = overview.match(/HOW WE CUSTOMIZED YOUR RESUME:?\s*(.*?)$/s)
+  if (customMatch) {
+    return customMatch[1].trim()
+  }
+
+  // Fallback: try to find the second paragraph if no clear section headers
+  const paragraphs = overview.split('\n\n').filter(p => p.trim())
+  return paragraphs.length > 1 ? paragraphs.slice(1).join('\n\n') : ''
 }
 
 // Real-time editing event handlers
