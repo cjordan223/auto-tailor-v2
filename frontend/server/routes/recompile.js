@@ -32,6 +32,30 @@ router.post('/:jobId/:fileType', async (req, res) => {
       return res.status(404).json({ message: 'Job directory not found' })
     }
     
+    // Create backup of original file if it doesn't exist
+    const fileMap = {
+      'resume': 'Conner_Jordan_Software_Engineer.tuned.tex',
+      'cover-letter': 'Conner_Jordan_Cover_Letter.tuned.tex'
+    }
+    
+    const currentFile = path.join(tempDir, fileMap[fileType])
+    const backupFile = currentFile + '.original'
+    
+    try {
+      // Check if backup already exists
+      await fs.access(backupFile)
+      console.log('Original backup already exists:', backupFile)
+    } catch {
+      // Create backup if it doesn't exist
+      try {
+        const originalContent = await fs.readFile(currentFile, 'utf-8')
+        await fs.writeFile(backupFile, originalContent, 'utf-8')
+        console.log('Created original backup:', backupFile)
+      } catch (backupError) {
+        console.warn('Failed to create original backup:', backupError.message)
+      }
+    }
+    
     // Prepare Python CLI command
     const pythonScriptPath = path.join(__dirname, '../../../venv/bin/python3')
     const workingDir = path.join(__dirname, '../../..')

@@ -164,7 +164,7 @@
                 LaTeX Source
               </h4>
               <LaTeXEditor :job-id="jobId" file-type="resume" @content-changed="onResumeContentChanged"
-                @save="onResumeSave" @revert="onResumeRevert" />
+                @save="onResumeSave" @revert="onResumeRevert" @reset="onResumeReset" />
             </div>
 
             <!-- PDF Preview Column -->
@@ -200,7 +200,7 @@
                 LaTeX Source
               </h4>
               <LaTeXEditor :job-id="jobId" file-type="cover-letter" @content-changed="onCoverLetterContentChanged"
-                @save="onCoverLetterSave" @revert="onCoverLetterRevert" />
+                @save="onCoverLetterSave" @revert="onCoverLetterRevert" @reset="onCoverLetterReset" />
             </div>
 
             <!-- PDF Preview Column -->
@@ -446,6 +446,26 @@ const onResumeRevert = (content) => {
 const onCoverLetterRevert = (content) => {
   coverLetterContent.value = content
   console.log('Cover letter changes reverted')
+}
+
+const onResumeReset = async (content) => {
+  try {
+    resumeContent.value = content
+    await recompileLatex('resume', content)
+    console.log('Resume reset to original and recompiled')
+  } catch (err) {
+    console.error('Failed to reset resume:', err)
+  }
+}
+
+const onCoverLetterReset = async (content) => {
+  try {
+    coverLetterContent.value = content
+    await recompileLatex('cover-letter', content)
+    console.log('Cover letter reset to original and recompiled')
+  } catch (err) {
+    console.error('Failed to reset cover letter:', err)
+  }
 }
 
 // Debounced recompilation functions

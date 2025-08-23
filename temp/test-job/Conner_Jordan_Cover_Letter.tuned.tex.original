@@ -1,0 +1,28 @@
+% Original Tailored Cover Letter LaTeX
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Cover Letter}
+\author{Conner Jordan}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+Dear Hiring Manager,
+
+I am writing to express my strong interest in the Software Engineer position at your company. With over 4 years of experience in full-stack development and a proven track record of delivering high-quality software solutions, I am confident that I would be a valuable addition to your team.
+
+In my current role at TechCorp, I have successfully led a team of 5 developers through a major cloud migration project, reducing infrastructure costs by 40\% while improving system reliability. My expertise spans multiple programming languages and frameworks, including JavaScript, Python, React, and Node.js.
+
+I am particularly excited about this opportunity because it aligns perfectly with my passion for building scalable web applications and my desire to work with cutting-edge technologies. I believe my technical skills and leadership experience make me an ideal candidate for this position.
+
+Thank you for considering my application. I look forward to the opportunity to discuss how I can contribute to your team's success.
+
+Sincerely,
+Conner Jordan
+
+\end{document}

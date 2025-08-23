@@ -57,10 +57,18 @@
             </button>
             <button @click="revertChanges" :disabled="!hasUnsavedChanges"
               class="editor-button text-red-600 hover:text-red-700"
-              :class="{ 'opacity-50 cursor-not-allowed': !hasUnsavedChanges }" title="Revert changes">
+              :class="{ 'opacity-50 cursor-not-allowed': !hasUnsavedChanges }" title="Revert unsaved changes">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+              </svg>
+            </button>
+            <button @click="resetToOriginal" :disabled="isResetDisabled"
+              class="editor-button text-orange-600 hover:text-orange-700"
+              :class="{ 'opacity-50 cursor-not-allowed': isResetDisabled }" title="Reset to original tailored version">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
             </button>
           </div>
@@ -102,13 +110,14 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['content-changed', 'save', 'revert'])
+const emit = defineEmits(['content-changed', 'save', 'revert', 'reset'])
 
 // State
 const loading = ref(true)
 const error = ref(null)
 const latexContent = ref('')
 const originalContent = ref('')
+const tailoredOriginalContent = ref('')
 const copied = ref(false)
 const autoSaveStatus = ref('')
 // const editor = ref(null) // Removed for Monaco editor
@@ -123,6 +132,10 @@ const editorHeight = computed(() => typeof props.height === 'number' ? `${props.
 
 const hasUnsavedChanges = computed(() => {
   return latexContent.value !== originalContent.value
+})
+
+const isResetDisabled = computed(() => {
+  return !tailoredOriginalContent.value || latexContent.value === tailoredOriginalContent.value
 })
 
 const statusIndicatorClass = computed(() => {
@@ -174,6 +187,7 @@ const loadLatexContent = async () => {
     loading.value = true
     error.value = null
 
+    // Load current LaTeX content
     const response = await fetch(latexUrl.value)
     if (!response.ok) {
       throw new Error(`Failed to load LaTeX source: ${response.statusText}`)
@@ -183,12 +197,36 @@ const loadLatexContent = async () => {
     latexContent.value = content
     originalContent.value = content
 
+    // Load original tailored content if not already loaded
+    if (!tailoredOriginalContent.value) {
+      await loadTailoredOriginal()
+    }
+
     console.log('LaTeX content loaded successfully')
   } catch (err) {
     console.error('LaTeX loading error:', err)
     error.value = err.message || 'Failed to load LaTeX source'
   } finally {
     loading.value = false
+  }
+}
+
+const loadTailoredOriginal = async () => {
+  try {
+    const response = await fetch(`/api/view/${props.jobId}/${props.fileType}/original`)
+    if (response.ok) {
+      const originalContent = await response.text()
+      tailoredOriginalContent.value = originalContent
+      console.log('Original tailored content loaded successfully')
+    } else {
+      // Fallback: use current content as original if no separate original exists
+      tailoredOriginalContent.value = latexContent.value
+      console.log('No separate original content found, using current as original')
+    }
+  } catch (err) {
+    console.warn('Failed to load original tailored content:', err)
+    // Fallback: use current content as original
+    tailoredOriginalContent.value = latexContent.value
   }
 }
 
@@ -253,6 +291,15 @@ const revertChanges = () => {
   latexContent.value = originalContent.value
   emit('revert', originalContent.value)
   console.log('Changes reverted')
+}
+
+const resetToOriginal = () => {
+  if (tailoredOriginalContent.value) {
+    latexContent.value = tailoredOriginalContent.value
+    originalContent.value = tailoredOriginalContent.value
+    emit('reset', tailoredOriginalContent.value)
+    console.log('Reset to original tailored version')
+  }
 }
 
 const copyToClipboard = async () => {

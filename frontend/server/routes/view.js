@@ -105,4 +105,59 @@ router.get('/:jobId/:fileType/tex', async (req, res) => {
   }
 })
 
+// View original tailored LaTeX source files (for reset functionality)
+router.get('/:jobId/:fileType/original', async (req, res) => {
+  try {
+    const { jobId, fileType } = req.params
+    const tempDir = path.join(__dirname, '../../temp', jobId)
+    
+    // Map file types to original LaTeX file names
+    const fileMap = {
+      'resume': 'Conner_Jordan_Software_Engineer.tuned.tex.original',
+      'cover-letter': 'Conner_Jordan_Cover_Letter.tuned.tex.original'
+    }
+    
+    const filename = fileMap[fileType]
+    if (!filename) {
+      return res.status(400).json({ message: 'Invalid file type for original LaTeX viewing' })
+    }
+    
+    const filePath = path.join(tempDir, filename)
+    
+    try {
+      await fs.access(filePath)
+      
+      // Set headers for text file viewing
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`)
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('X-Content-Type-Options', 'nosniff')
+      
+      // Read and send the original LaTeX source
+      const fileContent = await fs.readFile(filePath, 'utf-8')
+      res.send(fileContent)
+      
+    } catch (error) {
+      // Fallback: try to serve current version if no original backup exists
+      const currentFileMap = {
+        'resume': 'Conner_Jordan_Software_Engineer.tuned.tex',
+        'cover-letter': 'Conner_Jordan_Cover_Letter.tuned.tex'
+      }
+      
+      const currentFilePath = path.join(tempDir, currentFileMap[fileType])
+      try {
+        await fs.access(currentFilePath)
+        const fileContent = await fs.readFile(currentFilePath, 'utf-8')
+        res.send(fileContent)
+      } catch (fallbackError) {
+        res.status(404).json({ message: 'Original LaTeX file not found' })
+      }
+    }
+    
+  } catch (error) {
+    console.error('Original LaTeX view error:', error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
 export default router
