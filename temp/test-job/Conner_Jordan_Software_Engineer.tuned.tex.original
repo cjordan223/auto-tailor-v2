@@ -1,0 +1,37 @@
+% Original Tailored Resume LaTeX
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\title{Software Engineer Resume}
+\author{Conner Jordan}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Experience}
+\begin{itemize}
+    \item[•] Senior Software Engineer at TechCorp (2020-Present)
+    \item[•] Full-stack development with React and Node.js
+    \item[•] Led team of 5 developers on cloud migration project
+\end{itemize}
+
+\section{Skills}
+\begin{itemize}
+    \item[•] Programming Languages: JavaScript, Python, Java
+    \item[•] Frameworks: React, Vue.js, Express.js
+    \item[•] Databases: MongoDB, PostgreSQL, Redis
+    \item[•] Cloud Platforms: AWS, Azure, Google Cloud
+\end{itemize}
+
+\section{Education}
+\begin{itemize}
+    \item[•] B.S. Computer Science, University of Technology (2018)
+    \item[•] GPA: 3.8/4.0, Magna Cum Laude
+\end{itemize}
+
+\end{document}

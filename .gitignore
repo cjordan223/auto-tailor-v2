@@ -210,8 +210,19 @@ __marimo__/
 # web ui
 frontend/node_modules
 
-# Tex-Tailor specific ignores
+# Custom Ignores  
+# =================================
+# Build outputs and temporary files
 /out/
+/frontend/temp/
+*.pdf
 *.fdb_latexmk
+*.fls
 *.aux
 *.out
+*.synctex.gz
+preprod.txt
+
+# Environment variables
+.env.development
+.env.production

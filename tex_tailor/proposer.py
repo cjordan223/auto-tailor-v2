@@ -26,7 +26,7 @@ CRITICAL CONSTRAINTS:
 - Skills: PREFER ADDITIONS over deletions. Add job-relevant technologies while preserving core competencies.
 - Cover letter: Write with a NATURAL, CONVERSATIONAL tone that flows like genuine human communication. Avoid corporate jargon and stiff formal language. Be authentic, engaging, and personable while remaining professional. Use varied sentence structures and natural transitions between ideas.
 - Suggested additions: "why" field should be concise and under 200 characters.
-- Use null for unchanged fields when no improvement is needed.
+- Use null (not the string "null") for unchanged fields when no improvement is needed.
 - Focus on strategic job-relevant modifications that improve keyword alignment.
 - PRESERVE FACTUAL INTEGRITY: Never change employers, titles, dates, or quantified metrics.
 
@@ -113,8 +113,10 @@ EXAMPLES OF VALID EDITS:
   AVOID: Stiff, formal corporate speak
   PREFER: Authentic, engaging language that sounds like a real conversation
 
-- Make strategic edits that improve job relevance - use null only when no improvements are needed.
+- Cover letter paragraphs: Tailor content to emphasize job-relevant experience and match company needs.
+- Make strategic edits that improve job relevance - use null (not "null") only when no improvements are needed.
 - PRESERVE foundational skills unless they conflict with job requirements.
+- IMPORTANT: Return actual null values, not the string "null". Example: "replace": null is correct, "replace": "null" is wrong.
 """
 
 
@@ -198,7 +200,8 @@ class OllamaProvider:
             "options": {
                 # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
                 "temperature": config.providers.ollama.temperature,  # 0=deterministic, 1=creative
-                "top_k": config.providers.ollama.top_k,              # Lower=focused, higher=diverse
+                # Lower=focused, higher=diverse
+                "top_k": config.providers.ollama.top_k,
                 "num_predict": config.providers.ollama.max_tokens
             }
         }
@@ -247,7 +250,8 @@ class GeminiProvider:
             "generationConfig": {
                 # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
                 "temperature": config.providers.gemini.temperature,   # 0=deterministic, 1=creative
-                "topK": config.providers.gemini.top_k,               # Lower=focused, higher=diverse
+                # Lower=focused, higher=diverse
+                "topK": config.providers.gemini.top_k,
                 "maxOutputTokens": config.providers.gemini.max_tokens,
                 "responseMimeType": "application/json"
             }

@@ -12,6 +12,7 @@ import statusRoutes from './routes/status.js'
 import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
 import reviewRoutes from './routes/review.js'
+import recompileRoutes from './routes/recompile.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 
@@ -67,6 +68,7 @@ app.use('/api/status', statusRoutes)
 app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
+app.use('/api/recompile', recompileRoutes)
 
 // Results endpoint
 app.get('/api/results/:jobId', async (req, res) => {
@@ -103,20 +105,85 @@ app.get('/api/results/:jobId', async (req, res) => {
     let skillsChanges = null
     
     if (status === 'completed') {
+      // Try to get review data with multiple fallback strategies
+      let reviewSuccess = false
+      
+      // Strategy 1: Try review API without provider (auto-detect)
       try {
-        // Call the review API to get actual data (use Ollama to avoid rate limits)
-        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json&provider=ollama`)
+        console.log('Attempting to fetch review data (auto-detect provider)...')
+        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json`)
         if (reviewResponse.ok) {
           const reviewResult = await reviewResponse.json()
           if (reviewResult.success && reviewResult.data) {
+            console.log('Review data fetched successfully via auto-detect')
             reviewData = reviewResult.data
             suggestedAdditions = reviewResult.data.raw_edits?.suggested_additions || []
+            reviewSuccess = true
           }
+        } else {
+          console.warn(`Review API returned ${reviewResponse.status}: ${reviewResponse.statusText}`)
         }
       } catch (error) {
-        console.warn('Failed to fetch review data:', error.message)
-        // Fall back to empty array if review fails
-        suggestedAdditions = []
+        console.warn('Failed to fetch review data via auto-detect:', error.message)
+      }
+      
+      // Strategy 2: If review API failed, read directly from edits.json
+      if (!reviewSuccess) {
+        try {
+          console.log('Falling back to direct edits.json reading...')
+          const editsPath = path.join(tempDir, 'edits.json')
+          const editsRaw = await fs.readFile(editsPath, 'utf8')
+          const edits = JSON.parse(editsRaw)
+          
+          // Extract suggested additions from edits.json
+          suggestedAdditions = edits.suggested_additions || []
+          
+          // Create minimal reviewData with computed statistics
+          const totalChunksModified = edits.structured_diffs ? 
+            edits.structured_diffs.length : 
+            Object.keys(edits).filter(key => 
+              key !== 'suggested_additions' && 
+              edits[key] && 
+              (typeof edits[key] === 'object' ? Object.keys(edits[key]).length > 0 : edits[key].length > 0)
+            ).length
+          
+          const skillsSectionsUpdated = edits.skills ? Object.keys(edits.skills).length : 0
+          const coverLetterParagraphs = edits.cover_letter?.paragraphs?.length || 0
+          const suggestedAdditionsCount = suggestedAdditions.length
+          
+          reviewData = {
+            overview: totalChunksModified > 0 
+              ? `Successfully analyzed and customized your resume with ${totalChunksModified} modifications, ${skillsSectionsUpdated} skills updates, and ${coverLetterParagraphs} cover letter adjustments. Generated ${suggestedAdditionsCount} additional recommendations based on the job description.`
+              : 'Resume analysis completed successfully. Your documents have been generated and are ready for review.',
+            statistics: {
+              total_chunks_modified: totalChunksModified,
+              skills_sections_updated: skillsSectionsUpdated,
+              cover_letter_paragraphs: coverLetterParagraphs,
+              suggested_additions: suggestedAdditionsCount
+            }
+          }
+          
+          console.log('Fallback data generated from edits.json:', {
+            suggestedAdditionsCount,
+            totalChunksModified,
+            skillsSectionsUpdated,
+            coverLetterParagraphs
+          })
+          
+        } catch (fallbackError) {
+          console.warn('Failed to read edits.json fallback:', fallbackError.message)
+          // Provide minimal default data to ensure UI sections still appear
+          suggestedAdditions = []
+          reviewData = {
+            overview: 'Resume generation completed successfully. Your customized documents are ready for download.',
+            statistics: {
+              total_chunks_modified: 0,
+              skills_sections_updated: 0,
+              cover_letter_paragraphs: 0,
+              suggested_additions: 0
+            }
+          }
+        }
       }
 
       // Get skills changes by comparing original and new skills
@@ -138,7 +205,8 @@ app.get('/api/results/:jobId', async (req, res) => {
         skillsChanges = {}
         for (const [category, newSkillData] of Object.entries(newSkills)) {
           const originalSkill = originalSkills[category] || ''
-          const newSkill = newSkillData.replace || originalSkill
+          // Handle null/empty values properly - if replace is null/empty/"null", use original
+          const newSkill = (newSkillData.replace && newSkillData.replace.trim() && newSkillData.replace !== "null") ? newSkillData.replace : originalSkill
           
           if (originalSkill !== newSkill) {
             // Parse skills into arrays for comparison

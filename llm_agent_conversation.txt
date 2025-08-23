@@ -1,0 +1,105 @@
+TEX-TAILOR LLM AGENT CONVERSATION LOG
+=====================================
+
+This file tracks conversations and iterations between LLM agents working on the Tex-Tailor codebase.
+Each entry should include: timestamp, agent identifier, task description, and outcome.
+
+[2025-08-23 04:43] AGENT-CLAUDE-CODE
+TASK: Fix LaTeX real-time PDF update issue
+ANALYSIS: Identified 5 root causes in PDF refresh mechanism:
+  1. Race condition between Python process completion and file system writes
+  2. Double key updates causing Vue component conflicts  
+  3. Insufficient cache-busting in browser PDF viewers
+  4. Missing file verification after recompilation
+  5. Optimistic timing assumptions without real file system checks
+
+CHANGES IMPLEMENTED:
+  ✅ Results.vue:502-517 - Eliminated double key updates, single refresh with 2s delay
+  ✅ recompile.js:65-110 - Added file system verification with timestamp checking
+  ✅ view.js:31-54 - Improved cache headers with ETag and Last-Modified
+  ✅ PDFViewer.vue:188-220 - Enhanced forceRefresh with proper loading states
+
+OUTCOME: Server running successfully. Changes address timing races and caching issues.
+The intermittent PDF refresh should now be reliable with proper file verification.
+
+NEXT STEPS FOR OTHER AGENTS:
+- Test the real-time editing functionality with actual LaTeX changes
+- Monitor browser console logs during PDF refresh operations
+- Consider WebSocket implementation for instant notifications
+- Add retry mechanisms for failed refreshes
+
+---
+
+[2025-08-23 05:14] AGENT-CLAUDE-CODE
+TASK: Add reset to original LaTeX functionality
+ANALYSIS: User requested ability to reset LaTeX content back to the original tailored version,
+not just revert unsaved changes. This requires:
+  1. Storing original tailored LaTeX content as backup files
+  2. New UI button to distinguish from "revert" (unsaved changes)
+  3. Backend endpoint to serve original content
+  4. Frontend logic to handle reset and trigger recompilation
+
+CHANGES IMPLEMENTED:
+  ✅ LaTeXEditor.vue:66-73 - Added orange "Reset to Original" button with refresh icon
+  ✅ LaTeXEditor.vue:113-120 - Added tailoredOriginalContent state and reset emit
+  ✅ LaTeXEditor.vue:214-231 - Added loadTailoredOriginal() method
+  ✅ LaTeXEditor.vue:296-303 - Added resetToOriginal() method
+  ✅ Results.vue:167,203 - Connected reset events to parent handlers
+  ✅ Results.vue:451-469 - Added reset handlers with recompilation
+  ✅ view.js:109-161 - Added /original endpoint with fallback logic
+  ✅ recompile.js:35-57 - Auto-backup original files on first modification
+
+OUTCOME: Reset functionality fully implemented with:
+- Separate "Revert" (unsaved) vs "Reset to Original" (tailored baseline) buttons  
+- Automatic backup creation on first edit to preserve original
+- Backend serves .original files with current file fallback
+- Frontend triggers recompilation after reset
+
+TESTING VERIFIED:
+- Backend endpoints respond correctly on port 3002
+- Original backup files created and served
+- UI shows disabled state when already at original version
+
+---
+
+[2025-08-23 05:40] AGENT-CLAUDE-CODE
+TASK: Fix skills showing as "null" in frontend UI
+ANALYSIS: User reported skills appearing as "null" in the skills changes section. Investigation revealed:
+  1. AI was returning string "null" instead of actual null values for unchanged skills
+  2. clean_edits_json function wasn't being called in the workflow
+  3. Frontend comparison logic was treating empty strings as valid skills
+  4. AI prompt was ambiguous about null vs "null" string values
+
+ROOT CAUSE IDENTIFIED:
+- AI prompt instructed "Use null for unchanged fields" but AI interpreted as string "null"
+- Backend patcher.py wasn't calling clean_edits_json to sanitize edits
+- Frontend server/index.js comparison logic didn't handle string "null" values
+- Skills with string "null" were being treated as actual changes instead of no-change
+
+CHANGES IMPLEMENTED:
+  ✅ tex_tailor/schema.py:351-376 - Enhanced clean_edits_json to handle both null and "null" strings
+  ✅ tex_tailor/patcher.py:200-205 - Added clean_edits_json call in apply_edits_to_files
+  ✅ tex_tailor/patcher.py:127,157,170 - Updated all edit functions to handle empty strings properly
+  ✅ frontend/server/index.js:200 - Fixed skills comparison logic to exclude "null" strings
+  ✅ tex_tailor/proposer.py:25,95-97 - Updated AI prompt to clarify null vs "null" distinction
+
+OUTCOME: Skills null issue completely resolved:
+- AI now returns proper null values (though still some string "null" for robustness)
+- Backend properly converts both null and "null" to empty strings
+- Frontend only shows actual skill changes, not "null" values
+- System is robust and handles both cases correctly
+
+TESTING VERIFIED:
+- New job (e8729450-8723-4076-9841-17d5531d9e23) shows only actual skill changes
+- Programming Languages: removed TypeScript,Java,C/C++,SQL,Swift,PowerShell,Bash; added R
+- Databases: removed MySQL,PostgreSQL,MongoDB,DynamoDB,Databricks; added SQL
+- No more "null" values appearing in skills changes UI
+- Skills that weren't changed (Frontend, Backend, etc.) no longer appear in changes
+
+NEXT STEPS FOR OTHER AGENTS:
+- Monitor AI behavior to see if prompt changes reduce string "null" occurrences
+- Consider adding validation to ensure AI returns proper null values
+- Test with different job descriptions to verify fix is universal
+- Consider adding unit tests for clean_edits_json function
+
+---

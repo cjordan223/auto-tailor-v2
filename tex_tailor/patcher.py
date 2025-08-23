@@ -25,49 +25,50 @@ def latex_escape(text: str) -> str:
     """Escape special LaTeX characters in text."""
     if not text:
         return text
-    
+
     escaped = text
     for char, replacement in LATEX_ESCAPE_MAP.items():
         escaped = escaped.replace(char, replacement)
-    
+
     return escaped
 
 
 def find_chunk_boundaries(content: str, chunk_id: str) -> Tuple[int, int]:
     """Find the start and end positions of a chunk in content."""
-    
+
     start_pattern = rf'^% === LLM:CHUNK START {re.escape(chunk_id)} ===\s*\n'
     end_pattern = rf'\n% === LLM:CHUNK END {re.escape(chunk_id)} ===$'
-    
+
     start_match = re.search(start_pattern, content, re.MULTILINE)
     if not start_match:
         raise ValueError(f"Could not find start marker for chunk: {chunk_id}")
-    
-    end_match = re.search(end_pattern, content[start_match.end():], re.MULTILINE)
+
+    end_match = re.search(
+        end_pattern, content[start_match.end():], re.MULTILINE)
     if not end_match:
         raise ValueError(f"Could not find end marker for chunk: {chunk_id}")
-    
+
     content_start = start_match.end()
     content_end = start_match.end() + end_match.start()
-    
+
     return content_start, content_end
 
 
 def replace_chunk_content(content: str, chunk_id: str, new_content: str) -> str:
     """Replace the content of a specific chunk."""
-    
+
     try:
         content_start, content_end = find_chunk_boundaries(content, chunk_id)
     except ValueError as e:
         print(f"Warning: {e}")
         return content
-    
+
     # Escape the new content for LaTeX
     escaped_content = latex_escape(new_content)
-    
+
     # Replace the content, preserving whitespace structure
     original_content = content[content_start:content_end]
-    
+
     # Try to preserve indentation from original
     lines = original_content.split('\n')
     if lines:
@@ -79,46 +80,47 @@ def replace_chunk_content(content: str, chunk_id: str, new_content: str) -> str:
                 indent += char
             else:
                 break
-        
+
         # Apply same indentation to new content
         new_lines = escaped_content.split('\n')
         if len(new_lines) > 1:
-            indented_lines = [new_lines[0]] + [indent + line if line.strip() else line 
-                                             for line in new_lines[1:]]
+            indented_lines = [new_lines[0]] + [indent + line if line.strip() else line
+                                               for line in new_lines[1:]]
             escaped_content = '\n'.join(indented_lines)
-    
+
     return content[:content_start] + escaped_content + content[content_end:]
 
 
 def replace_chunk_content_raw(content: str, chunk_id: str, new_content: str) -> str:
     """Replace the content of a specific chunk without LaTeX escaping."""
-    
+
     try:
         content_start, content_end = find_chunk_boundaries(content, chunk_id)
     except ValueError as e:
         print(f"Warning: {e}")
         return content
-    
+
     # Use content directly without escaping (for pre-formatted LaTeX like skills)
     return content[:content_start] + new_content + content[content_end:]
 
 
 def apply_resume_edits(content: str, edits: Dict[str, Any]) -> str:
     """Apply résumé edits to content."""
-    
+
     modified_content = content
-    
+
     # Apply summary edit
     if "summary" in edits and "replace" in edits["summary"]:
         new_summary = edits["summary"]["replace"]
-        if new_summary:
-            modified_content = replace_chunk_content(modified_content, "RESUME.SUMMARY", new_summary)
-    
+        if new_summary is not None and new_summary.strip():
+            modified_content = replace_chunk_content(
+                modified_content, "RESUME.SUMMARY", new_summary)
+
     # Apply skills edits
     if "skills" in edits:
         skill_mapping = {
             'Programming Languages': 'SKILLS.Programming Languages',
-            'Frontend': 'SKILLS.Frontend', 
+            'Frontend': 'SKILLS.Frontend',
             'Backend': 'SKILLS.Backend',
             'Cloud & DevOps': 'SKILLS.Cloud & DevOps',
             'AI & LLM Tools': 'SKILLS.AI & LLM Tools',
@@ -126,50 +128,54 @@ def apply_resume_edits(content: str, edits: Dict[str, Any]) -> str:
             'Security & Operating Systems': 'SKILLS.Security & Operating Systems',
             'Databases': 'SKILLS.Databases'
         }
-        
+
         for skill_name, chunk_id in skill_mapping.items():
             if skill_name in edits["skills"] and "replace" in edits["skills"][skill_name]:
                 new_skill = edits["skills"][skill_name]["replace"]
-                if new_skill:
+                # Handle both null (converted to empty string) and actual empty strings
+                if new_skill is not None and new_skill.strip():
                     # Clean up skill content if it accidentally includes the category name
                     if new_skill.startswith(f"{skill_name}:"):
                         new_skill = new_skill[len(f"{skill_name}:"):].strip()
-                    
+
                     # Escape only the content part, not the LaTeX formatting
                     escaped_skill_content = latex_escape(new_skill)
-                    
+
                     # Also escape the skill name in case it contains special characters like &
                     escaped_skill_name = latex_escape(skill_name)
-                    
+
                     # Reconstruct the full LaTeX formatting
                     formatted_skill = f"\\textbf{{{escaped_skill_name}:}} {escaped_skill_content}"
-                    
+
                     # Replace content directly without going through normal escaping
-                    modified_content = replace_chunk_content_raw(modified_content, chunk_id, formatted_skill)
-    
+                    modified_content = replace_chunk_content_raw(
+                        modified_content, chunk_id, formatted_skill)
+
     return modified_content
 
 
 def apply_cover_letter_edits(content: str, edits: Dict[str, Any]) -> str:
     """Apply cover letter edits to content."""
-    
+
     modified_content = content
-    
+
     # Apply salutation edit
     if "cover_letter" in edits and "salutation" in edits["cover_letter"] and "replace" in edits["cover_letter"]["salutation"]:
         new_salutation = edits["cover_letter"]["salutation"]["replace"]
-        if new_salutation:
-            modified_content = replace_chunk_content(modified_content, "COVER.SALUTATION", new_salutation)
-    
+        if new_salutation is not None and new_salutation.strip():
+            modified_content = replace_chunk_content(
+                modified_content, "COVER.SALUTATION", new_salutation)
+
     # Apply paragraph edits
     if "cover_letter" in edits and "paragraphs" in edits["cover_letter"]:
         paragraphs = edits["cover_letter"]["paragraphs"]
-        
+
         for i, new_paragraph in enumerate(paragraphs, 1):
-            if new_paragraph:
+            if new_paragraph is not None and new_paragraph.strip():
                 chunk_id = f"COVER.P{i}"
-                modified_content = replace_chunk_content(modified_content, chunk_id, new_paragraph)
-    
+                modified_content = replace_chunk_content(
+                    modified_content, chunk_id, new_paragraph)
+
     return modified_content
 
 
@@ -177,89 +183,96 @@ def clean_duplicate_end_document(content: str) -> str:
     """Remove duplicate \\end{document} tags, keeping only the last one."""
     # Count occurrences
     end_doc_count = content.count('\\end{document}')
-    
+
     if end_doc_count <= 1:
         return content
-    
+
     # Find position of last \end{document}
     last_pos = content.rfind('\\end{document}')
-    
+
     # Keep everything up to and including the last \end{document}, remove duplicates before it
     before_last = content[:last_pos]
     last_part = content[last_pos:]
-    
+
     # Remove all \end{document} from the before part
     cleaned_before = before_last.replace('\\end{document}', '')
-    
+
     # Combine back together
     return cleaned_before + last_part
 
 
 def apply_edits_to_files(resume_file: str, cover_file: str, edits_file: str) -> Tuple[str, str]:
     """Apply edits to résumé and cover letter files, return output paths."""
-    
+
     # Load edits
     with open(edits_file, 'r', encoding='utf-8') as f:
         edits = json.load(f)
-    
+
+    # Clean edits to handle null values properly
+    from .schema import clean_edits_json
+    edits = clean_edits_json(edits)
+
     # Process résumé
     with open(resume_file, 'r', encoding='utf-8') as f:
         resume_content = f.read()
-    
+
     modified_resume = apply_resume_edits(resume_content, edits)
     # Clean up duplicate end tags
     modified_resume = clean_duplicate_end_document(modified_resume)
-    
+
     # Generate output filename with .tuned.tex pattern
-    base_name = resume_file.split('/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
+    base_name = resume_file.split(
+        '/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
     resume_output = f"out/{base_name}.tuned.tex"
-    
+
     with open(resume_output, 'w', encoding='utf-8') as f:
         f.write(modified_resume)
-    
+
     # Process cover letter
     with open(cover_file, 'r', encoding='utf-8') as f:
         cover_content = f.read()
-    
+
     modified_cover = apply_cover_letter_edits(cover_content, edits)
     # Clean up duplicate end tags
     modified_cover = clean_duplicate_end_document(modified_cover)
-    
-    # Generate output filename with .tuned.tex pattern  
-    base_name = cover_file.split('/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
+
+    # Generate output filename with .tuned.tex pattern
+    base_name = cover_file.split(
+        '/')[-1].replace(' llm_ready.tex', '').replace('llm_ready.tex', '')
     cover_output = f"out/{base_name}.tuned.tex"
-    
+
     with open(cover_output, 'w', encoding='utf-8') as f:
         f.write(modified_cover)
-    
+
     return resume_output, cover_output
 
 
 def validate_latex_compilation(tex_file: str) -> bool:
     """Validate that a LaTeX file can be compiled (basic check)."""
-    
+
     with open(tex_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     # Basic checks for common issues
     issues = []
-    
+
     # Check for unmatched braces
     open_braces = content.count('{')
     close_braces = content.count('}')
     if open_braces != close_braces:
-        issues.append(f"Unmatched braces: {open_braces} open, {close_braces} close")
-    
+        issues.append(
+            f"Unmatched braces: {open_braces} open, {close_braces} close")
+
     # Check for required document structure (allow LLM-META header)
     if '\\documentclass' not in content:
         issues.append("Missing \\documentclass")
-    
+
     if '\\begin{document}' not in content:
         issues.append("Missing \\begin{document}")
-    
+
     if '\\end{document}' not in content:
         issues.append("Missing \\end{document}")
-    
+
     # Skip validation if this is an LLM-META file (it's expected to have different structure)
     if content.strip().startswith('% === LLM-META ==='):
         # Only check for duplicate \end{document}
@@ -267,58 +280,59 @@ def validate_latex_compilation(tex_file: str) -> bool:
         if end_doc_count > 1:
             issues.append(f"Multiple \\end{{document}} tags: {end_doc_count}")
         return len(issues) == 0
-    
+
     # Check for problematic patterns that might have been introduced
     problematic_patterns = [
         (r'[^\\]\\[^a-zA-Z\\{}]', "Unescaped backslash"),
         (r'(?<!\\)%(?![^%]*%)', "Unescaped percent sign in content"),
         (r'(?<!\\)&(?![^&]*&)', "Unescaped ampersand in content"),
     ]
-    
+
     for pattern, description in problematic_patterns:
         if re.search(pattern, content):
             issues.append(description)
-    
+
     if issues:
         print("LaTeX validation warnings:")
         for issue in issues:
             print(f"  - {issue}")
         return False
-    
+
     return True
 
 
 def create_summary_report(resume_file: str, cover_file: str, edits_file: str) -> str:
     """Create a summary report of applied changes."""
-    
+
     with open(edits_file, 'r', encoding='utf-8') as f:
         edits = json.load(f)
-    
+
     report_lines = ["Edit Application Summary", "=" * 25, ""]
-    
+
     # Summary changes
     if edits.get("summary", {}).get("replace"):
         report_lines.append("✓ Summary updated")
-    
+
     # Skills changes
     skills_changed = []
     if "skills" in edits:
         for skill_name, skill_edit in edits["skills"].items():
             if skill_edit.get("replace"):
                 skills_changed.append(skill_name)
-    
+
     if skills_changed:
         report_lines.append(f"✓ Skills updated: {', '.join(skills_changed)}")
-    
+
     # Cover letter changes
     cover_changes = 0
     if "cover_letter" in edits and "paragraphs" in edits["cover_letter"]:
         paragraphs = edits["cover_letter"]["paragraphs"]
         cover_changes = sum(1 for p in paragraphs if p is not None)
-    
+
     if cover_changes:
-        report_lines.append(f"✓ Cover letter: {cover_changes} paragraph(s) updated")
-    
+        report_lines.append(
+            f"✓ Cover letter: {cover_changes} paragraph(s) updated")
+
     # Suggested additions
     suggestions = edits.get("suggested_additions", [])
     if suggestions:
@@ -327,7 +341,7 @@ def create_summary_report(resume_file: str, cover_file: str, edits_file: str) ->
             term = suggestion.get("term", "")
             why = suggestion.get("why", "")
             report_lines.append(f"  • {term}: {why}")
-    
+
     # Output files
     report_lines.extend([
         "",
@@ -335,40 +349,42 @@ def create_summary_report(resume_file: str, cover_file: str, edits_file: str) ->
         f"  • Résumé: {resume_file}",
         f"  • Cover Letter: {cover_file}"
     ])
-    
+
     return "\n".join(report_lines)
 
 
 def apply_edits_with_validation(resume_file: str, cover_file: str, edits_file: str, quiet: bool = False) -> None:
     """Apply edits with validation and reporting."""
-    
+
     if not quiet:
         print("Applying edits...")
-    
+
     try:
-        resume_output, cover_output = apply_edits_to_files(resume_file, cover_file, edits_file)
-        
+        resume_output, cover_output = apply_edits_to_files(
+            resume_file, cover_file, edits_file)
+
         print(f"✓ Applied edits to résumé: {resume_output}")
         print(f"✓ Applied edits to cover letter: {cover_output}")
-        
+
         # Validate LaTeX
         resume_valid = validate_latex_compilation(resume_output)
         cover_valid = validate_latex_compilation(cover_output)
-        
+
         if not resume_valid and not quiet:
             print("⚠ Résumé LaTeX validation warnings (see above)")
         elif resume_valid and not quiet:
             print("✓ Résumé LaTeX validation passed")
-        
+
         if not cover_valid and not quiet:
-            print("⚠ Cover letter LaTeX validation warnings (see above)")  
+            print("⚠ Cover letter LaTeX validation warnings (see above)")
         elif cover_valid and not quiet:
             print("✓ Cover letter LaTeX validation passed")
-        
+
         # Create and display summary
-        summary = create_summary_report(resume_output, cover_output, edits_file)
+        summary = create_summary_report(
+            resume_output, cover_output, edits_file)
         print(f"\n{summary}")
-        
+
     except Exception as e:
         print(f"Error applying edits: {e}")
         raise
@@ -376,15 +392,15 @@ def apply_edits_with_validation(resume_file: str, cover_file: str, edits_file: s
 
 def get_chunk_diff_preview(original_file: str, chunk_id: str, new_content: str) -> str:
     """Preview what a chunk replacement would look like."""
-    
+
     with open(original_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     try:
         content_start, content_end = find_chunk_boundaries(content, chunk_id)
         original_content = content[content_start:content_end].strip()
         escaped_new_content = latex_escape(new_content)
-        
+
         return f"""Chunk: {chunk_id}
 Original:
 {original_content}
@@ -392,6 +408,6 @@ Original:
 New:
 {escaped_new_content}
 """
-    
+
     except ValueError:
         return f"Chunk {chunk_id} not found in file"

@@ -1,0 +1,68 @@
+PROBLEM SUMMARY - Tex-Tailor Real-Time LaTeX Editing
+
+ISSUE:
+The PDF viewer is stuck showing "(Recompiling...)" and not updating with new content after LaTeX recompilation. The user reports that it worked once but is not reproducible, indicating intermittent behavior.
+
+ROOT CAUSE:
+The PDFViewer component is not consistently refreshing to display the newly recompiled PDF. This could be due to:
+1. Inconsistent cache busting by the browser or PDF viewer.
+2. Race conditions where the frontend attempts to refresh before the backend has fully written the new PDF file to disk.
+3. Issues with Vue's reactivity or component re-mounting not reliably triggering a full refresh of the iframe.
+4. The direct iframe manipulation logic in `forceRefresh` might not be fully effective or consistently applied.
+
+WHY IT HAPPENS:
+- The `recompileLatex` function in `Results.vue` increments `resumePdfKey` or `coverLetterPdfKey` and calls `resumePdfViewer.value.forceRefresh()` after a 500ms delay. This delay might not always be sufficient for the backend to complete writing the PDF.
+- The `PDFViewer.vue` component uses multiple cache-busting parameters (`t`, `v`, `r`, `cb`) and direct iframe source manipulation (`pdfFrame.value.src = ''; pdfFrame.value.data = ''; setTimeout(...)`) to force a reload. However, browser caching mechanisms can be aggressive, and the iframe might not always fetch the latest version.
+- The `watch` properties for `jobId` and `fileType` in `PDFViewer.vue` call `forceRefresh`, but if these props don't change, the refresh might not be triggered for content updates.
+- The previous `ReferenceError` related to `forceRefresh` initialization has been resolved, but the underlying refresh mechanism still appears to be unreliable.
+
+CURRENT STATE:
+- The LaTeX editor is editable, and content changes are saved.
+- The backend successfully recompiles LaTeX to PDF (confirmed via `curl` tests).
+- The frontend displays a "Recompiling..." message, but the PDF content does not update.
+- The issue is intermittent; it worked once for the user but is not consistently reproducible.
+
+INFORMATION NEEDED FOR FURTHER DEBUGGING:
+1. **Browser Network Tab**:
+   * Observe requests for PDF files (`/api/view/...`).
+   * Check the full URL, including all cache-busting parameters (`t`, `v`, `r`, `cb`).
+   * Examine response headers (especially `Cache-Control`, `ETag`, `Last-Modified`) to understand browser caching behavior.
+   * Verify if the browser is making a new request or serving from cache.
+   * Check the timing of these requests relative to recompilation completion.
+
+2. **Browser Console Logs**:
+   * Confirm `console.log` messages from `forceRefresh` in `PDFViewer.vue` (e.g., "Forcing PDF refresh...", "New PDF URL will be:").
+   * Look for any new JavaScript errors or warnings that might be occurring during or after the PDF refresh attempt.
+   * Verify `console.log` messages from `Results.vue` related to recompilation success and PDF key updates.
+
+3. **Backend Logs**:
+   * Confirm the exact start and end times of the PDF recompilation process for a given job ID.
+   * Check for any errors during the PDF generation process that might lead to an invalid or incomplete PDF file.
+
+4. **File System Timestamps (on server)**:
+   * Monitor the `last modified` timestamp of the generated PDF file (`.pdf`) in the `temp/<jobId>/` directory after a recompilation. This will confirm when the file is actually updated on disk.
+
+5. **Timing Analysis**:
+   * Correlate the frontend's `forceRefresh` calls with the backend's PDF file update times. Is the 500ms delay sufficient?
+   * Measure the actual time it takes for the PDF to appear in the viewer after a successful recompilation.
+
+SOLUTIONS IMPLEMENTED:
+1. **Skills Null Issue - FIXED** ✅:
+   - **Root Cause**: AI was returning string `"null"` instead of actual null values, and frontend comparison logic was treating empty strings as valid skills
+   - **Backend Fix**: 
+     - Added `clean_edits_json` function call in `apply_edits_to_files` to convert both null values and string `"null"` to empty strings
+     - Updated `apply_resume_edits`, `apply_cover_letter_edits` to properly handle empty strings
+     - Changed condition from `if new_skill:` to `if new_skill is not None and new_skill.strip():` for better null/empty handling
+   - **Frontend Fix**:
+     - Updated skills comparison logic to handle string `"null"` values properly
+     - Changed condition to `(newSkillData.replace && newSkillData.replace.trim() && newSkillData.replace !== "null")` to exclude "null" strings
+   - **AI Prompt Improvement**:
+     - Updated AI prompt to explicitly request actual null values, not string "null"
+     - Added examples to clarify the difference between `null` and `"null"`
+   - **Result**: Skills no longer show as "null" in the UI, only actual changes are displayed
+
+2. **PDF Refresh Improvements**:
+   - Increased delay from 500ms to 2000ms for better file system consistency
+   - Enhanced `forceRefresh` function with better loading states and error handling
+   - Added more aggressive cache busting with multiple parameters
+   - Improved iframe reload mechanism with proper URL updates
