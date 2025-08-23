@@ -111,7 +111,7 @@ app.get('/api/results/:jobId', async (req, res) => {
       // Strategy 1: Try review API without provider (auto-detect)
       try {
         console.log('Attempting to fetch review data (auto-detect provider)...')
-        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json`)
+        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json&jobId=${jobId}`)
         if (reviewResponse.ok) {
           const reviewResult = await reviewResponse.json()
           if (reviewResult.success && reviewResult.data) {
