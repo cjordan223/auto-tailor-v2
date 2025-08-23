@@ -26,6 +26,7 @@ from .patcher import apply_edits_with_validation
 from .differ import show_diffs, diff_specific_files, export_diff_report
 from .logger import WorkflowLogger, get_latest_log, show_latest_log
 from .config import config, get_model_for_provider, get_default_paths
+from .reviewer import generate_review
 
 
 @click.group()
@@ -117,15 +118,21 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
 
     # Determine provider if not specified
     if not provider:
-        if os.getenv("OPENAI_API_KEY"):
-            provider = "openai"
-            click.echo("OPENAI_API_KEY found, using OpenAI provider.")
-        elif os.getenv("GEMINI_API_KEY"):
-            provider = "gemini"
-            click.echo("GEMINI_API_KEY found, using Gemini provider.")
+        # Check for PROVIDER environment variable first (set by backend)
+        provider = os.getenv("PROVIDER")
+        if not provider:
+            # Fallback to auto-detection if not set
+            if os.getenv("OPENAI_API_KEY"):
+                provider = "openai"
+                click.echo("OPENAI_API_KEY found, using OpenAI provider.")
+            elif os.getenv("GEMINI_API_KEY"):
+                provider = "gemini"
+                click.echo("GEMINI_API_KEY found, using Gemini provider.")
+            else:
+                provider = "ollama"
+                click.echo("No API keys found, defaulting to Ollama provider.")
         else:
-            provider = "ollama"
-            click.echo("No API keys found, defaulting to Ollama provider.")
+            click.echo(f"Using provider from environment: {provider}")
 
     # Get configuration for provider
     if provider == "ollama":
@@ -504,6 +511,15 @@ def log():
 
 
 @main.command()
+@click.option("--format", "-f", default="json", type=click.Choice(["text", "json"]), help="Output format")
+@click.option("--provider", "-p", type=click.Choice(["ollama", "openai", "gemini"]), help="LLM provider")
+@click.option("--job-description", "-jd", type=click.Path(exists=True), help="Path to job description file")
+def review(format: str, provider: Optional[str], job_description: Optional[str]):
+    """Generate a comprehensive review of recent edits."""
+    generate_review(format, provider, job_description)
+
+
+@main.command()
 @click.option("--with-logging", is_flag=True, help="Run the workflow with logging enabled")
 @click.argument("job_description", type=click.Path(exists=True))
 def workflow(job_description: str, with_logging: bool):
@@ -534,19 +550,27 @@ def run_workflow_steps(job_description: str):
 
         # Step 3: Propose edits
         click.echo("🔄 Step 3: Proposing edits...")
-        # Auto-detect provider
-        if os.getenv("OPENAI_API_KEY"):
-            provider = "openai"
-            click.echo("OPENAI_API_KEY found, using OpenAI provider.")
-        elif os.getenv("GEMINI_API_KEY"):
-            provider = "gemini"
-            click.echo("GEMINI_API_KEY found, using Gemini provider.")
+        # Use provider from environment variable (set by backend)
+        provider = os.getenv("PROVIDER")
+        model = os.getenv("MODEL")
+        if not provider:
+            # Fallback to auto-detection if not set
+            if os.getenv("OPENAI_API_KEY"):
+                provider = "openai"
+                click.echo("OPENAI_API_KEY found, using OpenAI provider.")
+            elif os.getenv("GEMINI_API_KEY"):
+                provider = "gemini"
+                click.echo("GEMINI_API_KEY found, using Gemini provider.")
+            else:
+                provider = "ollama"
+                click.echo("No API keys found, defaulting to Ollama provider.")
         else:
-            provider = "ollama"
-            click.echo("No API keys found, defaulting to Ollama provider.")
+            click.echo(f"Using provider: {provider}")
+            if model:
+                click.echo(f"Using model: {model}")
 
         propose_and_save_edits(
-            job_description, default_paths["base_text"], default_paths["edits"], provider)
+            job_description, default_paths["base_text"], default_paths["edits"], provider, model)
         click.echo("✅ Edit proposal complete")
 
         # Step 4: Apply edits

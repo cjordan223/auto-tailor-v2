@@ -9,7 +9,7 @@ import os
 import json
 import requests
 from typing import Dict, Any, Optional
-from .schema import validate_edits
+from .schema import validate_edits, validate_skills_against_inventory
 from .config import config, get_api_config_for_provider
 
 
@@ -23,12 +23,13 @@ If a needed JD term is not present in the base text and cannot be inferred, list
 CRITICAL CONSTRAINTS:
 # 🎛️ TUNE THESE TO CHANGE AI BEHAVIOR - More restrictive = safer, less restrictive = more creative
 - Summary: Preserve personal voice while optimizing for job relevance. Focus on key terminology alignment.
-- Skills: PREFER ADDITIONS over deletions. Add job-relevant technologies while preserving core competencies.
+- Skills: ONLY add skills from job description if they align with existing confirmed or conversational skills. NEVER add skills in exclude_skills list or unrelated technical domains. Use suggested_additions for skills outside your confirmed expertise.
 - Cover letter: Tailor content to job requirements while maintaining authentic tone and factual accuracy.
 - Suggested additions: "why" field should be concise and under 200 characters.
 - Use null (not the string "null") for unchanged fields when no improvement is needed.
 - Focus on strategic job-relevant modifications that improve keyword alignment.
 - PRESERVE FACTUAL INTEGRITY: Never change employers, titles, dates, or quantified metrics.
+- SKILLS VALIDATION: Only add skills you can confidently discuss. If uncertain about a skill, add it to suggested_additions instead of directly to skills sections.
 
 REQUIRED JSON SCHEMA:
 {
@@ -90,11 +91,15 @@ YOU MUST include all required fields: summary, skills, cover_letter.
 # 📚 EXAMPLES SECTION - ADD MORE EXAMPLES HERE TO TEACH AI NEW BEHAVIORS
 EXAMPLES OF VALID EDITS:
 - Summary: Modify to highlight relevant experience for the target role.
-- Skills: ADD job-relevant technologies while preserving existing core skills. Only remove if truly irrelevant.
+- Skills: ONLY add skills you can confidently discuss. If a skill from the job description is not in your confirmed expertise, add it to suggested_additions instead.
   IMPORTANT: For skills, only provide the content after the colon, NOT the category name.
   Example: For "Frontend", return "React, Vue.js, Angular" NOT "Frontend: React, Vue.js, Angular".
-  PREFERRED approach: "Python, Java, C++" → "Python, Java, C++, Go, Rust" (ADD Go and Rust, keep existing).
+  PREFERRED approach: "Python, Java, C++" → "Python, Java, C++, Go" (ADD Go if you can discuss it, keep existing).
   AVOID: "Python, Java, C++" → "Go, Rust" (removes valuable existing skills).
+  SKILLS VALIDATION EXAMPLES:
+  - If JD mentions "SCADA" but you don't have SCADA experience → add to suggested_additions with reason "Not in confirmed skills"
+  - If JD mentions "React" and you have React experience → add to Frontend skills
+  - If JD mentions "CAD software" but you don't have CAD experience → add to suggested_additions with reason "Not in confirmed skills"
 - Cover letter salutation: Replace [Company Name] with the actual company name from the job description.
 - Cover letter paragraphs: Tailor content to emphasize job-relevant experience and match company needs.
 - Make strategic edits that improve job relevance - use null (not "null") only when no improvements are needed.
@@ -413,6 +418,9 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
                     raise ValueError(
                         f"Validation failed after {max_retries + 1} attempts: {violations}")
 
+            # Apply skills validation and move hallucinated skills to suggested_additions
+            edits = apply_skills_validation(edits, base_text)
+
             return edits
 
         except (json.JSONDecodeError, ValueError) as e:
@@ -425,6 +433,46 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
                     f"Failed to generate valid edits after {max_retries + 1} attempts: {e}")
 
     raise RuntimeError("Unexpected error in propose_edits")
+
+
+def apply_skills_validation(edits: Dict[str, Any], base_text: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Apply skills validation and move hallucinated skills to suggested_additions.
+    This prevents AI from adding skills that aren't in the personal skills inventory.
+    """
+    if "skills" not in edits:
+        return edits
+
+    base_skills = base_text.get("resume", {}).get("skills", {})
+    validated_edits = edits.copy()
+
+    # Initialize suggested_additions if not present
+    if "suggested_additions" not in validated_edits:
+        validated_edits["suggested_additions"] = []
+
+    # Process each skills section
+    for skill_category, skill_edit in edits["skills"].items():
+        if not skill_edit.get("replace"):
+            continue
+
+        original_skills = base_skills.get(skill_category, "")
+        new_skills = skill_edit["replace"]
+
+        # Validate skills against inventory
+        validation_result = validate_skills_against_inventory(
+            original_skills, new_skills)
+
+        # Update the skills with validated version
+        validated_edits["skills"][skill_category]["replace"] = validation_result["validated_skills"]
+
+        # Add flagged skills to suggested_additions
+        for flagged_skill in validation_result["flagged_skills"]:
+            validated_edits["suggested_additions"].append({
+                "term": flagged_skill["skill"],
+                "why": f"Skills validation: {flagged_skill['reason']} (confidence: {flagged_skill['confidence']})"
+            })
+
+    return validated_edits
 
 
 def save_edits(edits: Dict[str, Any], output_file: str, quiet: bool = False) -> None:

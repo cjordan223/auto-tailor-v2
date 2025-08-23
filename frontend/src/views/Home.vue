@@ -5,10 +5,7 @@
       <h1 class="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">
         AI-Powered Resume Customization
       </h1>
-      <p class="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow">
-        Upload a job description to get a perfectly tailored resume and cover letter using our intelligent baseline
-        template.
-      </p>
+
     </div>
 
     <!-- Main Workflow -->
@@ -22,7 +19,6 @@
               :class="step >= 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl animate-glow' : 'glassmorphism-card text-gray-500'">
               1
             </div>
-            <span class="text-sm font-semibold text-white">Job Description</span>
           </div>
 
           <div class="w-16 h-1.5 rounded-full transition-all duration-500"
@@ -170,13 +166,8 @@ const startProcessing = async () => {
       model: selectedModel.value
     })
 
-    processingStatus.value = 'completed'
-    processingProgress.value = 100
-
-    // Navigate to results
-    setTimeout(() => {
-      router.push(`/results/${result.jobId}`)
-    }, 1000)
+    // Navigate directly to results page without setting completion status
+    router.push(`/results/${result.jobId}`)
 
   } catch (error) {
     processingStatus.value = 'error'

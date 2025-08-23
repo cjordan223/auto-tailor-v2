@@ -1,0 +1,55 @@
+{
+  "confirmed_skills": [
+    "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust",
+    "React", "Vue.js", "Angular", "Node.js", "Express", "Django", "Flask",
+    "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Terraform",
+    "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite",
+    "Git", "GitHub", "GitLab", "Jenkins", "CI/CD", "Linux", "Ubuntu", "CentOS",
+    "REST APIs", "GraphQL", "Microservices", "Serverless", "Lambda",
+    "Machine Learning", "TensorFlow", "PyTorch", "Scikit-learn", "Pandas", "NumPy",
+    "Jupyter", "Data Analysis", "Data Visualization", "Tableau", "Power BI",
+    "Cybersecurity", "Network Security", "Penetration Testing", "Ethical Hacking",
+    "Agile", "Scrum", "Kanban", "JIRA", "Confluence", "Slack", "Microsoft Office"
+  ],
+  "conversational_skills": [
+    "SQL", "PostgreSQL", "MySQL", "SQLite", "MongoDB", "Redis",
+    "Linux", "Ubuntu", "CentOS", "Debian", "Shell Scripting", "Bash",
+    "Azure basics", "Google Cloud basics", "Cloud Architecture",
+    "DevOps", "Site Reliability Engineering", "Monitoring", "Logging",
+    "Data Engineering", "ETL", "Data Warehousing", "Big Data", "Hadoop", "Spark",
+    "Blockchain", "Smart Contracts", "Web3", "Cryptocurrency",
+    "Mobile Development", "React Native", "Flutter", "iOS", "Android",
+    "Game Development", "Unity", "Unreal Engine",
+    "Embedded Systems", "IoT", "Arduino", "Raspberry Pi",
+    "Computer Vision", "Natural Language Processing", "Deep Learning"
+  ],
+  "exclude_skills": [
+    "SCADA", "CAD", "Solidworks", "AutoCAD", "Revit", "Fusion 360",
+    "Industrial Control Systems", "PLC Programming", "HMI Development",
+    "Mechanical Engineering", "Civil Engineering", "Electrical Engineering",
+    "Chemical Engineering", "Biomedical Engineering", "Aerospace Engineering",
+    "Architecture", "Interior Design", "Graphic Design", "Adobe Creative Suite",
+    "Medical Software", "Healthcare Systems", "EMR", "EHR",
+    "Financial Trading Systems", "Bloomberg Terminal", "Trading Algorithms",
+    "Legal Software", "Case Management", "Document Management",
+    "Accounting Software", "QuickBooks", "SAP", "Oracle Financials",
+    "Retail POS Systems", "Inventory Management", "Supply Chain Software"
+  ],
+  "skill_categories": {
+    "programming": ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "PHP", "Ruby", "Swift", "Kotlin"],
+    "frontend": ["React", "Vue.js", "Angular", "HTML", "CSS", "Sass", "Less", "Bootstrap", "Tailwind CSS", "jQuery"],
+    "backend": ["Node.js", "Express", "Django", "Flask", "Spring Boot", "ASP.NET", "Laravel", "Ruby on Rails", "FastAPI"],
+    "databases": ["PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle", "SQL Server", "Cassandra", "DynamoDB"],
+    "cloud": ["AWS", "Azure", "Google Cloud", "DigitalOcean", "Heroku", "Vercel", "Netlify"],
+    "devops": ["Docker", "Kubernetes", "Terraform", "Ansible", "Jenkins", "GitLab CI", "GitHub Actions", "Prometheus", "Grafana"],
+    "ai_ml": ["Machine Learning", "TensorFlow", "PyTorch", "Scikit-learn", "Pandas", "NumPy", "Jupyter", "Computer Vision", "NLP"],
+    "security": ["Cybersecurity", "Network Security", "Penetration Testing", "Ethical Hacking", "OWASP", "Cryptography", "PKI"],
+    "tools": ["Git", "GitHub", "GitLab", "JIRA", "Confluence", "Slack", "Microsoft Office", "VS Code", "IntelliJ", "Eclipse"]
+  },
+  "skill_confidence_levels": {
+    "expert": ["Python", "JavaScript", "React", "Node.js", "AWS", "Docker", "Git"],
+    "proficient": ["TypeScript", "Java", "C++", "Vue.js", "Django", "PostgreSQL", "Kubernetes"],
+    "familiar": ["Go", "Rust", "Angular", "Flask", "MongoDB", "Terraform", "Machine Learning"],
+    "learning": ["Kubernetes", "GraphQL", "Microservices", "Serverless", "Data Engineering"]
+  }
+}
