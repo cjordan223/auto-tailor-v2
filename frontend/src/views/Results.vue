@@ -122,6 +122,53 @@
         </button>
       </div>
 
+      <!-- Skills Validation Status -->
+      <div v-if="results.validationStatus" class="card">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+          <span class="text-2xl mr-3">🔍</span>
+          Skills Validation Status
+        </h2>
+        <div class="space-y-4">
+          <!-- Validation Summary -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-medium text-gray-900">Validation Summary</h3>
+              <span :class="{
+                'px-2 py-1 text-xs rounded-full font-medium': true,
+                'bg-green-100 text-green-800': results.validationStatus.confidence === 'high',
+                'bg-yellow-100 text-yellow-800': results.validationStatus.confidence === 'medium',
+                'bg-red-100 text-red-800': results.validationStatus.confidence === 'low'
+              }">
+                {{ results.validationStatus.confidence.toUpperCase() }} Confidence
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">
+              {{ results.validationStatus.flaggedCount }} skills were flagged for validation and moved to suggested
+              additions.
+            </p>
+          </div>
+
+          <!-- Flagged Skills -->
+          <div v-if="results.validationStatus.flaggedSkills?.length" class="space-y-3">
+            <h3 class="font-medium text-gray-900">Flagged Skills (Moved to Suggestions)</h3>
+            <div class="space-y-2">
+              <div v-for="(skill, index) in results.validationStatus.flaggedSkills" :key="index"
+                class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div
+                  class="flex-shrink-0 w-5 h-5 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  ⚠️
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">{{ skill.skill }}</h4>
+                  <p class="text-sm text-gray-600">{{ skill.reason }}</p>
+                  <p class="text-xs text-yellow-700 mt-1">Confidence: {{ skill.confidence }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Suggested Additions -->
       <div v-if="results.suggestedAdditions?.length" class="card">
         <h2 class="text-xl font-semibold text-gray-900 mb-6">Suggested Additions</h2>
