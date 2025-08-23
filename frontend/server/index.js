@@ -70,7 +70,7 @@ app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/recompile', recompileRoutes)
 
-// Results endpoint
+// Results endpoint with validation status
 app.get('/api/results/:jobId', async (req, res) => {
   try {
     const { jobId } = req.params
@@ -103,8 +103,66 @@ app.get('/api/results/:jobId', async (req, res) => {
     let reviewData = null
     let suggestedAdditions = []
     let skillsChanges = null
+    let validationStatus = null
     
     if (status === 'completed') {
+      // Load edits.json to get validation status and suggested additions
+      try {
+        const editsPath = path.join(tempDir, 'edits.json')
+        const editsRaw = await fs.readFile(editsPath, 'utf8')
+        const edits = JSON.parse(editsRaw)
+        
+        // Extract validation status from suggested_additions
+        if (edits.suggested_additions) {
+          const flaggedSkills = edits.suggested_additions
+            .filter(suggestion => suggestion.why && suggestion.why.includes('Skills validation:'))
+            .map(suggestion => {
+              const whyMatch = suggestion.why.match(/Skills validation: (.+?) \(confidence: (.+?)\)/)
+              return {
+                skill: suggestion.term,
+                reason: whyMatch ? whyMatch[1] : suggestion.why,
+                confidence: whyMatch ? whyMatch[2] : 'low'
+              }
+            })
+          
+          // Calculate confidence level
+          let confidence = 'high'
+          if (flaggedSkills.length > 2) {
+            confidence = 'low'
+          } else if (flaggedSkills.length > 0) {
+            confidence = 'medium'
+          }
+          
+          validationStatus = {
+            confidence,
+            flaggedCount: flaggedSkills.length,
+            flaggedSkills
+          }
+        }
+        
+        // Filter suggested additions to exclude validation-related ones
+        suggestedAdditions = (edits.suggested_additions || []).filter(
+          suggestion => !suggestion.why || !suggestion.why.includes('Skills validation:')
+        )
+        
+        // Process skills changes
+        if (edits.skills) {
+          skillsChanges = {}
+          for (const [category, skillEdit] of Object.entries(edits.skills)) {
+            if (skillEdit.replace) {
+              const newSkills = skillEdit.replace.split(',').map(s => s.trim()).filter(s => s)
+              skillsChanges[category] = {
+                added: newSkills,
+                removed: []
+              }
+            }
+          }
+        }
+        
+      } catch (error) {
+        console.warn(`Could not load edits.json for job ${jobId}:`, error.message)
+      }
+      
       // Try to get review data with multiple fallback strategies
       let reviewSuccess = false
       
@@ -117,7 +175,6 @@ app.get('/api/results/:jobId', async (req, res) => {
           if (reviewResult.success && reviewResult.data) {
             console.log('Review data fetched successfully via auto-detect')
             reviewData = reviewResult.data
-            suggestedAdditions = reviewResult.data.raw_edits?.suggested_additions || []
             reviewSuccess = true
           }
         } else {
@@ -127,28 +184,21 @@ app.get('/api/results/:jobId', async (req, res) => {
         console.warn('Failed to fetch review data via auto-detect:', error.message)
       }
       
-      // Strategy 2: If review API failed, read directly from edits.json
+      // Strategy 2: If review API failed, create minimal reviewData
       if (!reviewSuccess) {
         try {
-          console.log('Falling back to direct edits.json reading...')
-          const editsPath = path.join(tempDir, 'edits.json')
-          const editsRaw = await fs.readFile(editsPath, 'utf8')
-          const edits = JSON.parse(editsRaw)
-          
-          // Extract suggested additions from edits.json
-          suggestedAdditions = edits.suggested_additions || []
+          console.log('Creating minimal review data from edits...')
           
           // Create minimal reviewData with computed statistics
-          const totalChunksModified = edits.structured_diffs ? 
-            edits.structured_diffs.length : 
+          const totalChunksModified = edits ? 
             Object.keys(edits).filter(key => 
               key !== 'suggested_additions' && 
               edits[key] && 
               (typeof edits[key] === 'object' ? Object.keys(edits[key]).length > 0 : edits[key].length > 0)
-            ).length
+            ).length : 0
           
-          const skillsSectionsUpdated = edits.skills ? Object.keys(edits.skills).length : 0
-          const coverLetterParagraphs = edits.cover_letter?.paragraphs?.length || 0
+          const skillsSectionsUpdated = edits?.skills ? Object.keys(edits.skills).length : 0
+          const coverLetterParagraphs = edits?.cover_letter?.paragraphs?.length || 0
           const suggestedAdditionsCount = suggestedAdditions.length
           
           reviewData = {
@@ -244,6 +294,7 @@ app.get('/api/results/:jobId', async (req, res) => {
       suggestedAdditions,
       reviewData,
       skillsChanges,
+      validationStatus,
       createdAt: new Date().toISOString()
     }
 
