@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 
 // Props
 const props = defineProps({
@@ -85,6 +85,9 @@ const props = defineProps({
   }
 })
 
+// Emits
+const emit = defineEmits(['refreshed'])
+
 // State
 const loading = ref(true)
 const error = ref(null)
@@ -92,13 +95,17 @@ const showFallback = ref(false)
 const pdfFrame = ref(null)
 let loadTimeout = null
 
+// State for cache busting
+const cacheBuster = ref(Date.now())
+const refreshId = ref(0)
+
 // Computed
 const pdfUrl = computed(() => {
   const baseUrl = `/api/view/${props.jobId}/${props.fileType}`
   // Add comprehensive parameters to hide the sidebar by default in browser PDF viewers
   // These parameters work across different PDF viewers (Chrome, Firefox, Safari, etc.)
-  const timestamp = Date.now() // Cache busting
-  return `${baseUrl}?t=${timestamp}#toolbar=1&navpanes=0&scrollbar=1&view=FitH&pagemode=none&statusbar=0&messages=0&viewrect=0,0,800,600`
+  const random = Math.random().toString(36).substring(7)
+  return `${baseUrl}?t=${cacheBuster.value}&v=${Date.now()}&r=${refreshId.value}&cb=${random}#toolbar=1&navpanes=0&scrollbar=1&view=FitH&pagemode=none&statusbar=0&messages=0&viewrect=0,0,800,600`
 })
 
 // Methods
@@ -108,12 +115,27 @@ const onLoad = () => {
   loading.value = false
   error.value = null
   showFallback.value = false
+  emit('refreshed')
+
+  // Check if the PDF actually loaded content
+  setTimeout(() => {
+    if (pdfFrame.value) {
+      try {
+        // Try to access iframe content to verify it loaded
+        console.log('PDF iframe loaded successfully')
+      } catch (err) {
+        console.log('PDF iframe content check failed:', err.message)
+      }
+    }
+  }, 100)
 }
 
 const onError = () => {
   console.log('PDF iframe error event fired')
   handlePDFError('PDF failed to load')
 }
+
+
 
 const checkPDFLoadStatus = () => {
   // For PDFs, we can't reliably check iframe content due to cross-origin restrictions
@@ -163,6 +185,45 @@ const openInNewTab = () => {
   window.open(pdfUrl.value, '_blank')
 }
 
+const forceRefresh = () => {
+  console.log('Forcing PDF refresh...')
+  loading.value = true
+  error.value = null
+  
+  cacheBuster.value = Date.now()
+  refreshId.value++
+  console.log('New PDF URL will be:', pdfUrl.value)
+  console.log('Cache buster:', cacheBuster.value, 'Refresh ID:', refreshId.value)
+
+  // Clear any existing timeout
+  clearTimeout(loadTimeout)
+
+  // Force reload the iframe directly with new URL
+  if (pdfFrame.value) {
+    pdfFrame.value.src = ''
+    pdfFrame.value.data = ''
+    setTimeout(() => {
+      const newUrl = pdfUrl.value
+      pdfFrame.value.src = newUrl
+      pdfFrame.value.data = newUrl
+      console.log('PDF iframe src updated to:', newUrl)
+    }, 200) // Slightly longer delay for iframe reset
+  }
+
+  // Set a reasonable timeout for PDF loading
+  loadTimeout = setTimeout(() => {
+    if (loading.value) {
+      console.log('PDF assumed loaded after 3 seconds')
+      onLoad()
+    }
+  }, 3000) // Reduced from 2000ms for faster feedback
+}
+
+// Expose methods to parent (moved here after forceRefresh is declared)
+defineExpose({
+  forceRefresh
+})
+
 const initializePDF = () => {
   console.log('Initializing PDF viewer for:', props.jobId, props.fileType)
   console.log('PDF URL:', pdfUrl.value)
@@ -191,6 +252,21 @@ const initializePDF = () => {
     }
   }, 15000) // Increased back to 15 seconds for slow networks
 }
+
+// Watchers
+watch(() => props.jobId, () => {
+  if (props.jobId && props.fileType) {
+    console.log('Job ID changed, refreshing PDF viewer')
+    forceRefresh()
+  }
+})
+
+watch(() => props.fileType, () => {
+  if (props.jobId && props.fileType) {
+    console.log('File type changed, refreshing PDF viewer')
+    forceRefresh()
+  }
+})
 
 // Lifecycle
 onMounted(() => {

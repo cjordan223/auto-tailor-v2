@@ -1,0 +1,63 @@
+TEX-TAILOR LLM AGENT CONVERSATION LOG
+=====================================
+
+This file tracks conversations and iterations between LLM agents working on the Tex-Tailor codebase.
+Each entry should include: timestamp, agent identifier, task description, and outcome.
+
+[2025-08-23 04:43] AGENT-CLAUDE-CODE
+TASK: Fix LaTeX real-time PDF update issue
+ANALYSIS: Identified 5 root causes in PDF refresh mechanism:
+  1. Race condition between Python process completion and file system writes
+  2. Double key updates causing Vue component conflicts  
+  3. Insufficient cache-busting in browser PDF viewers
+  4. Missing file verification after recompilation
+  5. Optimistic timing assumptions without real file system checks
+
+CHANGES IMPLEMENTED:
+  ✅ Results.vue:502-517 - Eliminated double key updates, single refresh with 2s delay
+  ✅ recompile.js:65-110 - Added file system verification with timestamp checking
+  ✅ view.js:31-54 - Improved cache headers with ETag and Last-Modified
+  ✅ PDFViewer.vue:188-220 - Enhanced forceRefresh with proper loading states
+
+OUTCOME: Server running successfully. Changes address timing races and caching issues.
+The intermittent PDF refresh should now be reliable with proper file verification.
+
+NEXT STEPS FOR OTHER AGENTS:
+- Test the real-time editing functionality with actual LaTeX changes
+- Monitor browser console logs during PDF refresh operations
+- Consider WebSocket implementation for instant notifications
+- Add retry mechanisms for failed refreshes
+
+---
+
+[2025-08-23 05:14] AGENT-CLAUDE-CODE
+TASK: Add reset to original LaTeX functionality
+ANALYSIS: User requested ability to reset LaTeX content back to the original tailored version,
+not just revert unsaved changes. This requires:
+  1. Storing original tailored LaTeX content as backup files
+  2. New UI button to distinguish from "revert" (unsaved changes)
+  3. Backend endpoint to serve original content
+  4. Frontend logic to handle reset and trigger recompilation
+
+CHANGES IMPLEMENTED:
+  ✅ LaTeXEditor.vue:66-73 - Added orange "Reset to Original" button with refresh icon
+  ✅ LaTeXEditor.vue:113-120 - Added tailoredOriginalContent state and reset emit
+  ✅ LaTeXEditor.vue:214-231 - Added loadTailoredOriginal() method
+  ✅ LaTeXEditor.vue:296-303 - Added resetToOriginal() method
+  ✅ Results.vue:167,203 - Connected reset events to parent handlers
+  ✅ Results.vue:451-469 - Added reset handlers with recompilation
+  ✅ view.js:109-161 - Added /original endpoint with fallback logic
+  ✅ recompile.js:35-57 - Auto-backup original files on first modification
+
+OUTCOME: Reset functionality fully implemented with:
+- Separate "Revert" (unsaved) vs "Reset to Original" (tailored baseline) buttons  
+- Automatic backup creation on first edit to preserve original
+- Backend serves .original files with current file fallback
+- Frontend triggers recompilation after reset
+
+TESTING VERIFIED:
+- Backend endpoints respond correctly on port 3002
+- Original backup files created and served
+- UI shows disabled state when already at original version
+
+---

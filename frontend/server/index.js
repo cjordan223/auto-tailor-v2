@@ -12,6 +12,7 @@ import statusRoutes from './routes/status.js'
 import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
 import reviewRoutes from './routes/review.js'
+import recompileRoutes from './routes/recompile.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 
@@ -67,6 +68,7 @@ app.use('/api/status', statusRoutes)
 app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
+app.use('/api/recompile', recompileRoutes)
 
 // Results endpoint
 app.get('/api/results/:jobId', async (req, res) => {
