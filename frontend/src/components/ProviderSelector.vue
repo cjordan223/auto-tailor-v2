@@ -99,7 +99,7 @@ const { hasApiKey } = useSettings()
 
 // State
 const selectedProvider = ref(props.provider || 'gemini')
-const selectedModel = ref(props.model || 'gemini-1.5-flash')
+const selectedModel = ref(props.model || 'gemini-1.5-flash-latest')
 
 // Provider configurations
 const providers = ref([
@@ -115,9 +115,9 @@ const providers = ref([
     apiKeyRequired: true,
     apiKeyEnv: 'GEMINI_API_KEY',
     models: [
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Fast and efficient (Recommended)' },
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Higher quality, slower' },
-      { id: 'gemini-1.0-pro', name: 'Gemini 1.0 Pro', description: 'High rate limits (60 RPM), good for testing' }
+      { id: 'gemini-1.5-flash-latest', name: 'Gemini 1.5 Flash - Fast and Efficient (Recommended)', description: 'The perfect balance of speed and quality for everyday use. Our standard, reliable choice. Usage: 15 requests/minute, 900/hour, 21,600/day.' },
+      { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro - Highest Quality Analysis', description: 'Provides the most in-depth, meticulous feedback. Best for a final review before submitting your resume. Please use deliberately. Usage: 2 requests/minute, 120/hour, 2,880/day.' },
+      { id: 'gemini-pro', name: 'Gemini 1.0 Pro - Rapid & Responsive', description: 'Optimized for quick, back-and-forth testing and iterative changes. Usage: 60 requests/minute, 3,600/hour, 86,400/day.' }
     ]
   },
   {
