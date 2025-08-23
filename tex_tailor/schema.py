@@ -7,6 +7,7 @@ Module for JSON schema validation and edit limits enforcement.
 """
 import re
 import json
+import os
 from typing import Dict, Any, List, Optional
 from jsonschema import validate, ValidationError
 
@@ -182,8 +183,44 @@ def validate_summary_edits(original: str, new: str) -> List[str]:
     return violations
 
 
+def load_skills_inventory() -> Dict[str, Any]:
+    """Load the personal skills inventory from baseline_skills.json."""
+    skills_file = "baseline_skills.json"
+
+    # Try to find the skills file in the current directory or parent directories
+    current_dir = os.getcwd()
+    skills_path = None
+
+    # Check current directory
+    if os.path.exists(os.path.join(current_dir, skills_file)):
+        skills_path = os.path.join(current_dir, skills_file)
+    # Check parent directory
+    elif os.path.exists(os.path.join(os.path.dirname(current_dir), skills_file)):
+        skills_path = os.path.join(os.path.dirname(current_dir), skills_file)
+    # Check workspace root
+    else:
+        # Try to find it in the workspace
+        for root, dirs, files in os.walk(current_dir):
+            if skills_file in files:
+                skills_path = os.path.join(root, skills_file)
+                break
+
+    if not skills_path:
+        print(
+            f"Warning: {skills_file} not found. Skills validation will be disabled.")
+        return {}
+
+    try:
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(
+            f"Warning: Could not load {skills_file}: {e}. Skills validation will be disabled.")
+        return {}
+
+
 def validate_skills_edits(original: str, new: str) -> List[str]:
-    """Validate skills edits against limits."""
+    """Validate skills edits against limits and personal skills inventory."""
     violations = []
 
     if not new:
@@ -193,17 +230,89 @@ def validate_skills_edits(original: str, new: str) -> List[str]:
     latex_violations = check_forbidden_latex(new)
     violations.extend(latex_violations)
 
-    # 🎛️ CONSTRAINT REMOVED: Previously had replacement count limits
-    # Allow reasonable skill additions for job relevance - focus on quality over arbitrary limits
-    # To re-enable limits, uncomment and modify the validation logic below:
-    # replacements = count_replacements(original, new)
-    # if replacements > LIMIT: violations.append(f"Too many replacements: {replacements}")
-
     # Must be comma-separated list (no newlines allowed)
     if '\n' in new or not re.match(r'^[^,]+(,\s*[^,]+)*$', new.strip()):
         violations.append("Must be comma-separated list format")
 
+    # Load skills inventory for validation
+    skills_inventory = load_skills_inventory()
+    if not skills_inventory:
+        return violations  # Skip validation if inventory not available
+
+    # Extract skills from the new text
+    new_skills = [skill.strip() for skill in new.split(',') if skill.strip()]
+
+    # Check for excluded skills
+    excluded_skills = skills_inventory.get("exclude_skills", [])
+    for skill in new_skills:
+        if skill in excluded_skills:
+            violations.append(
+                f"Skill '{skill}' is in exclude list and cannot be added")
+
     return violations
+
+
+def validate_skills_against_inventory(original_skills: str, new_skills: str) -> Dict[str, Any]:
+    """
+    Validate proposed skills against personal skills inventory.
+    Returns validation results with flagged skills for suggested_additions.
+    """
+    skills_inventory = load_skills_inventory()
+    if not skills_inventory:
+        return {"validated_skills": new_skills, "flagged_skills": [], "confidence": "low"}
+
+    confirmed_skills = set(skills_inventory.get("confirmed_skills", []))
+    conversational_skills = set(
+        skills_inventory.get("conversational_skills", []))
+    excluded_skills = set(skills_inventory.get("exclude_skills", []))
+
+    # Extract skills from both original and new
+    original_skill_list = [skill.strip()
+                           for skill in original_skills.split(',') if skill.strip()]
+    new_skill_list = [skill.strip()
+                      for skill in new_skills.split(',') if skill.strip()]
+
+    # Find skills that were added
+    original_set = set(original_skill_list)
+    new_set = set(new_skill_list)
+    added_skills = new_set - original_set
+
+    # Categorize added skills
+    validated_skills = []
+    flagged_skills = []
+
+    for skill in new_skill_list:
+        if skill in excluded_skills:
+            # Remove excluded skills entirely
+            continue
+        elif skill in confirmed_skills:
+            validated_skills.append(skill)
+        elif skill in conversational_skills:
+            validated_skills.append(skill)
+        elif skill in added_skills:
+            # This is a new skill that's not in our inventory
+            flagged_skills.append({
+                "skill": skill,
+                "reason": "Not in confirmed or conversational skills inventory",
+                "confidence": "low"
+            })
+        else:
+            # Keep existing skills even if not in inventory
+            validated_skills.append(skill)
+
+    # Determine confidence level
+    if not flagged_skills:
+        confidence = "high"
+    elif len(flagged_skills) <= 2:
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    return {
+        "validated_skills": ", ".join(validated_skills),
+        "flagged_skills": flagged_skills,
+        "confidence": confidence
+    }
 
 
 def validate_cover_letter_edits(original_paragraphs: List[str], new_paragraphs: List[str]) -> List[str]:

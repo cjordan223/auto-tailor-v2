@@ -15,10 +15,10 @@ import click
 
 from .config import get_default_paths, get_model_for_provider
 from .proposer import get_provider
-from .differ import get_diff_data
+from .differ import get_all_chunk_diffs
 
 
-def generate_review(format: str = 'text', provider: Optional[str] = None):
+def generate_review(format: str = 'text', provider: Optional[str] = None, job_description_path: Optional[str] = None):
     """Generate a comprehensive review of recent edits."""
     try:
         default_paths = get_default_paths()
@@ -32,8 +32,17 @@ def generate_review(format: str = 'text', provider: Optional[str] = None):
         with open(edits_path, 'r', encoding='utf-8') as f:
             edits_data = json.load(f)
 
+        # Read job description if available
+        job_description = ""
+        if job_description_path and Path(job_description_path).exists():
+            try:
+                with open(job_description_path, 'r', encoding='utf-8') as f:
+                    job_description = f.read().strip()
+            except Exception as e:
+                click.echo(f"⚠️  Could not read job description: {e}")
+
         # Generate LLM overview
-        overview = generate_llm_overview(edits_data, provider)
+        overview = generate_llm_overview(edits_data, provider, job_description)
 
         # Get structured diffs
         structured_diffs = get_structured_diffs()
@@ -49,17 +58,20 @@ def generate_review(format: str = 'text', provider: Optional[str] = None):
         sys.exit(1)
 
 
-def generate_llm_overview(edits_data: Dict[str, Any], provider: Optional[str] = None) -> str:
+def generate_llm_overview(edits_data: Dict[str, Any], provider: Optional[str] = None, job_description: str = "") -> str:
     """Generate an LLM-powered overview of the edits."""
 
-    # Auto-detect provider if not specified
+    # Use provider from environment variable (set by backend) or fallback to auto-detection
     if not provider:
-        if os.getenv("GEMINI_API_KEY"):
-            provider = "gemini"
-        elif os.getenv("OPENAI_API_KEY"):
-            provider = "openai"
-        else:
-            provider = "ollama"
+        provider = os.getenv("PROVIDER")
+        if not provider:
+            # Fallback to auto-detection if not set
+            if os.getenv("GEMINI_API_KEY"):
+                provider = "gemini"
+            elif os.getenv("OPENAI_API_KEY"):
+                provider = "openai"
+            else:
+                provider = "ollama"
 
     try:
         # Create LLM instance
@@ -67,7 +79,7 @@ def generate_llm_overview(edits_data: Dict[str, Any], provider: Optional[str] = 
         llm = get_provider(provider, model)
 
         # Prepare analysis prompt
-        prompt = create_analysis_prompt(edits_data)
+        prompt = create_analysis_prompt(edits_data, job_description)
 
         # Generate overview
         click.echo("🧠 Generating LLM overview of changes...")
@@ -84,20 +96,20 @@ def generate_llm_overview(edits_data: Dict[str, Any], provider: Optional[str] = 
                 # Extract text from nested analysis structure
                 analysis = parsed.get('analysis', parsed)
                 if isinstance(analysis, dict):
-                    # Just return the overall strategy if available, otherwise combine key points
+                    # Combine job explanation and game plan sections
+                    parts = []
+                    if analysis.get('job_explanation'):
+                        parts.append(analysis['job_explanation'])
+                    if analysis.get('game_plan_and_strategic_changes'):
+                        parts.append(
+                            analysis['game_plan_and_strategic_changes'])
+                    if parts:
+                        return '\n\n'.join(parts)
+                    # Fallback to old structure
                     if analysis.get('overall_strategy'):
                         return analysis['overall_strategy']
                     elif analysis.get('key_changes'):
                         return analysis['key_changes']
-                    else:
-                        # Combine multiple sections into one concise summary
-                        parts = []
-                        if analysis.get('overall_strategy'):
-                            parts.append(analysis['overall_strategy'])
-                        if analysis.get('key_changes'):
-                            parts.append(analysis['key_changes'])
-                        if parts:
-                            return ' '.join(parts)
         except (json.JSONDecodeError, KeyError, TypeError):
             pass
 
@@ -109,7 +121,7 @@ def generate_llm_overview(edits_data: Dict[str, Any], provider: Optional[str] = 
         return "LLM overview unavailable - using edits data only."
 
 
-def create_analysis_prompt(edits_data: Dict[str, Any]) -> str:
+def create_analysis_prompt(edits_data: Dict[str, Any], job_description: str = "") -> str:
     """Create a prompt for LLM analysis of edits."""
 
     # Count edits by type
@@ -119,28 +131,54 @@ def create_analysis_prompt(edits_data: Dict[str, Any]) -> str:
         "cover_letter", {}).get("paragraphs", []))
     suggested_additions = len(edits_data.get("suggested_additions", []))
 
-    prompt = f"""Analyze the following resume/cover letter edits and provide a very brief, concise summary.
+    # Extract key changes for context
+    skills_modified = []
+    if edits_data.get("skills"):
+        for skill_name, skill_data in edits_data["skills"].items():
+            if skill_data.get("replace") and skill_data["replace"] != "null":
+                skills_modified.append(skill_name)
 
-EDIT DATA:
+    cover_paragraphs_modified = []
+    if edits_data.get("cover_letter", {}).get("paragraphs"):
+        for i, paragraph in enumerate(edits_data["cover_letter"]["paragraphs"], 1):
+            if paragraph and paragraph != "null":
+                cover_paragraphs_modified.append(f"Paragraph {i}")
+
+    prompt = f"""You are an expert resume and job application analyst. Analyze the following job description and resume customization changes to provide a comprehensive overview.
+
+JOB DESCRIPTION:
+{job_description if job_description else "Job description not available"}
+
+RESUME CUSTOMIZATION CHANGES:
 {json.dumps(edits_data, indent=2)}
 
 ANALYSIS REQUEST:
-Write a very short summary (max 2-3 sentences total) covering:
+Write a comprehensive overview (2-3 paragraphs) that includes:
 
-1. Overall approach (1 sentence)
-2. Key changes made (1-2 sentences)
+1. **JOB EXPLANATION** (1 paragraph):
+   - Explain what this job is about in simple, approachable terms
+   - Describe what the role requires and what kind of person would be successful
+   - Make it conversational and easy to understand
 
-STATISTICS:
-- Summary changes: {summary_changes}
-- Skills sections updated: {skill_changes}
-- Cover letter paragraphs modified: {cover_changes}
-- Suggested additions: {suggested_additions}
+2. **GAME PLAN & STRATEGIC CHANGES** (1-2 paragraphs):
+   - Explain the overall strategy used to customize the resume for this specific job
+   - Describe the key changes made and WHY they were strategically chosen
+   - Connect the changes to the job requirements
+   - Explain how these changes improve the candidate's fit for the role
 
-CRITICAL: 
+KEY CHANGES MADE:
+- Summary updated: {'Yes' if summary_changes else 'No'}
+- Skills sections modified: {', '.join(skills_modified) if skills_modified else 'None'}
+- Cover letter paragraphs updated: {', '.join(cover_paragraphs_modified) if cover_paragraphs_modified else 'None'}
+- Suggested additions: {suggested_additions} new skills/keywords
+
+CRITICAL REQUIREMENTS:
+- Write in a conversational, helpful tone
+- Make the job explanation accessible to someone unfamiliar with the field
+- Explain the "why" behind the changes, not just what was changed
+- Keep it informative but not overly technical
 - Write as plain text, NOT JSON
-- Keep it extremely concise (max 3 sentences total)
-- Focus only on the most important changes
-- Use simple, clear language
+- Aim for 2-3 paragraphs total
 """
 
     return prompt
@@ -150,27 +188,58 @@ def get_structured_diffs() -> List[Dict[str, Any]]:
     """Get structured diff data for programmatic use."""
     try:
         # Use existing differ functionality but format for structured output
-        diff_data = get_diff_data()
+        default_paths = get_default_paths()
+        original_resume = default_paths["baseline_resume"]
+        original_cover = default_paths["baseline_cover"]
 
+        # Get diffs using the available function
+        diff_text = get_all_chunk_diffs(
+            original_resume, original_cover, quiet=True)
+
+        # Parse the diff text to extract structured data
         structured_diffs = []
 
-        for chunk_name, changes in diff_data.items():
-            if changes['modified']:
-                diff_entry = {
+        # Simple parsing of diff output - this is a basic implementation
+        # In a production system, you'd want more robust parsing
+        lines = diff_text.split('\n')
+        current_chunk = None
+
+        for line in lines:
+            if line.startswith('🔧 CHUNK:'):
+                # Extract chunk name
+                chunk_name = line.split('CHUNK:')[1].strip()
+                current_chunk = {
                     "chunk_name": chunk_name,
                     "type": get_chunk_type(chunk_name),
                     "changes": {
-                        "words_removed": changes.get('words_removed', 0),
-                        "words_added": changes.get('words_added', 0),
-                        "net_change": changes.get('words_added', 0) - changes.get('words_removed', 0)
+                        "words_removed": 0,
+                        "words_added": 0,
+                        "net_change": 0
                     },
                     "content": {
-                        "before": changes.get('before', ''),
-                        "after": changes.get('after', ''),
-                        "diff_text": changes.get('diff_display', '')
+                        "before": "",
+                        "after": "",
+                        "diff_text": ""
                     }
                 }
-                structured_diffs.append(diff_entry)
+                structured_diffs.append(current_chunk)
+            elif line.startswith('📊 CHANGES:') and current_chunk:
+                # Extract change statistics
+                try:
+                    changes_part = line.split('CHANGES:')[1].strip()
+                    # Parse "X words, +Y words" format
+                    import re
+                    match = re.search(
+                        r'(\d+)\s+words,\s*\+(\d+)\s+words', changes_part)
+                    if match:
+                        words_removed = int(match.group(1))
+                        words_added = int(match.group(2))
+                        current_chunk["changes"]["words_removed"] = words_removed
+                        current_chunk["changes"]["words_added"] = words_added
+                        current_chunk["changes"]["net_change"] = words_added - \
+                            words_removed
+                except:
+                    pass
 
         return structured_diffs
 

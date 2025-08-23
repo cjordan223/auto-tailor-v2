@@ -32,9 +32,14 @@
       <div class="pdf-preview-container">
         <div class="pdf-preview-header">
           <span class="text-sm text-gray-600">PDF Preview</span>
-          <a :href="pdfUrl" target="_blank" class="text-sm text-primary-600 hover:text-primary-800 underline">
-            Open in New Tab
-          </a>
+          <div class="flex space-x-3">
+            <button @click="openInModal" class="text-sm text-primary-600 hover:text-primary-800 underline">
+              View in Modal
+            </button>
+            <a :href="pdfUrl" target="_blank" class="text-sm text-primary-600 hover:text-primary-800 underline">
+              Open in New Tab
+            </a>
+          </div>
         </div>
         <div class="pdf-preview-content">
           <!-- Try object element first, fallback to iframe -->
@@ -66,6 +71,41 @@
         </div>
       </div>
     </div>
+
+    <!-- PDF Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" @click="closeModal">
+      <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        
+        <!-- Modal panel -->
+        <div class="relative inline-block w-full max-w-6xl p-6 my-8 text-left align-middle bg-white rounded-lg shadow-xl transform transition-all" @click.stop>
+          <!-- Modal header -->
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">
+              {{ fileType === 'resume' ? 'Resume' : 'Cover Letter' }} PDF Preview
+            </h3>
+            <div class="flex space-x-3">
+              <a :href="pdfUrl" target="_blank" class="text-sm text-primary-600 hover:text-primary-800 underline">
+                Open in New Tab
+              </a>
+              <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Modal content -->
+          <div class="pdf-modal-content">
+            <object :data="pdfUrl" type="application/pdf" class="pdf-modal-iframe" title="PDF Modal Viewer">
+              <iframe :src="pdfUrl" class="pdf-modal-iframe" title="PDF Modal Viewer Fallback"></iframe>
+            </object>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -93,6 +133,7 @@ const loading = ref(true)
 const error = ref(null)
 const showFallback = ref(false)
 const pdfFrame = ref(null)
+const showModal = ref(false)
 let loadTimeout = null
 
 // State for cache busting
@@ -184,6 +225,32 @@ const fallbackToIframe = () => {
 const openInNewTab = () => {
   window.open(pdfUrl.value, '_blank')
 }
+
+const openInModal = () => {
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+}
+
+// Handle escape key to close modal
+const handleKeydown = (event) => {
+  if (event.key === 'Escape' && showModal.value) {
+    closeModal()
+  }
+}
+
+// Add/remove event listeners for modal
+watch(showModal, (newValue) => {
+  if (newValue) {
+    document.addEventListener('keydown', handleKeydown)
+    document.body.style.overflow = 'hidden' // Prevent body scroll
+  } else {
+    document.removeEventListener('keydown', handleKeydown)
+    document.body.style.overflow = '' // Restore body scroll
+  }
+})
 
 const forceRefresh = () => {
   console.log('Forcing PDF refresh...')
@@ -280,6 +347,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearTimeout(loadTimeout)
+  // Clean up modal event listeners
+  document.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = ''
 })
 </script>
 
@@ -335,10 +405,30 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
+/* Modal styles */
+.pdf-modal-content {
+  width: 100%;
+  height: 80vh;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.pdf-modal-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: white;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .pdf-viewer-container {
     height: 500px;
+  }
+  
+  .pdf-modal-content {
+    height: 70vh;
   }
 }
 </style>

@@ -1,29 +1,24 @@
 <template>
-  <div id="app" class="h-screen flex flex-col bg-gray-50">
+  <div id="app" class="h-screen flex flex-col">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
+    <nav class="glassmorphism-nav flex-shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <router-link to="/" class="flex items-center space-x-2">
-              <div class="text-2xl font-bold text-primary-600">📄</div>
-              <span class="text-xl font-bold text-gray-900">Tex-Tailor</span>
+            <router-link to="/" class="flex items-center space-x-3 group">
+              <div class="text-3xl animate-float">📄</div>
+              <span
+                class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">Tex-Tailor</span>
             </router-link>
           </div>
-          
-          <div class="flex items-center space-x-4">
-            <router-link 
-              to="/" 
-              class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              :class="{ 'text-primary-600 bg-primary-50': $route.name === 'Home' }"
-            >
+
+          <div class="flex items-center space-x-2">
+            <router-link to="/" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
+              :class="{ 'active': $route.name === 'Home' }">
               Home
             </router-link>
-            <router-link 
-              to="/settings" 
-              class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              :class="{ 'text-primary-600 bg-primary-50': $route.name === 'Settings' }"
-            >
+            <router-link to="/settings" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
+              :class="{ 'active': $route.name === 'Settings' }">
               Settings
             </router-link>
           </div>
@@ -39,13 +34,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 flex-shrink-0">
+    <!-- <footer class="glassmorphism-footer flex-shrink-0">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-        <div class="text-center text-sm text-gray-500">
-          <p>© 2025 Tex-Tailor. AI-powered resume customization.</p>
+        <div class="text-center text-sm text-gray-600">
+          <p>© 2025 Tex-Tailor. AI-powered resume customization with style ✨</p>
         </div>
       </div>
-    </footer>
+    </footer> -->
   </div>
 </template>
 
