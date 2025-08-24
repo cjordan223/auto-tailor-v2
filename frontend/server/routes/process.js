@@ -112,7 +112,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     }
     
     // Use hardcoded baseline resume path
-    const baselineResumePath = path.join(__dirname, '../../../Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex')
+    const baselineResumePath = path.join(__dirname, '../../../templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex')
     
     // Verify baseline resume exists
     try {
@@ -166,7 +166,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     })
     
     // Find the Python CLI script
-    const cliPath = path.join(__dirname, '../../../run_workflow_clean.sh')
+    const cliPath = path.join(__dirname, '../../../scripts/run_workflow_clean.sh')
     
     // Debug path resolution
     console.log(`[${jobId}] __dirname: ${__dirname}`)

@@ -22,7 +22,7 @@ Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
 - Node.js 18+ 
 - npm or yarn
 - Backend Python CLI running
-- Baseline resume template file: `Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex`
+- Baseline resume template file: `templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex`
 
 ### Installation
 
@@ -115,7 +115,7 @@ OPENAI_API_KEY=your_openai_key
 
 The application uses a pre-configured baseline resume template located at:
 ```
-Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex
+templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex
 ```
 
 This template includes LLM markers for optimal AI processing and consistent formatting.
@@ -251,7 +251,7 @@ npm run server
 - Verify Python CLI output directory
 
 **"Baseline resume template not found"**
-- Ensure `Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex` exists
+- Ensure `templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex` exists
 - Check file permissions and path configuration
 
 ### Debug Mode
