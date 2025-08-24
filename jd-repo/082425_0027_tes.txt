@@ -1,0 +1,18 @@
+job_title: tes
+company: tes
+
+This is an open, ongoing role with no set closing date. We are always looking for exceptional talent—if you’re a match, apply anytime. If your profile aligns with our mission, we’ll be in touch.
+____
+As part of the Engineering team, you’ll be dedicated to designing, developing and enhancing learning models. We are looking for smart and curious individuals from academia to join Bestomer and drive our ML work.
+As a Member of our Technical Staff you will work on empirical ML problems by applying logical and mathematical thinking and practice. Hands on coding skills are needed to implement and iterate on ideas in Python and ML frameworks. You may also participate in code reviews and provide constructive feedback.
+You might be a good fit if you have:
+    A Bachelor’s, Master’s or PhD degree in Computer Science, Engineering, Mathematics, Statistics, or equivalent field
+    Proven track record of creatively solving problems by understanding and prioritizing business value and applying technology solutions
+    Strong programming skills (Python/Rust preferred)
+    Prior experience in developing on a Linux stack
+    Fluency with a versatile set of models and tricks
+    Strong stakeholder management and communication skills
+Experience:
+    Ability to work in start-up environments where tasks, projects, and daily priorities may and can be ambiguous.
+    Anticipatory desire to lean ahead and solve problems which are often unknown or unplanned (we’re building this thing from scratch; we don’t know what we don’t know).
+    Being able to stretch and shrink against shared company and team goals; some days will feel like working at the summit and others at base camp.
