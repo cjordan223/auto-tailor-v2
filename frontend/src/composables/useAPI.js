@@ -186,7 +186,7 @@ export function useAPI() {
             id: 'gemini',
             name: 'Google Gemini',
             available: false,
-            models: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro']
+            models: ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro-latest']
           },
           {
             id: 'openai', 
