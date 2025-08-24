@@ -71,6 +71,15 @@ router.get('/:jobId', async (req, res) => {
       // Review data not available, that's okay
     }
     
+    // Load job description if available
+    let jobDescription = null
+    try {
+      const jobDescPath = path.join(tempDir, 'job-description.txt')
+      jobDescription = await fs.readFile(jobDescPath, 'utf-8')
+    } catch (error) {
+      // Job description not available, that's okay
+    }
+    
     // Check which files are available
     const files = await fs.readdir(tempDir)
     const availableFiles = {
@@ -115,6 +124,8 @@ router.get('/:jobId', async (req, res) => {
       suggestedAdditions,
       validationStatus,
       reviewData,
+      jobDescription,
+      createdAt: new Date().toISOString(),
       completedAt: new Date().toISOString()
     }
     

@@ -269,22 +269,31 @@ const providers = ref([
     apiKeyRequired: false,
     apiKeyEnv: null,
     models: [
-      { 
-        id: 'qwen2.5:14b-instruct', 
-        name: 'Qwen2.5 14B', 
-        description: 'Good quality, requires powerful hardware',
-        recommended: true,
-        quality: 'Good',
-        speed: 'Medium',
-        rateLimits: 'No limits (local)'
-      },
-      { 
-        id: 'llama3.1:8b', 
-        name: 'Llama 3.1 8B', 
-        description: 'Lighter model, faster inference',
+      {
+        id: 'phi3:3.8b-mini-instruct-4k-q4_K_M',
+        name: 'Phi-3 Mini (3.8B)',
+        description: 'Fastest and most lightweight model, suitable for simple tasks.',
         recommended: false,
         quality: 'Good',
+        speed: 'Very Fast',
+        rateLimits: 'No limits (local)'
+      },
+      {
+        id: 'llama3.1:8b',
+        name: 'Llama 3.1 (8B)',
+        description: 'Excellent balance of performance and speed. Recommended for most users.',
+        recommended: true,
+        quality: 'High',
         speed: 'Fast',
+        rateLimits: 'No limits (local)'
+      },
+      {
+        id: 'llama3.1:70b',
+        name: 'Llama 3.1 (70B)',
+        description: 'Highest quality local model, requires significant resources.',
+        recommended: false,
+        quality: 'Highest',
+        speed: 'Slow',
         rateLimits: 'No limits (local)'
       }
     ]

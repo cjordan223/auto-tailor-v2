@@ -104,8 +104,18 @@ app.get('/api/results/:jobId', async (req, res) => {
     let suggestedAdditions = []
     let skillsChanges = null
     let validationStatus = null
+    let jobDescription = null
     
     if (status === 'completed') {
+      // Load job description if available
+      try {
+        const jobDescPath = path.join(tempDir, 'job-description.txt')
+        jobDescription = await fs.readFile(jobDescPath, 'utf-8')
+      } catch (error) {
+        // Job description not available, that's okay
+        console.warn(`Could not load job description for job ${jobId}:`, error.message)
+      }
+      
       // Load edits.json to get validation status and suggested additions
       try {
         const editsPath = path.join(tempDir, 'edits.json')
@@ -295,6 +305,7 @@ app.get('/api/results/:jobId', async (req, res) => {
       reviewData,
       skillsChanges,
       validationStatus,
+      jobDescription,
       createdAt: new Date().toISOString()
     }
 
