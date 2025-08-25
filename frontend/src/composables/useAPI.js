@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { globalSettings } from './useSettings.js'
+import { API_CONFIG } from '../config/api.js'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: '/api',
-  timeout: 300000, // 5 minutes for processing
+  baseURL: API_CONFIG.API_BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json'
   }
