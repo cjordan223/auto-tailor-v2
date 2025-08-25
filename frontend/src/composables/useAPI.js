@@ -203,11 +203,12 @@ export function useAPI() {
   /**
    * Add skill to baseline skills JSON file
    */
-  const addSkillToBaseline = async (jobId, skill, category = 'conversational_skills') => {
+  const addSkillToBaseline = async (jobId, skill, category = 'conversational_skills', confidenceLevel = null) => {
     try {
       const response = await api.post(`/results/${jobId}/add-skill`, {
         skill,
-        category
+        category,
+        confidenceLevel
       })
       
       return response.data

@@ -169,12 +169,14 @@ console.log(`Progress: ${data.progress}% - ${data.step}`)
 - `jobId` (path): UUID of the job
 - `skill` (body): The skill name to add
 - `category` (body, optional): Category to add the skill to (`confirmed_skills` or `conversational_skills`, defaults to `conversational_skills`)
+- `confidenceLevel` (body, optional): Confidence level for the skill (`expert`, `proficient`, `familiar`, or `learning`)
 
 **Request Body:**
 ```json
 {
   "skill": "RESTful & GraphQL API Development",
-  "category": "conversational_skills"
+  "category": "conversational_skills",
+  "confidenceLevel": "familiar"
 }
 ```
 
@@ -182,22 +184,23 @@ console.log(`Progress: ${data.progress}% - ${data.step}`)
 ```json
 {
   "success": true,
-  "message": "Skill \"RESTful & GraphQL API Development\" added to conversational_skills",
+  "message": "Skill \"RESTful & GraphQL API Development\" added to conversational_skills as familiar level",
   "skill": "RESTful & GraphQL API Development",
   "category": "conversational_skills",
+  "confidenceLevel": "familiar",
   "updatedSkills": ["React", "RESTful & GraphQL API Development", "Vue.js", ...]
 }
 ```
 
 **Error Responses:**
-- `400`: Skill is required or invalid category
+- `400`: Skill is required, invalid category, or invalid confidence level
 - `404`: Baseline skills file not found
 - `409`: Skill already exists in the skills inventory
 - `500`: Server error
 
 **Example:**
 ```javascript
-// Add a flagged skill to the baseline
+// Add a flagged skill to the baseline with confidence level
 const response = await fetch(`/api/results/${jobId}/add-skill`, {
   method: 'POST',
   headers: {
@@ -205,12 +208,58 @@ const response = await fetch(`/api/results/${jobId}/add-skill`, {
   },
   body: JSON.stringify({
     skill: 'RESTful & GraphQL API Development',
-    category: 'conversational_skills'
+    category: 'conversational_skills',
+    confidenceLevel: 'familiar'
   })
 })
 
 const result = await response.json()
 console.log(result.message) // "Skill added successfully"
+```
+
+## 💾 Application Management Endpoints
+
+### Get Saved Applications
+
+**Endpoint:** `GET /api/applications`  
+**Description:** Retrieve a list of all saved and applied-to applications for the user dashboard.
+
+**Query Parameters:**
+- `status` (optional): Filter by status (`saved`, `applied`, `archived`). Defaults to fetching all non-archived applications.
+- `limit` (optional): Number of results to return.
+- `sortBy` (optional): Field to sort by (e.g., `createdAt`, `updatedAt`).
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "applications": [
+      {
+        "_id": "ObjectId()",
+        "userId": "user-id-string",
+        "createdAt": "2025-08-25T12:00:00.000Z",
+        "updatedAt": "2025-08-25T12:05:00.000Z",
+        "status": "applied",
+        "jobDetails": {
+          "jobTitle": "Senior Software Engineer",
+          "companyName": "Tech Innovators Inc."
+        },
+        "trackingInfo": {
+          "appliedAt": "2025-08-25T12:05:00.000Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Example:**
+```javascript
+// Fetch all saved and applied applications
+const response = await fetch('/api/applications');
+const data = await response.json();
+console.log(data.data.applications);
 ```
 
 ## 📁 File Management Endpoints

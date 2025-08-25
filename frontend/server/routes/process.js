@@ -5,32 +5,186 @@ import path from 'path'
 import fs from 'fs/promises'
 import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url'
+import { workflowLogger } from '../utils/workflowLogger.js'
+import applicationService from '../services/ApplicationService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '../../logs')
-try {
-  await fs.mkdir(logsDir, { recursive: true })
-} catch (error) {
-  // Directory might already exist, ignore error
-}
-
 const router = express.Router()
 
 /**
- * Write workflow log entry
+ * Save completed application to MongoDB database
  */
-async function writeWorkflowLog(jobId, message, type = 'info') {
+async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles) {
   try {
-    const timestamp = new Date().toISOString()
-    const logEntry = `[${timestamp}] [${jobId}] [${type.toUpperCase()}] ${message}\n`
-    const logFile = path.join(logsDir, 'workflow.log')
+    // Only save if application service is available
+    if (!applicationService.db) {
+      console.log('📚 Database not connected - skipping application save')
+      return
+    }
+
+    // Read job description
+    const jobDescription = await fs.readFile(jobDescriptionPath, 'utf8')
     
-    await fs.appendFile(logFile, logEntry, 'utf8')
+    // Read generated edits.json if available
+    let edits = null
+    const editsPath = path.join(tempDir, 'edits.json')
+    try {
+      const editsContent = await fs.readFile(editsPath, 'utf8')
+      edits = JSON.parse(editsContent)
+    } catch (error) {
+      console.warn('Could not read edits.json:', error.message)
+    }
+
+    // Extract job details from description
+    const jobTitle = extractJobTitle(jobDescription)
+    const companyName = extractCompanyName(jobDescription)
+    
+    // Build file references
+    const files = {
+      resume: {
+        url: outputFiles.includes('Conner_Jordan_Software_Engineer.tuned.pdf') 
+          ? `/static/${jobId}/Conner_Jordan_Software_Engineer.tuned.pdf` 
+          : null,
+        storageKey: `${jobId}/Conner_Jordan_Software_Engineer.tuned.pdf`
+      },
+      coverLetter: {
+        url: outputFiles.includes('Conner_Jordan_Cover_Letter.tuned.pdf')
+          ? `/static/${jobId}/Conner_Jordan_Cover_Letter.tuned.pdf`
+          : null,
+        storageKey: `${jobId}/Conner_Jordan_Cover_Letter.tuned.pdf`
+      }
+    }
+
+    // Build application data
+    const applicationData = {
+      jobTitle: jobTitle,
+      companyName: companyName,
+      jobDescription: jobDescription,
+      location: null, // Could be extracted from JD in the future
+      
+      resume: {
+        fileName: 'Conner_Jordan_Software_Engineer.tuned.pdf',
+        summary: edits?.summary?.replace || null,
+        skills: edits?.skills || {}
+      },
+      
+      coverLetter: {
+        fileName: 'Conner_Jordan_Cover_Letter.tuned.pdf',
+        paragraphs: edits?.cover_letter?.paragraphs || []
+      },
+
+      generationMeta: {
+        provider: provider,
+        model: model,
+        processingTime: 0, // Could be calculated
+        validationPassed: true
+      },
+
+      files: files,
+
+      searchMeta: {
+        keywords: extractKeywords(jobDescription),
+        jobType: extractJobType(jobDescription)
+      }
+    }
+
+    // Save to database
+    const result = await applicationService.createApplication('temp_user', applicationData)
+    
+    if (result.success) {
+      console.log(`💾 Saved application to database: ${result.applicationId}`)
+      console.log(`📄 Company: ${companyName}, Position: ${jobTitle}`)
+    } else {
+      console.error('Failed to save application:', result.error)
+    }
+
   } catch (error) {
-    console.error('Failed to write workflow log:', error)
+    console.error('Database save error:', error)
+    throw error
+  }
+}
+
+/**
+ * Simple extraction functions for job details
+ */
+function extractJobTitle(jobDescription) {
+  // Look for common patterns
+  const patterns = [
+    /Position:\s*([^\n\r]+)/i,
+    /Role:\s*([^\n\r]+)/i,
+    /Job Title:\s*([^\n\r]+)/i,
+    /seeking\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+at|\s*,|\s*\.)/i,
+    /hiring\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+to|\s*,|\s*\.)/i
+  ]
+  
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern)
+    if (match) {
+      return match[1].trim()
+    }
+  }
+  
+  return 'Software Engineer' // Default fallback
+}
+
+function extractCompanyName(jobDescription) {
+  // Look for common patterns
+  const patterns = [
+    /Company:\s*([^\n\r,]+)/i,
+    /at\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+is\s|\s*,|\s*\.|$)/i,
+    /join\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+as\s|\s*,|\s*\.|$)/i,
+    /([A-Z][a-zA-Z\s&.,]+?)\s+is\s+(?:seeking|hiring|looking)/i
+  ]
+  
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern)
+    if (match) {
+      let company = match[1].trim()
+      // Clean up common suffixes
+      company = company.replace(/\s+(Inc\.?|LLC\.?|Ltd\.?|Corp\.?|Corporation)\.?$/i, '')
+      return company
+    }
+  }
+  
+  return 'Unknown Company' // Default fallback
+}
+
+function extractKeywords(jobDescription) {
+  // Extract technical terms and skills
+  const techKeywords = [
+    'python', 'javascript', 'typescript', 'java', 'go', 'rust', 'c++',
+    'react', 'vue', 'angular', 'node', 'express',
+    'aws', 'azure', 'gcp', 'docker', 'kubernetes',
+    'mongodb', 'postgresql', 'mysql', 'redis',
+    'git', 'ci/cd', 'jenkins', 'github actions',
+    'security', 'authentication', 'oauth', 'saml'
+  ]
+  
+  const foundKeywords = []
+  const lowerDescription = jobDescription.toLowerCase()
+  
+  for (const keyword of techKeywords) {
+    if (lowerDescription.includes(keyword)) {
+      foundKeywords.push(keyword)
+    }
+  }
+  
+  return foundKeywords.slice(0, 10) // Limit to 10 keywords
+}
+
+function extractJobType(jobDescription) {
+  const lowerDescription = jobDescription.toLowerCase()
+  
+  if (lowerDescription.includes('remote') || lowerDescription.includes('work from home')) {
+    return 'remote'
+  } else if (lowerDescription.includes('contract') || lowerDescription.includes('contractor')) {
+    return 'contract'
+  } else if (lowerDescription.includes('part-time')) {
+    return 'part-time'
+  } else {
+    return 'full-time'
   }
 }
 
@@ -156,14 +310,22 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
   const statusFile = path.join(tempDir, 'status.json')
   
   try {
-    // Log workflow start
-    await writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
+    // Start workflow logging
+    await workflowLogger.startWorkflow(jobId)
     
-    // Update status
+    // Log workflow start
+    await workflowLogger.writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
+    
+    // Update status with original generation settings
     await updateStatus(statusFile, { 
       status: 'processing', 
       progress: 10,
-      step: 'Initializing...'
+      step: 'Initializing...',
+      originalSettings: {
+        provider,
+        model,
+        personality
+      }
     })
     
     // Find the Python CLI script
@@ -230,18 +392,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       stdout += output
       console.log(`[${jobId}] stdout:`, output)
       
-      // Write to workflow log (only meaningful workflow output)
-      const lines = output.split('\n').filter(line => line.trim())
-      for (const line of lines) {
-        // Only log workflow-related output, not API calls or noise
-        if (line.includes('🔄') || line.includes('✅') || line.includes('❌') || 
-            line.includes('📋') || line.includes('🔍') || line.includes('🔧') ||
-            line.includes('📊') || line.includes('🎉') || line.includes('Step') ||
-            line.includes('Created:') || line.includes('Extracted') || line.includes('Saved') ||
-            line.includes('Applied') || line.includes('Comparing') || line.includes('Rendering')) {
-          writeWorkflowLog(jobId, line.trim(), 'workflow')
-        }
-      }
+      // Use workflow logger to filter and log meaningful output
+      workflowLogger.logServerOutput(jobId, output, false)
       
       // Parse output for meaningful progress updates
       parseOutputAndUpdateStatus(statusFile, output, jobId)
@@ -252,13 +404,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       stderr += output
       console.error(`[${jobId}] stderr:`, output)
       
-      // Write errors to workflow log
-      const lines = output.split('\n').filter(line => line.trim())
-      for (const line of lines) {
-        if (line.includes('Error') || line.includes('Failed') || line.includes('Warning')) {
-          writeWorkflowLog(jobId, line.trim(), 'error')
-        }
-      }
+      // Use workflow logger to filter and log meaningful errors
+      workflowLogger.logServerOutput(jobId, output, true)
       
       // Parse stderr for errors and progress
       parseOutputAndUpdateStatus(statusFile, output, jobId, true)
@@ -267,7 +414,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     child.on('close', async (code) => {
       try {
         if (code === 0) {
-          await writeWorkflowLog(jobId, 'Workflow completed successfully', 'success')
+          await workflowLogger.writeWorkflowLog(jobId, 'Workflow completed successfully', 'success')
           
           await updateStatus(statusFile, { 
             status: 'processing', 
@@ -298,6 +445,14 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
             }
           }
           
+          // Save to database if MongoDB is connected
+          try {
+            await saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles)
+          } catch (dbError) {
+            console.warn(`Database save failed for job ${jobId}:`, dbError.message)
+            // Don't fail the entire workflow if database save fails
+          }
+          
           await updateStatus(statusFile, { 
             status: 'completed', 
             progress: 100,
@@ -307,7 +462,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
           })
           
         } else {
-          await writeWorkflowLog(jobId, `Workflow failed with exit code ${code}`, 'error')
+          await workflowLogger.writeWorkflowLog(jobId, `Workflow failed with exit code ${code}`, 'error')
           
           await updateStatus(statusFile, { 
             status: 'error', 
@@ -325,7 +480,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     
   } catch (error) {
     console.error(`Processing error for job ${jobId}:`, error)
-    await writeWorkflowLog(jobId, `Processing error: ${error.message}`, 'error')
+    await workflowLogger.writeWorkflowLog(jobId, `Processing error: ${error.message}`, 'error')
     
     await updateStatus(statusFile, { 
       status: 'error', 
@@ -333,6 +488,9 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       step: 'Processing failed',
       error: error.message
     })
+  } finally {
+    // End workflow logging
+    await workflowLogger.endWorkflow()
   }
 }
 
@@ -492,29 +650,11 @@ async function updateStatus(statusFile, status) {
   }
 }
 
-// Endpoint to get workflow log
+// Endpoint to get workflow log (now returns temp log for current run)
 router.get('/log', async (req, res) => {
   try {
-    const logFile = path.join(logsDir, 'workflow.log')
-    
-    try {
-      const logContent = await fs.readFile(logFile, 'utf8')
-      res.json({
-        success: true,
-        log: logContent,
-        lastModified: new Date().toISOString()
-      })
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        res.json({
-          success: true,
-          log: 'No workflow log found yet.',
-          lastModified: null
-        })
-      } else {
-        throw error
-      }
-    }
+    const result = await workflowLogger.getTempLog()
+    res.json(result)
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -526,24 +666,12 @@ router.get('/log', async (req, res) => {
 // Endpoint to clear workflow log
 router.delete('/log', async (req, res) => {
   try {
-    const logFile = path.join(logsDir, 'workflow.log')
-    
-    try {
-      await fs.unlink(logFile)
-      res.json({
-        success: true,
-        message: 'Workflow log cleared successfully'
-      })
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        res.json({
-          success: true,
-          message: 'Workflow log was already empty'
-        })
-      } else {
-        throw error
-      }
-    }
+    const result = await workflowLogger.clearTempLog()
+    res.json({
+      success: result.success,
+      message: result.success ? 'Workflow log cleared' : 'Failed to clear log',
+      error: result.error
+    })
   } catch (error) {
     res.status(500).json({
       success: false,

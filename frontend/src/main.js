@@ -7,6 +7,7 @@ import './assets/style.css'
 import Home from './views/Home.vue'
 import Results from './views/Results.vue'
 import Settings from './views/Settings.vue'
+import DashboardView from './views/DashboardView.vue'
 
 // Create router
 const router = createRouter({
@@ -18,10 +19,21 @@ const router = createRouter({
       component: Home
     },
     {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: DashboardView
+    },
+    {
       path: '/results/:jobId',
       name: 'Results',
       component: Results,
       props: true
+    },
+    {
+      path: '/application/:applicationId',
+      name: 'Application',
+      component: Results,
+      props: (route) => ({ jobId: route.params.applicationId })
     },
     {
       path: '/settings',

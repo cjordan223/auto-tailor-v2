@@ -1,0 +1,116 @@
+# Tex-Tailor: AI-Powered Resume & Cover Letter Customization Platform
+
+## Project Overview
+Tex-Tailor is a web application that uses AI to customize resumes and cover letters for specific job descriptions. It generates LaTeX documents, compiles them to PDFs, and provides a management dashboard for tracking applications.
+
+## Architecture
+
+### Backend (Python CLI + Node.js API)
+- **Python CLI** (`tex_tailor/cli.py`): Core AI processing, LaTeX generation, PDF compilation
+- **Node.js API** (`frontend/server/`): Web server, MongoDB integration, file serving
+- **Database**: MongoDB Atlas with applications collection for persistent storage
+
+### Frontend (Vue.3 + Vite)
+- **Framework**: Vue 3 with Composition API
+- **Routing**: Vue Router (defined in `main.js`)
+- **Styling**: Tailwind CSS with glassmorphism design
+- **Key Views**: Home (job processing), Dashboard (application management), Results (document viewing), Settings
+
+## Key Workflows
+
+### 1. Document Generation Flow
+```
+User Input (Job Description) → Python CLI Processing → LaTeX Generation → PDF Compilation → Results Display
+```
+- Entry point: `frontend/src/views/Home.vue`
+- Processing: `POST /api/process` → Python CLI execution
+- Results: `frontend/src/views/Results.vue` with PDF viewers
+
+### 2. Application Management Flow
+```
+Generated Documents → Save to Database → Dashboard View → Status Tracking
+```
+- API: `frontend/server/routes/applications.js`
+- Storage: MongoDB Atlas `applications` collection
+- UI: `frontend/src/views/DashboardView.vue`
+
+## Important File Locations
+
+### Configuration
+- Environment: `.env` (API keys, database connection)
+- Templates: `templates/baseline_skills.json` (resume template)
+- Python config: `tex_tailor/cli.py` (AI providers, settings)
+
+### API Endpoints
+- Applications: `/api/applications/*` (CRUD operations)
+- Processing: `/api/process` (document generation)
+- File serving: `/api/view/:jobId/*` (LaTeX, PDF access)
+
+### Frontend Components
+- `ApplicationCard.vue`: Reusable application display component
+- `PDFViewer.vue`: Document preview component
+- `LaTeXEditor.vue`: Source code editing
+- `UnifiedInput.vue`: Job description input with file upload
+
+## AI Provider Integration
+- **Supported**: Gemini, OpenAI GPT, Mistral, Groq, Ollama
+- **Configuration**: Set via frontend Settings page or environment variables
+- **Validation**: `tex_tailor/ollama_validation.py` for local model validation
+
+## Database Schema
+```javascript
+// applications collection
+{
+  _id: ObjectId,
+  userId: String,
+  jobTitle: String,
+  companyName: String,
+  status: String, // 'draft', 'saved', 'applied', 'interview', 'rejected', 'archived'
+  jobDescription: String,
+  generatedContent: Object,
+  generationMeta: { provider: String, model: String },
+  notes: String,
+  createdAt: Date,
+  updatedAt: Date,
+  archived: Boolean
+}
+```
+
+## Development Commands
+```bash
+# Frontend development
+cd frontend && npm run dev  # Runs both client (Vite) and server (Node.js)
+
+# Python CLI testing
+python tex_tailor/cli.py --help
+
+# Database health
+curl http://localhost:3001/api/applications/health
+```
+
+## Common Tasks for AI Agents
+
+### Adding New Features
+1. Backend routes: `frontend/server/routes/`
+2. Frontend views: `frontend/src/views/`
+3. Components: `frontend/src/components/`
+4. Database operations: `frontend/server/services/ApplicationService.js`
+
+### Debugging
+- Check browser console for frontend errors
+- Check terminal output for backend/Python CLI errors
+- MongoDB connection issues: verify `.env` MONGODB_URI
+- LaTeX compilation issues: check system LaTeX installation
+
+### Testing New AI Providers
+1. Add provider configuration to Settings
+2. Test via Home page job processing
+3. Validate output quality in Results view
+4. Check generation metadata in Dashboard
+
+## File Upload Support
+- Accepts: `.txt`, `.docx`, `.pdf` job descriptions
+- Processing: `frontend/src/components/FileUpload.vue`
+- Backend handling: File content extraction before CLI processing
+
+This context should help new AI agents understand the project structure and contribute effectively.

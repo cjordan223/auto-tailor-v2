@@ -48,6 +48,7 @@ tex-tailor/
 │   │   ├── views/                   # Page components
 │   │   │   ├── Home.vue             # Upload and processing page
 │   │   │   ├── Results.vue          # Side-by-side LaTeX/PDF results
+│   │   │   ├── Dashboard.vue        # View and manage saved applications
 │   │   │   └── Settings.vue         # Configuration page
 │   │   └── composables/             # Reusable logic
 │   │       └── useAPI.js            # API communication layer
@@ -135,6 +136,16 @@ Generated Files → Express.js Endpoints → Vue.js Results Page → LaTeX/PDF V
 - `LaTeXViewer.vue`: Syntax-highlighted source code viewer
 - `PDFViewer.vue`: Embedded PDF preview
 - API endpoints: `/api/view/:jobId/:fileType` and `/api/view/:jobId/:fileType/tex`
+
+### 4. Application Dashboard
+```
+User → Vue.js DashboardView → Express.js API → MongoDB Atlas → Saved Applications
+```
+
+**Components Involved:**
+- `DashboardView.vue`: Fetches and displays saved applications.
+- `GET /api/applications`: API endpoint to retrieve application data from the database.
+- **MongoDB Atlas**: Persistent storage for saved application objects.
 
 ## 🔍 Key Components Deep Dive
 

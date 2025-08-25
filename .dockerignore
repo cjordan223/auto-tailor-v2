@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Node.js
+node_modules
+npm-debug.log
+frontend/node_modules
+
+# Python
+__pycache__
+venv
+.venv
+*.pyc
+*.pyo
+*.pyd
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs

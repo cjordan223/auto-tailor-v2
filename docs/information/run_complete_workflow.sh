@@ -1,11 +1,12 @@
-# INFORMATION ONLY. THIS SCRIPT RESIDES IN RAYCAST SCRIPT SHARE. #
-
- # @raycast.schemaVersion 1
+# # INFORMATION ONLY. THIS SCRIPT RESIDES IN RAYCAST SCRIPT SHARE. #
+# #!/bin/bash
+# # @raycast.schemaVersion 1
 # # @raycast.title Complete Tex-Tailor Workflow
 # # @raycast.mode silent
 # # @raycast.packageName Tex-Tailor
 # # @raycast.argument1 { "type": "text", "placeholder": "Enter job title" }
 # # @raycast.argument2 { "type": "text", "placeholder": "Enter company name" }
+# # @raycast.argument3 { "type": "text", "placeholder": "Provider (gemini/ollama/mistral/groq)", "optional": true }
 
 # set -e
 
@@ -26,6 +27,7 @@
 # # Validate arguments
 # JOB_TITLE="$1"
 # COMPANY_NAME="$2"
+# PROVIDER_ALIAS="$3"
 
 # if [ -z "$JOB_TITLE" ]; then
 #     echo -e "${RED}❌ Error: Job title must be provided as the first argument.${NC}"
@@ -36,6 +38,42 @@
 #     echo -e "${RED}❌ Error: Company name must be provided as the second argument.${NC}"
 #     exit 1
 # fi
+
+# # Provider mapping with recommended models
+# if [ -z "$PROVIDER_ALIAS" ]; then
+#     PROVIDER_ALIAS="gemini"
+#     echo -e "${BLUE}📋 No provider specified, using default: Gemini${NC}"
+# fi
+
+# # Map provider aliases to actual providers and models
+# case "$PROVIDER_ALIAS" in
+#     "gemini"|"g")
+#         PROVIDER="gemini"
+#         MODEL="gemini-2.5-flash-lite"
+#         echo -e "${BLUE}🤖 Using Gemini (${MODEL})${NC}"
+#         ;;
+#     "ollama"|"o")
+#         PROVIDER="ollama"
+#         MODEL="qwen2.5:14b-instruct"
+#         echo -e "${BLUE}🤖 Using Ollama (${MODEL})${NC}"
+#         ;;
+#     "mistral"|"m")
+#         PROVIDER="mistral"
+#         MODEL="mistral-large-latest"
+#         echo -e "${BLUE}🤖 Using Mistral (${MODEL})${NC}"
+#         ;;
+#     "groq"|"gq")
+#         PROVIDER="groq"
+#         MODEL="llama-3.1-70b-versatile"
+#         echo -e "${BLUE}🤖 Using Groq (${MODEL})${NC}"
+#         ;;
+#     *)
+#         echo -e "${RED}❌ Error: Invalid provider '$PROVIDER_ALIAS'. Valid options: gemini, ollama, mistral, groq${NC}"
+#         echo -e "${YELLOW}   Using default: Gemini${NC}"
+#         PROVIDER="gemini"
+#         MODEL="gemini-2.5-flash-lite"
+#         ;;
+# esac
 
 # # Get clipboard content
 # JD_CONTENT=$(pbpaste)
@@ -93,9 +131,12 @@
 
 # source "$PROJECT_DIR/venv/bin/activate"
 
-# # Submit job to frontend API and capture the response
+# # Submit job to frontend API with provider settings and capture the response
 # API_RESPONSE=$(curl -s -X POST http://localhost:3001/api/process \
 #     -F "jobDescription=@$FULL_PATH" \
+#     -F "provider=$PROVIDER" \
+#     -F "model=$MODEL" \
+#     -F "personality=career_savvy_colleague" \
 #     -H "Content-Type: multipart/form-data")
 
 # if [ $? -eq 0 ]; then
@@ -137,6 +178,7 @@
         
 #         echo -e "${GREEN}🎉 Complete workflow finished successfully!${NC}"
 #         echo -e "${BLUE}📊 Job: $JOB_TITLE at $COMPANY_NAME${NC}"
+#         echo -e "${BLUE}🤖 Provider: $PROVIDER ($MODEL)${NC}"
 #     else
 #         echo -e "${RED}❌ Could not extract job ID from API response${NC}"
 #         deactivate

@@ -26,7 +26,7 @@ class LLMModelConfig:
 class ProviderConfig:
     """Configuration for LLM providers."""
     ollama: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
-        default_model="llama3:8b"
+        default_model="qwen2.5:14b-instruct"  # Reliable medium-tier model with good JSON parsing
     ))
     openai: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
         default_model="gpt-4o-mini"
