@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposer Cheatsheet</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #1a73e8;
+            border-bottom: 1px solid #e8eaed;
+            padding-bottom: 10px;
+        }
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; margin-top: 40px;}
+        h3 { font-size: 1.2em; margin-top: 30px; border: none;}
+        code {
+            font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+            background: #e8eaed;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Troubleshooting and Navigation Guide for <code>proposer.py</code></h1>
+        <p>This document provides a guide to understanding, troubleshooting, and fine-tuning the behavior of the AI in <code>tex_tailor/proposer.py</code>. This file is the "brain" of the application, controlling how the LLM generates edits for your resume and cover letter.</p>
+
+        <h2>Key Sections of the File</h2>
+
+        <h3>1. <code>SYSTEM_PROMPT</code> (Lines 15-95)</h3>
+        <ul>
+            <li><strong>What it is:</strong> This is the main instruction set for the LLM. It defines the AI's personality, its constraints, and the JSON schema it must follow.</li>
+            <li><strong>When to modify it:</strong> You should modify this section to make high-level changes to the AI's behavior, such as:
+                <ul>
+                    <li>Changing the tone or style of the generated text.</li>
+                    <li>Adding or removing constraints on what the AI can or cannot do.</li>
+                    <li>Providing new examples to guide the AI's output.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>2. <code>build_user_prompt()</code> (Lines 123-171)</h3>
+        <ul>
+            <li><strong>What it is:</strong> This function gathers the raw text from your job description and base files and formats it into a prompt for the LLM.</li>
+            <li><strong>When to modify it:</strong> You should only modify this section if you want to change the structure of the input to the LLM. For example, if you wanted to add a new section from your resume to the prompt.</li>
+        </ul>
+
+        <h3>3. Provider Classes (<code>OllamaProvider</code>, <code>GeminiProvider</code>, <code>OpenAIProvider</code>)</h3>
+        <ul>
+            <li><strong>What they are:</strong> These classes handle the technical details of communicating with the different LLM APIs.</li>
+            <li><strong>When to modify them:</strong> You generally shouldn't need to modify these classes. However, they are where the creativity controls (<code>temperature</code>, <code>top_k</code>) are set. These values are read from <code>config.py</code>.</li>
+        </ul>
+
+        <h2>How to Fine-Tune the AI's Behavior</h2>
+        <p>The most effective way to fine-tune the AI is by modifying the <code>SYSTEM_PROMPT</code>.</p>
+        <ul>
+            <li><strong>To make the AI more creative:</strong>
+                <ul>
+                    <li>Make the constraints in the <code>SYSTEM_PROMPT</code> less restrictive.</li>
+                    <li>Increase the <code>temperature</code> and <code>top_k</code> values in <code>config.py</code> for your chosen provider.</li>
+                </ul>
+            </li>
+            <li><strong>To make the AI more deterministic and predictable:</strong>
+                <ul>
+                    <li>Make the constraints in the <code>SYSTEM_PROMPT</code> more restrictive.</li>
+                    <li>Add more specific examples to the "EXAMPLES" section.</li>
+                    <li>Decrease the <code>temperature</code> and <code>top_k</code> values in <code>config.py</code>.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>Troubleshooting Common Issues</h2>
+
+        <h3>Issue: The AI's output is not what I expect.</h3>
+        <ul>
+            <li><strong>Solution:</strong>
+                <ol>
+                    <li>Start by modifying the <code>SYSTEM_PROMPT</code> to be more specific about what you want.</li>
+                    <li>Add more examples to the "EXAMPLES" section that show the AI the desired output.</li>
+                    <li>If the issue persists, consider adjusting the <code>temperature</code> in <code>config.py</code>. A lower temperature will produce more predictable results.</li>
+                </ol>
+            </li>
+        </ul>
+
+        <h3>Issue: The script fails with a JSON parsing error.</h3>
+        <ul>
+            <li><strong>Solution:</strong> This usually means the LLM has returned a response that is not valid JSON.
+                <ol>
+                    <li>Make sure the <code>SYSTEM_PROMPT</code> is very clear that the AI must return valid JSON.</li>
+                    <li>Check the "EXAMPLES" section to ensure all the examples are valid JSON.</li>
+                    <li>If you are using a less powerful model, you may need to be more explicit in your instructions.</li>
+                </ol>
+            </li>
+        </ul>
+
+        <h3>Issue: The script is slow or timing out.</h3>
+        <ul>
+            <li><strong>Solution:</strong>
+                <ol>
+                    <li>The <code>timeout</code> for each provider is set in <code>config.py</code>. You can increase this value if you are using a model that takes a long time to respond.</li>
+                    <li>Consider using a faster LLM provider or a smaller model.</li>
+                </ol>
+            </li>
+        </ul>
+        <p>By understanding these key sections and following these troubleshooting steps, you can effectively control and fine-tune the behavior of the AI to meet your needs.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Letter Configuration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .card p {
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        .card .path {
+            font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+            background: #e8eaed;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .proposer { border-left: 5px solid #4285f4; }
+        .schema { border-left: 5px solid #fbbc05; }
+        .config { border-left: 5px solid #34a853; }
+        .template { border-left: 5px solid #9333ea; }
+        .personality { border-left: 5px solid #ea4335; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Editing the Cover Letter Generation</h1>
+        <div class="grid">
+            <div class="card proposer">
+                <h3>LLM Instructions</h3>
+                <p>Edit the system prompt to change the LLM's personality, tone, and core instructions.</p>
+                <p><span class="path">tex_tailor/proposer.py</span></p>
+            </div>
+            <div class="card schema">
+                <h3>Validation Rules</h3>
+                <p>Modify the validation functions to change how the cover letter content is checked (e.g., forbidden patterns).</p>
+                <p><span class="path">tex_tailor/schema.py</span></p>
+            </div>
+            <div class="card config">
+                <h3>Validation Limits</h3>
+                <p>Adjust the word count limits for paragraphs and the total cover letter length.</p>
+                <p><span class="path">tex_tailor/config.py</span></p>
+            </div>
+            <div class="card template">
+                <h3>Base Template</h3>
+                <p>Change the initial structure and content of the cover letter before the LLM makes edits.</p>
+                <p><span class="path">templates/Basline_Cover_Letter/</span></p>
+            </div>
+            <div class="card personality">
+                <h3>LLM Personas</h3>
+                <p>Add or modify personality files to give the LLM different voices and styles.</p>
+                <p><span class="path">personalities/</span></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

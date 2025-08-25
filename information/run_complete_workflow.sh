@@ -1,14 +1,6 @@
 # INFORMATION ONLY. THIS SCRIPT RESIDES IN RAYCAST SCRIPT SHARE. #
 
-
-
-
-
-
-
-
-
-# # @raycast.schemaVersion 1
+ # @raycast.schemaVersion 1
 # # @raycast.title Complete Tex-Tailor Workflow
 # # @raycast.mode silent
 # # @raycast.packageName Tex-Tailor
