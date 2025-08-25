@@ -18,7 +18,7 @@ class LLMModelConfig:
     default_model: str
     timeout: int = 120
     temperature: float = 0      # 🎛️ CREATIVITY: 0=deterministic, 1=creative
-    top_k: int = 1             # 🎛️ DIVERSITY: Lower=focused, higher=diverse  
+    top_k: int = 1             # 🎛️ DIVERSITY: Lower=focused, higher=diverse
     max_tokens: int = 2048     # 🎛️ LENGTH: Max response length
 
 
@@ -26,13 +26,19 @@ class LLMModelConfig:
 class ProviderConfig:
     """Configuration for LLM providers."""
     ollama: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
-        default_model="qwen2.5:14b-instruct"
+        default_model="llama3:8b"
     ))
     openai: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
         default_model="gpt-4o-mini"
     ))
     gemini: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
         default_model="gemini-1.5-flash"
+    ))
+    mistral: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
+        default_model="mistral-large-latest"
+    ))
+    groq: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
+        default_model="llama-3.3-70b-versatile", temperature=0.2
     ))
 
 
@@ -42,6 +48,8 @@ class APIConfig:
     ollama_base_url: str = "http://127.0.0.1:11434"
     openai_base_url: str = "https://api.openai.com/v1"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/models"
+    mistral_base_url: str = "https://api.mistral.ai/v1"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
 
 
 @dataclass
@@ -49,8 +57,8 @@ class PathConfig:
     """Configuration for file paths and directories."""
     # Default directories
     output_dir: str = "out"
-    baseline_resume_dir: str = "Baseline_Resume"
-    baseline_cover_dir: str = "Basline_Cover_Letter"
+    baseline_resume_dir: str = "templates/Baseline_Resume"
+    baseline_cover_dir: str = "templates/Basline_Cover_Letter"
 
     # Default file names
     base_text_file: str = "base_text.json"
@@ -80,6 +88,11 @@ class ValidationConfig:
     max_skills_changes: int = 8
     max_cover_letter_paragraphs: int = 4
     max_suggestion_why_length: int = 200
+    max_cover_letter_words: int = 500  # Increased from 300 to allow richer content
+    # Increased from 100 to ensure substantial letters
+    min_cover_letter_words: int = 200
+    # Increased from 120 to allow more elaboration per paragraph
+    max_paragraph_words: int = 180
 
 
 @dataclass
@@ -106,6 +119,14 @@ class Config:
         # Gemini overrides
         if os.getenv("GEMINI_MODEL"):
             self.providers.gemini.default_model = os.getenv("GEMINI_MODEL")
+
+        # Mistral overrides
+        if os.getenv("MISTRAL_MODEL"):
+            self.providers.mistral.default_model = os.getenv("MISTRAL_MODEL")
+
+        # Groq overrides
+        if os.getenv("GROQ_MODEL"):
+            self.providers.groq.default_model = os.getenv("GROQ_MODEL")
 
 
 # Global configuration instance

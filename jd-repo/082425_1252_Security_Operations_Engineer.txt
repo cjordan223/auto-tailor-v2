@@ -1,0 +1,34 @@
+job_title: Security Operations Engineer
+company: Tailscale
+
+ About the job
+About Tailscale
+Tailscale is building the new Internet by delivering software that makes it easy to securely interconnect people and their devices, no matter where they are. From hobbyists to multinational corporations, teams of every size use Tailscale each day to protect their networks, share access to internal tools, and more. We're building a future for the Internet that's easy, sensible, and safe, like it used to be. Founded in 2019 and fully distributed, we're backed by Accel, CRV, Insight, Heavybit, and Uncork Capital.
+Job Description
+We’re seeking a talented engineer, specializing in security operations, to help grow our security team. We’re looking for people who can move Tailscale forward while making it safer to use. The abilities to think on your feet, collaborate with highly technical teams, and be comfortable working asynchronously are essential.
+Responsibilities
+    Device Management including MDM policies, BYOD, Patch/Vulnerability management, Troubleshooting, and general OS management (macOS, Linux, and Windows)
+    Supporting Tailscale’s key platforms including Google Workspace, Jira, GitHub
+    Process automation (e.g. self-service access, patching)
+    Access management (OIDC, SAML, SCIM)
+    Data Loss Prevention/Mitigation
+    Tech-Stack Decision Making: Oversee tech decisions in coordination with Engineering Leadership, ensuring alignment with company-wide IT standards
+What We Are Looking For
+    Prior experience in a security-related or adjacent technical role, e.g.:
+        Identity and Access management
+        Endpoint Security
+        Data Loss Prevention
+        Security Operations Center experience
+        IT Engineering/Operations
+    Knowledge of operating systems and security mechanisms
+    Knowledge of common networking protocols
+    Knowledge of common authentication and user management protocols (OIDC, SAML, SCIM)
+    Knowledge of Google Workspace Security and Device Management
+    Experience with MDM products such as Jamf, Kandji, Fleet, Intune
+    Ability to give and process constructive feedback
+    Ability to work independently and collaboratively
+    Flexibility to adjust to the dynamic nature of a startup
+It's Nice if You Have
+    Experience with Jira workflows and automation
+    Application and/or Infrastructure security experience
+    Go, Python, or bash scripting preferred

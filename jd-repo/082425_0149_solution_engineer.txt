@@ -1,0 +1,34 @@
+job_title: solution engineer
+company: Ai
+
+ About the job
+Technical Solutions Engineer - Ai
+Founders note:
+We’re at the stage where every single hire changes the trajectory of the company. This role isn’t about following a playbook, it’s about writing it. If you thrive on solving big, messy problems and want your work to directly shape the future of our product and our customers’ success, we want you on the team. Let’s build something extraordinary together.
+Eden Prescott is proud to partner with a lightning-fast Series A company backed by a16z that’s changing the way enterprises deploy and scale cutting-edge AI technology.
+In this role you’ll live at the intersection of customers, engineering, and product. You’ll be the person who makes deployments effortless, integrations seamless, and customer wins inevitable.
+If you’ve ever wanted to join a rocket ship before it’s fully off the ground, this is your moment.
+What You’ll Do
+    Jump into live customer conversations and guide them from first technical touch to a successful go-live
+    Untangle complex integrations, smooth out deployment blockers, and make sure customers hit their “aha!” moment fast
+    Build compelling POCs and show what’s possible through tailored demos, sample projects, and short-form video walkthroughs
+    Surface customer feedback, patterns, and feature requests to directly influence the product roadmap
+    Own the investigation and resolution of technical issues across modern programming languages, and enterprise environments
+    Maintain and evolve documentation, quick-start guides, and reference architectures that help teams self-serve at scale
+    Debug with curiosity and creativity, always looking for the simplest, most elegant fix
+    Spot opportunities where we can expand usage and unlock new value for current customers
+    Partner with sales, product, and engineering to continuously refine how we deliver technical excellence at every stage of the customer journey
+What We’re Looking For
+    Hands-On Technical Skills – You can write clean, production-ready code in at least one modern language (JavaScript, Python, etc.), and you’re comfortable working with enterprise-grade infrastructure.
+    Relentless Problem Solver – You love diving into tricky technical puzzles, finding root causes, and delivering creative, reliable solutions.
+    Customer-Centric Mindset – You understand how to turn a technical fix into a business win, and you thrive on helping people succeed with your product.
+    Self-Directed Operator – You know how to prioritize, juggle multiple requests, and move projects forward without constant direction.
+    Clear Communicator – Whether it’s writing crisp documentation, presenting to an exec, or jumping on a live call, you know how to make complex ideas simple.
+Why You’ll Love This Role
+    Big impact, high visibility, and zero bureaucracy.
+    Backed by the best
+    Career-defining – You’ll shape how the role works, how customers are served, and how the product grows.
+    Tech you’ll be proud of – Modern stack, enterprise-ready, built to solve real-world problems at scale.
+This isn’t just another job, it’s a seat at the table in a company that’s about to redefine its category.
+If you’re ready to blend technical depth, customer empathy, and the thrill of building something new… we want to meet you.
+$160,000 - $250,000 + equity + benefits

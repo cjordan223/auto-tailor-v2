@@ -4,7 +4,9 @@ import { ref, reactive, computed, watch, readonly } from 'vue'
 const settings = reactive({
   apiKeys: {
     gemini: '',
-    openai: ''
+    openai: '',
+    mistral: '',
+    groq: ''
   },
   ollamaUrl: 'http://localhost:11434',
   defaultProvider: 'gemini',
@@ -28,7 +30,9 @@ export function useSettings() {
         Object.assign(settings, {
           apiKeys: {
             gemini: parsed.apiKeys?.gemini || '',
-            openai: parsed.apiKeys?.openai || ''
+            openai: parsed.apiKeys?.openai || '',
+            mistral: parsed.apiKeys?.mistral || '',
+            groq: parsed.apiKeys?.groq || ''
           },
           ollamaUrl: parsed.ollamaUrl || 'http://localhost:11434',
           defaultProvider: parsed.defaultProvider || 'gemini',
@@ -94,6 +98,8 @@ export function useSettings() {
     return {
       GEMINI_API_KEY: settings.apiKeys.gemini,
       OPENAI_API_KEY: settings.apiKeys.openai,
+      MISTRAL_API_KEY: settings.apiKeys.mistral,
+      GROQ_API_KEY: settings.apiKeys.groq,
       OLLAMA_BASE_URL: settings.ollamaUrl
     }
   }
@@ -105,7 +111,7 @@ export function useSettings() {
       
       // Reset to defaults
       Object.assign(settings, {
-        apiKeys: { gemini: '', openai: '' },
+        apiKeys: { gemini: '', openai: '', mistral: '', groq: '' },
         ollamaUrl: 'http://localhost:11434',
         defaultProvider: 'gemini',
         autoDownload: false
@@ -133,6 +139,18 @@ export function useSettings() {
         name: 'OpenAI',
         hasKey: hasApiKey('openai'),
         isDefault: settings.defaultProvider === 'openai'
+      },
+      {
+        id: 'mistral',
+        name: 'Mistral',
+        hasKey: hasApiKey('mistral'),
+        isDefault: settings.defaultProvider === 'mistral'
+      },
+      {
+        id: 'groq',
+        name: 'Groq',
+        hasKey: hasApiKey('groq'),
+        isDefault: settings.defaultProvider === 'groq'
       },
       {
         id: 'ollama',

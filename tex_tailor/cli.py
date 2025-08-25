@@ -91,13 +91,15 @@ def extract(ctx, resume: str, cover: str, out: Optional[str]):
 
 @main.command()
 @click.option("--jd", required=True, help="Path to job description file")
-@click.option("--provider", type=click.Choice(["ollama", "gemini", "openai"]),
+@click.option("--provider", type=click.Choice(["ollama", "gemini", "openai", "mistral", "groq"]),
               help="LLM provider to use (optional, auto-detects if not specified)")
 @click.option("--model", help="Model name (optional, uses env defaults)")
+@click.option("--personality", default="career_savvy_colleague", 
+              help="Writing personality to use (optional, defaults to career_savvy_colleague)")
 @click.option("--base-text", default=None, help="Path to base text JSON")
 @click.option("--out", default=None, help="Output edits JSON file")
 @click.pass_context
-def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_text: Optional[str], out: Optional[str]):
+def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], personality: str, base_text: Optional[str], out: Optional[str]):
     """Propose edits based on job description using LLM."""
 
     # Use default paths if not specified
@@ -128,6 +130,12 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
             elif os.getenv("GEMINI_API_KEY"):
                 provider = "gemini"
                 click.echo("GEMINI_API_KEY found, using Gemini provider.")
+            elif os.getenv("MISTRAL_API_KEY"):
+                provider = "mistral"
+                click.echo("MISTRAL_API_KEY found, using Mistral provider.")
+            elif os.getenv("GROQ_API_KEY"):
+                provider = "groq"
+                click.echo("GROQ_API_KEY found, using Groq provider.")
             else:
                 provider = "ollama"
                 click.echo("No API keys found, defaulting to Ollama provider.")
@@ -158,6 +166,24 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
         default_model = get_model_for_provider("gemini")
         click.echo(f"Using Gemini API")
         click.echo(f"Model: {model or default_model}")
+    elif provider == "mistral":
+        api_key = os.getenv("MISTRAL_API_KEY")
+        if not api_key:
+            click.echo(
+                "Error: MISTRAL_API_KEY environment variable required for Mistral", err=True)
+            sys.exit(1)
+        default_model = get_model_for_provider("mistral")
+        click.echo(f"Using Mistral API")
+        click.echo(f"Model: {model or default_model}")
+    elif provider == "groq":
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            click.echo(
+                "Error: GROQ_API_KEY environment variable required for Groq", err=True)
+            sys.exit(1)
+        default_model = get_model_for_provider("groq")
+        click.echo(f"Using Groq API")
+        click.echo(f"Model: {model or default_model}")
 
     # Ensure output directory exists
     out_path = Path(out)
@@ -166,7 +192,7 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], base_te
     try:
         quiet = ctx.obj.get('quiet', False) if ctx.obj else False
         propose_and_save_edits(
-            jd, base_text, out, provider, model, quiet=quiet)
+            jd, base_text, out, provider, model, personality, quiet=quiet)
         click.echo("✓ Edit proposal complete")
     except Exception as e:
         click.echo(f"Error during proposal: {e}", err=True)
@@ -553,6 +579,7 @@ def run_workflow_steps(job_description: str):
         # Use provider from environment variable (set by backend)
         provider = os.getenv("PROVIDER")
         model = os.getenv("MODEL")
+        personality = os.getenv("PERSONALITY", "career_savvy_colleague")
         if not provider:
             # Fallback to auto-detection if not set
             if os.getenv("OPENAI_API_KEY"):
@@ -561,6 +588,12 @@ def run_workflow_steps(job_description: str):
             elif os.getenv("GEMINI_API_KEY"):
                 provider = "gemini"
                 click.echo("GEMINI_API_KEY found, using Gemini provider.")
+            elif os.getenv("MISTRAL_API_KEY"):
+                provider = "mistral"
+                click.echo("MISTRAL_API_KEY found, using Mistral provider.")
+            elif os.getenv("GROQ_API_KEY"):
+                provider = "groq"
+                click.echo("GROQ_API_KEY found, using Groq provider.")
             else:
                 provider = "ollama"
                 click.echo("No API keys found, defaulting to Ollama provider.")
@@ -570,7 +603,7 @@ def run_workflow_steps(job_description: str):
                 click.echo(f"Using model: {model}")
 
         propose_and_save_edits(
-            job_description, default_paths["base_text"], default_paths["edits"], provider, model)
+            job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
         click.echo("✅ Edit proposal complete")
 
         # Step 4: Apply edits

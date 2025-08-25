@@ -56,8 +56,8 @@
 
       <!-- Step 2: Configuration -->
       <div v-if="step === 2" class="flex-1">
-        <ProviderSelector v-model:provider="selectedProvider" v-model:model="selectedModel"
-          @update="handleProviderUpdate" />
+        <ProviderSelector v-model:provider="selectedProvider" v-model:model="selectedModel" 
+          v-model:personality="selectedPersonality" @update="handleProviderUpdate" />
       </div>
 
       <!-- Step 3: Processing -->
@@ -92,7 +92,7 @@ import ProcessingStatus from '../components/ProcessingStatus.vue'
 import { useAPI } from '../composables/useAPI.js'
 
 const router = useRouter()
-const { processResume } = useAPI()
+const { processResume, downloadAllAsZip } = useAPI()
 
 // State
 const step = ref(1)
@@ -100,6 +100,7 @@ const jobFile = ref(null)
 const jobText = ref('')
 const selectedProvider = ref('gemini')
 const selectedModel = ref('gemini-1.5-flash')
+const selectedPersonality = ref('career_savvy_colleague')
 const processingStatus = ref('idle')
 const processingProgress = ref(0)
 const processingError = ref(null)
@@ -114,7 +115,7 @@ const canProceed = computed(() => {
     return jobFile.value || jobText.value
   }
   if (step.value === 2) {
-    return selectedProvider.value && selectedModel.value
+    return selectedProvider.value && selectedModel.value && selectedPersonality.value
   }
   return false
 })
@@ -135,9 +136,10 @@ const handleContentChange = ({ text, file }) => {
   jobFile.value = file
 }
 
-const handleProviderUpdate = (provider, model) => {
+const handleProviderUpdate = (provider, model, personality) => {
   selectedProvider.value = provider
   selectedModel.value = model
+  selectedPersonality.value = personality
 }
 
 const previousStep = () => {
@@ -165,7 +167,8 @@ const startProcessing = async () => {
     const result = await processResume({
       jobDescription: jobText.value || jobFile.value,
       provider: selectedProvider.value,
-      model: selectedModel.value
+      model: selectedModel.value,
+      personality: selectedPersonality.value
     })
 
     currentJobId.value = result.jobId
@@ -184,10 +187,13 @@ const startProcessing = async () => {
 }
 
 // Event handlers for ProcessingStatus CTAs
-const handleDownloadKit = () => {
+const handleDownloadKit = async () => {
   if (currentJobId.value) {
-    // Navigate to results page which has download all functionality
-    router.push(`/results/${currentJobId.value}`)
+    try {
+      await downloadAllAsZip(currentJobId.value)
+    } catch (error) {
+      alert(`Failed to download zip file: ${error.message}`)
+    }
   }
 }
 

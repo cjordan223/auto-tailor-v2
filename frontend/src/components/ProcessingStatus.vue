@@ -117,7 +117,7 @@
           @click="$emit('download-kit')"
           class="btn btn-primary"
         >
-          Download Kit (ZIP)
+          Download All Files (ZIP)
         </button>
         <button
           @click="$emit('open-resume')"

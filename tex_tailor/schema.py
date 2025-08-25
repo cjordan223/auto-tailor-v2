@@ -10,6 +10,7 @@ import json
 import os
 from typing import Dict, Any, List, Optional
 from jsonschema import validate, ValidationError
+from .config import config
 
 
 # JSON schema for edits
@@ -27,14 +28,14 @@ EDITS_SCHEMA = {
         "skills": {
             "type": "object",
             "properties": {
-                "Programming Languages": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Frontend": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Backend": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Cloud & DevOps": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "AI & LLM Tools": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Automation & Productivity": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Security & Operating Systems": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Databases": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}
+                "Programming Languages": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Frontend": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Backend": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Cloud & DevOps": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "AI & LLM Tools": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Automation & Productivity": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Security & Operating Systems": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Databases": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]}
             },
             "additionalProperties": False
         },
@@ -44,9 +45,17 @@ EDITS_SCHEMA = {
                 "salutation": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
                 "paragraphs": {
                     "type": "array",
-                    "items": {"type": ["string", "null"]},
-                    "minItems": 4,
-                    "maxItems": 4
+                    "items": {
+                        "oneOf": [
+                            {"type": ["string", "null"]},
+                            {
+                                "type": "object",
+                                "properties": {"replace": {"type": ["string", "null"]}},
+                                "required": ["replace"],
+                                "additionalProperties": False
+                            }
+                        ]
+                    }
                 }
             },
             "required": ["salutation", "paragraphs"],
@@ -58,7 +67,7 @@ EDITS_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "term": {"type": "string"},
-                    "why": {"type": "string", "maxLength": 200}
+                    "why": {"type": "string"}
                 },
                 "required": ["term", "why"],
                 "additionalProperties": False
@@ -185,7 +194,7 @@ def validate_summary_edits(original: str, new: str) -> List[str]:
 
 def load_skills_inventory() -> Dict[str, Any]:
     """Load the personal skills inventory from baseline_skills.json."""
-    skills_file = "baseline_skills.json"
+    skills_file = "templates/baseline_skills.json"
 
     # Try to find the skills file in the current directory or parent directories
     current_dir = os.getcwd()
@@ -270,7 +279,7 @@ def validate_skills_against_inventory(original_skills: str, new_skills: str) -> 
     original_skill_list = [skill.strip()
                            for skill in original_skills.split(',') if skill.strip()]
     new_skill_list = [skill.strip()
-                      for skill in new_skills.split(',') if skill.strip()]
+                      for skill in new_skills.split(',') if skill.strip() and skill.strip() != "null"]
 
     # Find skills that were added
     original_set = set(original_skill_list)
@@ -315,30 +324,51 @@ def validate_skills_against_inventory(original_skills: str, new_skills: str) -> 
     }
 
 
+def count_words(text: str) -> int:
+    """Count words in text."""
+    if not text or text.isspace():
+        return 0
+    return len(text.strip().split())
+
+
 def validate_cover_letter_edits(original_paragraphs: List[str], new_paragraphs: List[str]) -> List[str]:
     """Validate cover letter edits against limits."""
     violations = []
 
-    if len(new_paragraphs) != 4:
-        violations.append(
-            f"Must have exactly 4 paragraphs, got {len(new_paragraphs)}")
-        return violations
+    # Remove paragraph count constraint - allow any number of paragraphs
 
     edited_count = 0
+    total_words = 0
 
-    for i, (original, new) in enumerate(zip(original_paragraphs, new_paragraphs)):
-        if new and new != original:
-            edited_count += 1
-
+    for i, new in enumerate(new_paragraphs):
+        if new:
+            # Handle Ollama object format
+            if isinstance(new, dict) and "replace" in new:
+                new = new["replace"] or ""
+            
             # Check for forbidden LaTeX
-            latex_violations = check_forbidden_latex(new)
+            latex_violations = check_forbidden_latex(str(new))
             for violation in latex_violations:
                 violations.append(f"Paragraph {i+1}: {violation}")
+            
+            # Count words in this paragraph
+            paragraph_words = count_words(str(new))
+            total_words += paragraph_words
+            
+            # Validate individual paragraph length
+            max_paragraph_words = config.validation.max_paragraph_words
+            if paragraph_words > max_paragraph_words:
+                violations.append(f"Paragraph {i+1}: Too long ({paragraph_words} words, max {max_paragraph_words})")
 
-    # 🎛️ CONSTRAINT REMOVED: Previously had paragraph count limits
-    # Allow editing all paragraphs as needed for job relevance - focus on quality over arbitrary limits
-    # To re-enable limits, uncomment and modify the validation logic below:
-    # if edited_count > LIMIT: violations.append(f"Too many paragraphs edited: {edited_count}")
+    # Validate total cover letter length
+    max_words = config.validation.max_cover_letter_words
+    if total_words > max_words:
+        violations.append(f"Cover letter too long: {total_words} words (max {max_words})")
+    
+    # Validate minimum length
+    min_words = config.validation.min_cover_letter_words
+    if total_words > 0 and total_words < min_words:
+        violations.append(f"Cover letter too short: {total_words} words (min {min_words})")
 
     return violations
 
@@ -411,14 +441,18 @@ def validate_edits(edits: Dict[str, Any], base_text: Dict[str, Any]) -> List[str
     if "skills" in edits:
         base_skills = base_text.get("resume", {}).get("skills", {})
         for skill_name, skill_edit in edits["skills"].items():
-            if skill_edit.get("replace"):
+            # Skip if skill_edit is None (no changes)
+            if skill_edit is None:
+                continue
+            # Handle both {"replace": "value"} and direct null formats
+            if isinstance(skill_edit, dict) and skill_edit.get("replace"):
                 original = base_skills.get(skill_name, "")
                 new = skill_edit["replace"]
                 skill_violations = validate_skills_edits(original, new)
                 violations.extend(
                     [f"Skills.{skill_name}: {v}" for v in skill_violations])
 
-    # Validate cover letter
+    # Validate cover letter with length checks
     if "cover_letter" in edits and "paragraphs" in edits["cover_letter"]:
         original_paragraphs = base_text.get(
             "cover_letter", {}).get("paragraphs", [])
@@ -465,12 +499,17 @@ def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
     if "summary" in cleaned and cleaned["summary"].get("replace") is None:
         cleaned["summary"]["replace"] = ""
 
-    # Clean skills - replace null values and "null" strings with empty strings
+    # Clean skills - handle both null directly and {"replace": null} formats
     if "skills" in cleaned:
         for skill_name in list(cleaned["skills"].keys()):
-            replace_value = cleaned["skills"][skill_name].get("replace")
-            if replace_value is None or replace_value == "null":
-                cleaned["skills"][skill_name]["replace"] = ""
+            skill_value = cleaned["skills"][skill_name]
+            if skill_value is None:
+                # Convert null to {"replace": ""} format
+                cleaned["skills"][skill_name] = {"replace": ""}
+            elif isinstance(skill_value, dict):
+                replace_value = skill_value.get("replace")
+                if replace_value is None or replace_value == "null":
+                    cleaned["skills"][skill_name]["replace"] = ""
 
     # Clean cover letter salutation
     if "cover_letter" in cleaned and "salutation" in cleaned["cover_letter"]:
@@ -483,5 +522,8 @@ def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
         for i, paragraph in enumerate(cleaned["cover_letter"]["paragraphs"]):
             if paragraph is None or paragraph == "null":
                 cleaned["cover_letter"]["paragraphs"][i] = ""
+            # Handle case where Ollama returns objects with 'replace' key instead of strings
+            elif isinstance(paragraph, dict) and "replace" in paragraph:
+                cleaned["cover_letter"]["paragraphs"][i] = paragraph["replace"] or ""
 
     return cleaned

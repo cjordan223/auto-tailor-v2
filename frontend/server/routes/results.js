@@ -8,6 +8,77 @@ const __dirname = path.dirname(__filename)
 
 const router = express.Router()
 
+// Add skill to baseline skills JSON file
+router.post('/:jobId/add-skill', async (req, res) => {
+  try {
+    const { skill, category = 'conversational_skills' } = req.body
+    
+    if (!skill) {
+      return res.status(400).json({ message: 'Skill is required' })
+    }
+    
+    // Validate category
+    const validCategories = ['confirmed_skills', 'conversational_skills']
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ message: 'Invalid category. Must be confirmed_skills or conversational_skills' })
+    }
+    
+    // Path to baseline skills file
+    const skillsFilePath = path.join(__dirname, '../../../templates/baseline_skills.json')
+    
+    try {
+      // Check if file exists
+      await fs.access(skillsFilePath)
+    } catch (error) {
+      return res.status(404).json({ message: 'Baseline skills file not found' })
+    }
+    
+    // Read current skills file
+    const skillsContent = await fs.readFile(skillsFilePath, 'utf-8')
+    const skillsData = JSON.parse(skillsContent)
+    
+    // Check if skill already exists in any category
+    const allSkills = [
+      ...(skillsData.confirmed_skills || []),
+      ...(skillsData.conversational_skills || []),
+      ...(skillsData.exclude_skills || [])
+    ]
+    
+    if (allSkills.includes(skill)) {
+      return res.status(409).json({ 
+        message: `Skill "${skill}" already exists in the skills inventory`,
+        skill,
+        category
+      })
+    }
+    
+    // Add skill to the specified category
+    if (!skillsData[category]) {
+      skillsData[category] = []
+    }
+    
+    skillsData[category].push(skill)
+    
+    // Sort the skills alphabetically
+    skillsData[category].sort()
+    
+    // Write back to file
+    await fs.writeFile(skillsFilePath, JSON.stringify(skillsData, null, 2), 'utf-8')
+    
+    res.json({ 
+      success: true, 
+      message: `Skill "${skill}" added to ${category}`,
+      skill,
+      category,
+      updatedSkills: skillsData[category]
+    })
+    
+  } catch (error) {
+    console.error('Error adding skill:', error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
 // Get job results including validation status
 router.get('/:jobId', async (req, res) => {
   try {
@@ -71,6 +142,15 @@ router.get('/:jobId', async (req, res) => {
       // Review data not available, that's okay
     }
     
+    // Load job description if available
+    let jobDescription = null
+    try {
+      const jobDescPath = path.join(tempDir, 'job-description.txt')
+      jobDescription = await fs.readFile(jobDescPath, 'utf-8')
+    } catch (error) {
+      // Job description not available, that's okay
+    }
+    
     // Check which files are available
     const files = await fs.readdir(tempDir)
     const availableFiles = {
@@ -115,6 +195,8 @@ router.get('/:jobId', async (req, res) => {
       suggestedAdditions,
       validationStatus,
       reviewData,
+      jobDescription,
+      createdAt: new Date().toISOString(),
       completedAt: new Date().toISOString()
     }
     

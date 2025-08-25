@@ -13,6 +13,7 @@ import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
 import reviewRoutes from './routes/review.js'
 import recompileRoutes from './routes/recompile.js'
+import resultsRoutes from './routes/results.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 
@@ -30,8 +31,10 @@ if (envResult.error) {
   // Show which API keys are available (without exposing the actual keys)
   const hasGemini = !!process.env.GEMINI_API_KEY
   const hasOpenAI = !!process.env.OPENAI_API_KEY
+  const hasMistral = !!process.env.MISTRAL_API_KEY
+  const hasGroq = !!process.env.GROQ_API_KEY
   const hasOllama = !!process.env.OLLAMA_BASE_URL
-  console.log(`🔑 API Keys loaded: Gemini: ${hasGemini ? '✓' : '✗'}, OpenAI: ${hasOpenAI ? '✓' : '✗'}, Ollama: ${hasOllama ? '✓' : '✗'}`)
+  console.log(`🔑 API Keys loaded: Gemini: ${hasGemini ? '✓' : '✗'}, OpenAI: ${hasOpenAI ? '✓' : '✗'}, Mistral: ${hasMistral ? '✓' : '✗'}, Groq: ${hasGroq ? '✓' : '✗'}, Ollama: ${hasOllama ? '✓' : '✗'}`)
 }
 
 const app = express()
@@ -69,240 +72,7 @@ app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/recompile', recompileRoutes)
-
-// Results endpoint with validation status
-app.get('/api/results/:jobId', async (req, res) => {
-  try {
-    const { jobId } = req.params
-    const tempDir = path.join(__dirname, '../temp', jobId)
-    const statusFile = path.join(tempDir, 'status.json')
-
-    let status = 'processing'
-    let progress = 0
-    let step = 'Initializing...'
-
-    try {
-      const statusRaw = await fs.readFile(statusFile, 'utf8')
-      const statusJson = JSON.parse(statusRaw)
-      status = statusJson.status || status
-      progress = Number(statusJson.progress ?? progress)
-      step = statusJson.step || step
-    } catch (_) {
-      // If status file not yet available, remain in processing
-    }
-
-    // Build file map only if completed
-    const files = {}
-    if (status === 'completed') {
-      files.resume = `/api/download/${jobId}/resume`
-      files.coverLetter = `/api/download/${jobId}/cover-letter`
-      files.edits = `/api/download/${jobId}/edits`
-    }
-
-    // Get review data if completed
-    let reviewData = null
-    let suggestedAdditions = []
-    let skillsChanges = null
-    let validationStatus = null
-    
-    if (status === 'completed') {
-      // Load edits.json to get validation status and suggested additions
-      try {
-        const editsPath = path.join(tempDir, 'edits.json')
-        const editsRaw = await fs.readFile(editsPath, 'utf8')
-        const edits = JSON.parse(editsRaw)
-        
-        // Extract validation status from suggested_additions
-        if (edits.suggested_additions) {
-          const flaggedSkills = edits.suggested_additions
-            .filter(suggestion => suggestion.why && suggestion.why.includes('Skills validation:'))
-            .map(suggestion => {
-              const whyMatch = suggestion.why.match(/Skills validation: (.+?) \(confidence: (.+?)\)/)
-              return {
-                skill: suggestion.term,
-                reason: whyMatch ? whyMatch[1] : suggestion.why,
-                confidence: whyMatch ? whyMatch[2] : 'low'
-              }
-            })
-          
-          // Calculate confidence level
-          let confidence = 'high'
-          if (flaggedSkills.length > 2) {
-            confidence = 'low'
-          } else if (flaggedSkills.length > 0) {
-            confidence = 'medium'
-          }
-          
-          validationStatus = {
-            confidence,
-            flaggedCount: flaggedSkills.length,
-            flaggedSkills
-          }
-        }
-        
-        // Filter suggested additions to exclude validation-related ones
-        suggestedAdditions = (edits.suggested_additions || []).filter(
-          suggestion => !suggestion.why || !suggestion.why.includes('Skills validation:')
-        )
-        
-        // Process skills changes
-        if (edits.skills) {
-          skillsChanges = {}
-          for (const [category, skillEdit] of Object.entries(edits.skills)) {
-            if (skillEdit.replace) {
-              const newSkills = skillEdit.replace.split(',').map(s => s.trim()).filter(s => s)
-              skillsChanges[category] = {
-                added: newSkills,
-                removed: []
-              }
-            }
-          }
-        }
-        
-      } catch (error) {
-        console.warn(`Could not load edits.json for job ${jobId}:`, error.message)
-      }
-      
-      // Try to get review data with multiple fallback strategies
-      let reviewSuccess = false
-      
-      // Strategy 1: Try review API without provider (auto-detect)
-      try {
-        console.log('Attempting to fetch review data (auto-detect provider)...')
-        const reviewResponse = await fetch(`http://localhost:${PORT}/api/review?format=json&jobId=${jobId}`)
-        if (reviewResponse.ok) {
-          const reviewResult = await reviewResponse.json()
-          if (reviewResult.success && reviewResult.data) {
-            console.log('Review data fetched successfully via auto-detect')
-            reviewData = reviewResult.data
-            reviewSuccess = true
-          }
-        } else {
-          console.warn(`Review API returned ${reviewResponse.status}: ${reviewResponse.statusText}`)
-        }
-      } catch (error) {
-        console.warn('Failed to fetch review data via auto-detect:', error.message)
-      }
-      
-      // Strategy 2: If review API failed, create minimal reviewData
-      if (!reviewSuccess) {
-        try {
-          console.log('Creating minimal review data from edits...')
-          
-          // Create minimal reviewData with computed statistics
-          const totalChunksModified = edits ? 
-            Object.keys(edits).filter(key => 
-              key !== 'suggested_additions' && 
-              edits[key] && 
-              (typeof edits[key] === 'object' ? Object.keys(edits[key]).length > 0 : edits[key].length > 0)
-            ).length : 0
-          
-          const skillsSectionsUpdated = edits?.skills ? Object.keys(edits.skills).length : 0
-          const coverLetterParagraphs = edits?.cover_letter?.paragraphs?.length || 0
-          const suggestedAdditionsCount = suggestedAdditions.length
-          
-          reviewData = {
-            overview: totalChunksModified > 0 
-              ? `Successfully analyzed and customized your resume with ${totalChunksModified} modifications, ${skillsSectionsUpdated} skills updates, and ${coverLetterParagraphs} cover letter adjustments. Generated ${suggestedAdditionsCount} additional recommendations based on the job description.`
-              : 'Resume analysis completed successfully. Your documents have been generated and are ready for review.',
-            statistics: {
-              total_chunks_modified: totalChunksModified,
-              skills_sections_updated: skillsSectionsUpdated,
-              cover_letter_paragraphs: coverLetterParagraphs,
-              suggested_additions: suggestedAdditionsCount
-            }
-          }
-          
-          console.log('Fallback data generated from edits.json:', {
-            suggestedAdditionsCount,
-            totalChunksModified,
-            skillsSectionsUpdated,
-            coverLetterParagraphs
-          })
-          
-        } catch (fallbackError) {
-          console.warn('Failed to read edits.json fallback:', fallbackError.message)
-          // Provide minimal default data to ensure UI sections still appear
-          suggestedAdditions = []
-          reviewData = {
-            overview: 'Resume generation completed successfully. Your customized documents are ready for download.',
-            statistics: {
-              total_chunks_modified: 0,
-              skills_sections_updated: 0,
-              cover_letter_paragraphs: 0,
-              suggested_additions: 0
-            }
-          }
-        }
-      }
-
-      // Get skills changes by comparing original and new skills
-      try {
-        const baseTextPath = path.join(__dirname, '../../out/base_text.json')
-        const editsPath = path.join(tempDir, 'edits.json')
-        
-        // Read original skills from base_text.json
-        const baseTextRaw = await fs.readFile(baseTextPath, 'utf8')
-        const baseText = JSON.parse(baseTextRaw)
-        const originalSkills = baseText.resume?.skills || {}
-        
-        // Read new skills from edits.json
-        const editsRaw = await fs.readFile(editsPath, 'utf8')
-        const edits = JSON.parse(editsRaw)
-        const newSkills = edits.skills || {}
-        
-        // Compare skills and generate changes
-        skillsChanges = {}
-        for (const [category, newSkillData] of Object.entries(newSkills)) {
-          const originalSkill = originalSkills[category] || ''
-          // Handle null/empty values properly - if replace is null/empty/"null", use original
-          const newSkill = (newSkillData.replace && newSkillData.replace.trim() && newSkillData.replace !== "null") ? newSkillData.replace : originalSkill
-          
-          if (originalSkill !== newSkill) {
-            // Parse skills into arrays for comparison
-            const originalItems = originalSkill.split(',').map(s => s.trim()).filter(s => s)
-            const newItems = newSkill.split(',').map(s => s.trim()).filter(s => s)
-            
-            const originalSet = new Set(originalItems)
-            const newSet = new Set(newItems)
-            
-            const removed = originalItems.filter(item => !newSet.has(item))
-            const added = newItems.filter(item => !originalSet.has(item))
-            
-            if (removed.length > 0 || added.length > 0) {
-              skillsChanges[category] = {
-                original: originalSkill,
-                new: newSkill,
-                removed: removed,
-                added: added
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to generate skills changes:', error.message)
-        skillsChanges = {}
-      }
-    }
-
-    const resultData = {
-      jobId,
-      status,
-      progress,
-      step,
-      files,
-      suggestedAdditions,
-      reviewData,
-      skillsChanges,
-      validationStatus,
-      createdAt: new Date().toISOString()
-    }
-
-    res.json(resultData)
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
+app.use('/api/results', resultsRoutes)
 
 // History endpoint
 app.get('/api/history', (req, res) => {

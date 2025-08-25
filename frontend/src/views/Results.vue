@@ -26,209 +26,19 @@
     </div>
 
     <!-- Results Content -->
-    <div v-else-if="results && isCompleted" class="space-y-8">
+    <div v-else-if="results && isCompleted" class="space-y-6">
 
-
-      <!-- Review Overview -->
-      <div v-if="results.reviewData?.overview" class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">AI Analysis Overview</h2>
-        <div class="space-y-6">
-          <!-- Job Description Section -->
-          <div v-if="getJobSection(results.reviewData.overview)"
-            class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
-            <h3 class="text-lg font-semibold text-blue-900 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6">
-                </path>
-              </svg>
-              What This Job Is About
-            </h3>
-            <p class="text-blue-800 leading-relaxed">{{ getJobSection(results.reviewData.overview) }}</p>
-          </div>
-
-          <!-- Customization Strategy Section -->
-          <div v-if="getCustomizationSection(results.reviewData.overview)"
-            class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
-            <h3 class="text-lg font-semibold text-green-900 mb-3 flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              How We Customized Your Resume
-            </h3>
-            <p class="text-green-800 leading-relaxed">{{ getCustomizationSection(results.reviewData.overview) }}</p>
-          </div>
-        </div>
-
-        <!-- Statistics -->
-        <div v-if="results.reviewData.statistics" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
-            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.total_chunks_modified }}
-            </div>
-            <div class="text-sm text-gray-600">Chunks Modified</div>
-          </div>
-          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
-            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.skills_sections_updated }}
-            </div>
-            <div class="text-sm text-gray-600">Skills Updated</div>
-          </div>
-          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
-            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.cover_letter_paragraphs }}
-            </div>
-            <div class="text-sm text-gray-600">Cover Letter Changes</div>
-          </div>
-          <div class="text-center p-4 bg-white border border-gray-200 rounded-lg">
-            <div class="text-2xl font-bold text-primary-600">{{ results.reviewData.statistics.suggested_additions }}
-            </div>
-            <div class="text-sm text-gray-600">Suggested Additions</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Skills Changes Card -->
-      <div class="card">
-        <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-          <span class="text-2xl mr-3">🛠️</span>
-          Skills Changes
-        </h3>
-        <div class="h-96 overflow-y-auto mb-4">
-          <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="space-y-4">
-            <div v-for="(changes, category) in results.skillsChanges" :key="category"
-              class="border border-gray-200 rounded-lg p-4">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">{{ category }}</h4>
-
-              <!-- Skills Added -->
-              <div v-if="changes.added.length > 0" class="mb-3">
-                <h5 class="text-xs font-medium text-green-700 mb-2 flex items-center">
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  Added ({{ changes.added.length }})
-                </h5>
-                <div class="flex flex-wrap gap-1">
-                  <span v-for="skill in changes.added" :key="skill"
-                    class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
-                    {{ skill }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Skills Removed -->
-              <div v-if="changes.removed.length > 0">
-                <h5 class="text-xs font-medium text-red-700 mb-2 flex items-center">
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                  </svg>
-                  Removed ({{ changes.removed.length }})
-                </h5>
-                <div class="flex flex-wrap gap-1">
-                  <span v-for="skill in changes.removed" :key="skill"
-                    class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium line-through">
-                    {{ skill }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="text-center py-8 text-gray-500">
-            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-              </path>
-            </svg>
-            <p class="text-sm">No skills changes were made</p>
-          </div>
-        </div>
-        <button @click="downloadFile('edits')" :disabled="downloading.edits" class="btn btn-secondary w-full">
-          <span v-if="downloading.edits">Downloading...</span>
-          <span v-else>Download Edit Details</span>
-        </button>
-      </div>
-
-      <!-- Skills Validation Status -->
-      <div v-if="results.validationStatus" class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-          <span class="text-2xl mr-3">🔍</span>
-          Skills Validation Status
-        </h2>
-        <div class="space-y-4">
-          <!-- Validation Summary -->
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-medium text-gray-900">Validation Summary</h3>
-              <span :class="{
-                'px-2 py-1 text-xs rounded-full font-medium': true,
-                'bg-green-100 text-green-800': results.validationStatus.confidence === 'high',
-                'bg-yellow-100 text-yellow-800': results.validationStatus.confidence === 'medium',
-                'bg-red-100 text-red-800': results.validationStatus.confidence === 'low'
-              }">
-                {{ results.validationStatus.confidence.toUpperCase() }} Confidence
-              </span>
-            </div>
-            <p class="text-sm text-gray-600">
-              {{ results.validationStatus.flaggedCount }} skills were flagged for validation and moved to suggested
-              additions.
-            </p>
-          </div>
-
-          <!-- Flagged Skills -->
-          <div v-if="results.validationStatus.flaggedSkills?.length" class="space-y-3">
-            <h3 class="font-medium text-gray-900">Flagged Skills (Moved to Suggestions)</h3>
-            <div class="space-y-2">
-              <div v-for="(skill, index) in results.validationStatus.flaggedSkills" :key="index"
-                class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                <div
-                  class="flex-shrink-0 w-5 h-5 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
-                  ⚠️
-                </div>
-                <div>
-                  <h4 class="font-medium text-gray-900">{{ skill.skill }}</h4>
-                  <p class="text-sm text-gray-600">{{ skill.reason }}</p>
-                  <p class="text-xs text-yellow-700 mt-1">Confidence: {{ skill.confidence }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Suggested Additions -->
-      <div v-if="results.suggestedAdditions?.length" class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Suggested Additions</h2>
-        <p class="text-gray-600 mb-4">
-          These skills or keywords from the job description weren't found in your resume. Consider adding them if
-          relevant:
-        </p>
-        <div class="space-y-3">
-          <div v-for="(suggestion, index) in results.suggestedAdditions" :key="index"
-            class="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
-            <div
-              class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-              {{ index + 1 }}
-            </div>
-            <div>
-              <h4 class="font-medium text-gray-900">{{ suggestion.term }}</h4>
-              <p class="text-sm text-gray-600">{{ suggestion.why }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-
-      <!-- Document Previews and Downloads -->
-      <div class="space-y-8">
+      <!-- Document Previews and Downloads - MOVED TO TOP -->
+      <div class="space-y-6">
         <!-- Resume Section -->
         <div class="card">
-          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <span class="text-2xl mr-3">📄</span>
             Resume
           </h3>
 
           <!-- Two-column layout for LaTeX and PDF -->
-          <div class="grid lg:grid-cols-2 gap-6 mb-6">
+          <div class="grid lg:grid-cols-2 gap-6 mb-4">
             <!-- LaTeX Source Column -->
             <div class="space-y-4">
 
@@ -251,13 +61,13 @@
 
         <!-- Cover Letter Section -->
         <div class="card">
-          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <span class="text-2xl mr-3">💌</span>
             Cover Letter
           </h3>
 
           <!-- Two-column layout for LaTeX and PDF -->
-          <div class="grid lg:grid-cols-2 gap-6 mb-6">
+          <div class="grid lg:grid-cols-2 gap-6 mb-4">
             <!-- LaTeX Source Column -->
             <div class="space-y-4">
 
@@ -280,17 +90,280 @@
         </div>
       </div>
 
-      <!-- Job Details -->
-      <div class="card">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Generation Details</h2>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Job ID</h3>
-            <p class="text-sm text-gray-600 font-mono">{{ results.jobId }}</p>
+      <!-- Compact Information Grid -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-6">
+          <!-- Job Description Card (Collapsible) -->
+          <div v-if="results.jobDescription" class="card">
+            <div class="flex items-center justify-between cursor-pointer" @click="toggleJobDescription">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <span class="text-xl mr-2">📋</span>
+                This is what I applied for
+              </h2>
+              <svg 
+                class="w-5 h-5 text-gray-500 transition-transform duration-200" 
+                :class="{ 'rotate-180': showJobDescription }"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+            
+            <div v-if="showJobDescription" class="mt-4">
+              <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
+                <h3 class="text-md font-semibold text-purple-900 mb-2 flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
+                  Job Description Summary
+                </h3>
+                <div class="text-purple-800 leading-relaxed whitespace-pre-wrap text-sm max-h-48 overflow-y-auto">{{ cleanJobDescription(results.jobDescription) }}</div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Generated</h3>
-            <p class="text-sm text-gray-600">{{ formatDate(results.createdAt) }}</p>
+
+          <!-- Skills Changes Card -->
+          <div class="card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span class="text-xl mr-2">🛠️</span>
+              Skills Changes
+            </h3>
+            <div class="max-h-64 overflow-y-auto mb-4">
+              <div v-if="results.skillsChanges && Object.keys(results.skillsChanges).length > 0" class="space-y-3">
+                <div v-for="(changes, category) in results.skillsChanges" :key="category"
+                  class="border border-gray-200 rounded-lg p-3">
+                  <h4 class="text-sm font-medium text-gray-900 mb-2">{{ category }}</h4>
+
+                  <!-- Skills Added -->
+                  <div v-if="changes.added.length > 0" class="mb-2">
+                    <h5 class="text-xs font-medium text-green-700 mb-1 flex items-center">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                      </svg>
+                      Added ({{ changes.added.length }})
+                    </h5>
+                    <div class="flex flex-wrap gap-1">
+                      <span v-for="skill in changes.added" :key="skill"
+                        class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                        {{ skill }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Skills Removed -->
+                  <div v-if="changes.removed.length > 0">
+                    <h5 class="text-xs font-medium text-red-700 mb-1 flex items-center">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                      </svg>
+                      Removed ({{ changes.removed.length }})
+                    </h5>
+                    <div class="flex flex-wrap gap-1">
+                      <span v-for="skill in changes.removed" :key="skill"
+                        class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium line-through">
+                        {{ skill }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-center py-6 text-gray-500">
+                <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                  </path>
+                </svg>
+                <p class="text-sm">No skills changes were made</p>
+              </div>
+            </div>
+            <button @click="downloadFile('edits')" :disabled="downloading.edits" class="btn btn-secondary w-full">
+              <span v-if="downloading.edits">Downloading...</span>
+              <span v-else>Download Edit Details</span>
+            </button>
+          </div>
+
+          <!-- Skills Validation Status -->
+          <div v-if="results.validationStatus" class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span class="text-xl mr-2">🔍</span>
+              Skills Validation Status
+            </h2>
+            <div class="space-y-3">
+              <!-- Validation Summary -->
+              <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-medium text-gray-900 text-sm">Validation Summary</h3>
+                  <span :class="{
+                    'px-2 py-1 text-xs rounded-full font-medium': true,
+                    'bg-green-100 text-green-800': results.validationStatus.confidence === 'high',
+                    'bg-yellow-100 text-yellow-800': results.validationStatus.confidence === 'medium',
+                    'bg-red-100 text-red-800': results.validationStatus.confidence === 'low'
+                  }">
+                    {{ results.validationStatus.confidence.toUpperCase() }} Confidence
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600">
+                  {{ results.validationStatus.flaggedCount }} skills were flagged for validation and moved to suggested
+                  additions.
+                </p>
+              </div>
+
+              <!-- Flagged Skills -->
+              <div v-if="results.validationStatus.flaggedSkills?.length" class="space-y-2">
+                <h3 class="font-medium text-gray-900 text-sm">Flagged Skills (Moved to Suggestions)</h3>
+                <div class="space-y-2 max-h-32 overflow-y-auto">
+                  <div v-for="(skill, index) in results.validationStatus.flaggedSkills" :key="index"
+                    class="flex items-start space-x-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div
+                      class="flex-shrink-0 w-4 h-4 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                      ⚠️
+                    </div>
+                    <div class="flex-1">
+                      <h4 class="font-medium text-gray-900 text-sm">{{ skill.skill }}</h4>
+                      <p class="text-xs text-gray-600">{{ skill.reason }}</p>
+                      <p class="text-xs text-yellow-700 mt-1">Confidence: {{ skill.confidence }}</p>
+                    </div>
+                    <div class="flex-shrink-0 flex space-x-1">
+                      <button
+                        @click="handleAddSkill(skill.skill, 'conversational_skills')"
+                        :disabled="addingSkills.has(skill.skill)"
+                        class="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-xs rounded-md transition-colors duration-200 flex items-center space-x-1"
+                        title="Add this skill to your baseline skills inventory. It will no longer be flagged in future validations."
+                      >
+                        <span v-if="addingSkills.has(skill.skill)" class="flex items-center">
+                          <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Adding...
+                        </span>
+                        <span v-else class="flex items-center">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                          </svg>
+                          Add to Skills
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+          <!-- Review Overview (Collapsible) -->
+          <div v-if="results.reviewData?.overview" class="card">
+            <div class="flex items-center justify-between cursor-pointer" @click="toggleAnalysisOverview">
+              <h2 class="text-lg font-semibold text-gray-900">AI Analysis Overview</h2>
+              <svg 
+                class="w-5 h-5 text-gray-500 transition-transform duration-200" 
+                :class="{ 'rotate-180': showAnalysisOverview }"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+            
+            <div v-if="showAnalysisOverview" class="mt-4 space-y-4">
+              <!-- Job Description Section -->
+              <div v-if="getJobSection(results.reviewData.overview)"
+                class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                <h3 class="text-md font-semibold text-blue-900 mb-2 flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6">
+                    </path>
+                  </svg>
+                  What This Job Is About
+                </h3>
+                <p class="text-blue-800 leading-relaxed text-sm">{{ getJobSection(results.reviewData.overview) }}</p>
+              </div>
+
+              <!-- Customization Strategy Section -->
+              <div v-if="getCustomizationSection(results.reviewData.overview)"
+                class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                <h3 class="text-md font-semibold text-green-900 mb-2 flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  How We Customized Your Resume
+                </h3>
+                <p class="text-green-800 leading-relaxed text-sm">{{ getCustomizationSection(results.reviewData.overview) }}</p>
+              </div>
+
+              <!-- Statistics -->
+              <div v-if="results.reviewData.statistics" class="grid grid-cols-2 gap-3">
+                <div class="text-center p-3 bg-white border border-gray-200 rounded-lg">
+                  <div class="text-lg font-bold text-primary-600">{{ results.reviewData.statistics.total_chunks_modified }}
+                  </div>
+                  <div class="text-xs text-gray-600">Chunks Modified</div>
+                </div>
+                <div class="text-center p-3 bg-white border border-gray-200 rounded-lg">
+                  <div class="text-lg font-bold text-primary-600">{{ results.reviewData.statistics.skills_sections_updated }}
+                  </div>
+                  <div class="text-xs text-gray-600">Skills Updated</div>
+                </div>
+                <div class="text-center p-3 bg-white border border-gray-200 rounded-lg">
+                  <div class="text-lg font-bold text-primary-600">{{ results.reviewData.statistics.cover_letter_paragraphs }}
+                  </div>
+                  <div class="text-xs text-gray-600">Cover Letter Changes</div>
+                </div>
+                <div class="text-center p-3 bg-white border border-gray-200 rounded-lg">
+                  <div class="text-lg font-bold text-primary-600">{{ results.reviewData.statistics.suggested_additions }}
+                  </div>
+                  <div class="text-xs text-gray-600">Suggested Additions</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggested Additions -->
+          <div v-if="results.suggestedAdditions?.length" class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Suggested Additions</h2>
+            <p class="text-gray-600 mb-3 text-sm">
+              These skills or keywords from the job description weren't found in your resume. Consider adding them if
+              relevant:
+            </p>
+            <div class="space-y-2 max-h-64 overflow-y-auto">
+              <div v-for="(suggestion, index) in results.suggestedAdditions" :key="index"
+                class="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg">
+                <div
+                  class="flex-shrink-0 w-5 h-5 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  {{ index + 1 }}
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900 text-sm">{{ suggestion.term }}</h4>
+                  <p class="text-xs text-gray-600">{{ suggestion.why }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Details -->
+          <div class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-3">Generation Details</h2>
+            <div class="grid grid-cols-1 gap-3">
+              <div>
+                <h3 class="font-medium text-gray-900 mb-1 text-sm">Job ID</h3>
+                <p class="text-xs text-gray-600 font-mono">{{ results.jobId }}</p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-900 mb-1 text-sm">Generated</h3>
+                <p class="text-xs text-gray-600">{{ formatDate(results.createdAt) }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -302,8 +375,8 @@
         Generate Another Resume
       </router-link>
       <button v-if="results" @click="downloadAll" :disabled="isDownloadingAll" class="btn btn-primary">
-        <span v-if="isDownloadingAll">Downloading All...</span>
-        <span v-else>Download All Files</span>
+        <span v-if="isDownloadingAll">Downloading ZIP...</span>
+        <span v-else>Download All Files (ZIP)</span>
       </button>
     </div>
   </div>
@@ -318,7 +391,7 @@ import PDFViewer from '../components/PDFViewer.vue'
 import LaTeXEditor from '../components/LaTeXEditor.vue'
 
 const route = useRoute()
-const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()
+const { getResults, downloadFile: apiDownloadFile, downloadAllAsZip, addSkillToBaseline, checkStatus } = useAPI()
 
 // Props
 const props = defineProps({
@@ -335,6 +408,12 @@ const downloading = ref({
   coverLetter: false,
   edits: false
 })
+const downloadingZip = ref(false)
+const addingSkills = ref(new Set()) // Track which skills are being added
+
+// Collapsible state
+const showJobDescription = ref(false)
+const showAnalysisOverview = ref(true) // Start expanded by default
 
 // Real-time editing state
 const resumeContent = ref('')
@@ -355,7 +434,7 @@ let pollTimer = null
 // Computed
 const jobId = computed(() => props.jobId || route.params.jobId)
 const isDownloadingAll = computed(() =>
-  Object.values(downloading.value).some(d => d)
+  Object.values(downloading.value).some(d => d) || downloadingZip.value
 )
 const isProcessing = computed(() => statusData.value?.status === 'processing')
 const isCompleted = computed(() => {
@@ -434,16 +513,34 @@ const downloadFile = async (fileType) => {
 }
 
 const downloadAll = async () => {
-  const files = ['resume', 'cover-letter', 'edits']
+  try {
+    downloadingZip.value = true
+    await downloadAllAsZip(jobId.value)
+  } catch (err) {
+    alert(`Failed to download zip file: ${err.message}`)
+  } finally {
+    downloadingZip.value = false
+  }
+}
 
-  for (const fileType of files) {
-    try {
-      await downloadFile(fileType)
-      // Small delay between downloads
-      await new Promise(resolve => setTimeout(resolve, 500))
-    } catch (err) {
-      console.error(`Failed to download ${fileType}:`, err)
+const handleAddSkill = async (skill, category = 'conversational_skills') => {
+  try {
+    addingSkills.value.add(skill)
+    await addSkillToBaseline(jobId.value, skill, category)
+    
+    // Show success message with better UX
+    const categoryDisplay = category === 'confirmed_skills' ? 'confirmed skill' : 'conversational skill'
+    const message = `✅ "${skill}" has been added to your skills inventory as a ${categoryDisplay}. This skill will no longer be flagged in future validations.`
+    
+    // Use a more user-friendly notification (could be replaced with a proper toast library)
+    if (confirm(message + '\n\nWould you like to refresh the page to see updated validation status?')) {
+      await loadResults()
     }
+    
+  } catch (err) {
+    alert(`Failed to add skill: ${err.message}`)
+  } finally {
+    addingSkills.value.delete(skill)
   }
 }
 
@@ -510,6 +607,40 @@ const getCustomizationSection = (overview) => {
   // Fallback: try to find the second paragraph if no clear section headers
   const paragraphs = overview.split('\n\n').filter(p => p.trim())
   return paragraphs.length > 1 ? paragraphs.slice(1).join('\n\n') : ''
+}
+
+// Toggle functions for collapsible sections
+const toggleJobDescription = () => {
+  showJobDescription.value = !showJobDescription.value
+}
+
+const toggleAnalysisOverview = () => {
+  showAnalysisOverview.value = !showAnalysisOverview.value
+}
+
+// Clean job description for display
+const cleanJobDescription = (jobDescription) => {
+  if (!jobDescription) return ''
+  
+  // Remove excessive whitespace and normalize line breaks
+  let cleaned = jobDescription
+    .replace(/\r\n/g, '\n') // Normalize line endings
+    .replace(/\n{3,}/g, '\n\n') // Remove excessive blank lines
+    .replace(/[ \t]+/g, ' ') // Normalize spaces
+    .trim()
+  
+  // Fix common formatting issues
+  cleaned = cleaned
+    .replace(/([.!?])\s*([A-Z])/g, '$1\n\n$2') // Add line breaks after sentences
+    .replace(/([.!?])\s*([•\-\*])/g, '$1\n$2') // Fix bullet points
+    .replace(/([•\-\*])\s*/g, '  $1 ') // Indent bullet points
+  
+  // Clean up any remaining formatting artifacts
+  cleaned = cleaned
+    .replace(/\n{3,}/g, '\n\n') // Remove excessive blank lines again
+    .replace(/^\s+|\s+$/gm, '') // Trim whitespace from each line
+  
+  return cleaned
 }
 
 // Real-time editing event handlers

@@ -80,6 +80,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     const { 
       provider = 'gemini', 
       model = 'gemini-1.5-flash', 
+      personality = 'career_savvy_colleague',
       jobDescriptionText,
       apiKeys: apiKeysString = '{}' // API keys from frontend as JSON string
     } = req.body
@@ -112,7 +113,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     }
     
     // Use hardcoded baseline resume path
-    const baselineResumePath = path.join(__dirname, '../../../Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex')
+    const baselineResumePath = path.join(__dirname, '../../../templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex')
     
     // Verify baseline resume exists
     try {
@@ -132,7 +133,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     }
     
     // Start processing in background
-    processResumeAsync(jobId, baselineResumePath, jobDescriptionPath, provider, model, apiKeys)
+    processResumeAsync(jobId, baselineResumePath, jobDescriptionPath, provider, model, personality, apiKeys)
     
     // Return job ID immediately
     res.json({
@@ -150,13 +151,13 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
 /**
  * Process resume asynchronously using the Python CLI
  */
-async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provider, model, apiKeys = {}) {
+async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provider, model, personality, apiKeys = {}) {
   const tempDir = path.join(__dirname, '../../temp', jobId)
   const statusFile = path.join(tempDir, 'status.json')
   
   try {
     // Log workflow start
-    await writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}`)
+    await writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
     
     // Update status
     await updateStatus(statusFile, { 
@@ -166,7 +167,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     })
     
     // Find the Python CLI script
-    const cliPath = path.join(__dirname, '../../../run_workflow_clean.sh')
+    const cliPath = path.join(__dirname, '../../../scripts/run_workflow_clean.sh')
     
     // Debug path resolution
     console.log(`[${jobId}] __dirname: ${__dirname}`)
@@ -193,9 +194,12 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       ...process.env,
       PROVIDER: provider,
       MODEL: model,
+      PERSONALITY: personality,
       // Override with frontend API keys only if they have actual values
       ...(apiKeys.GEMINI_API_KEY && apiKeys.GEMINI_API_KEY.trim() && { GEMINI_API_KEY: apiKeys.GEMINI_API_KEY }),
       ...(apiKeys.OPENAI_API_KEY && apiKeys.OPENAI_API_KEY.trim() && { OPENAI_API_KEY: apiKeys.OPENAI_API_KEY }),
+      ...(apiKeys.MISTRAL_API_KEY && apiKeys.MISTRAL_API_KEY.trim() && { MISTRAL_API_KEY: apiKeys.MISTRAL_API_KEY }),
+      ...(apiKeys.GROQ_API_KEY && apiKeys.GROQ_API_KEY.trim() && { GROQ_API_KEY: apiKeys.GROQ_API_KEY }),
       ...(apiKeys.OLLAMA_BASE_URL && apiKeys.OLLAMA_BASE_URL.trim() && { OLLAMA_BASE_URL: apiKeys.OLLAMA_BASE_URL })
     }
     
@@ -206,7 +210,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     console.log(`[${jobId}] - Frontend apiKeys:`, Object.keys(apiKeys))
     console.log(`[${jobId}] - Merged GEMINI_API_KEY: ${mergedEnv.GEMINI_API_KEY ? 'SET' : 'NOT SET'}`)
     console.log(`[${jobId}] - Merged OPENAI_API_KEY: ${mergedEnv.OPENAI_API_KEY ? 'SET' : 'NOT SET'}`)
-    console.log(`[${jobId}] - Provider: ${provider}, Model: ${model}`)
+    console.log(`[${jobId}] - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
 
     // Execute the Python workflow directly using venv Python
     const venvPython = path.join(__dirname, '../../../venv/bin/python')

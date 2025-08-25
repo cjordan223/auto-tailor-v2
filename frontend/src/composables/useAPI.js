@@ -82,7 +82,7 @@ export function useAPI() {
   /**
    * Process resume with AI
    */
-  const processResume = async ({ jobDescription, provider, model }) => {
+  const processResume = async ({ jobDescription, provider, model, personality }) => {
     try {
       // Check rate limiting before making the request
       checkRateLimit('process')
@@ -98,6 +98,7 @@ export function useAPI() {
       // Add configuration
       formData.append('provider', provider)
       formData.append('model', model)
+      formData.append('personality', personality)
       
       // Add API keys from settings
       const apiKeys = globalSettings.getAllApiKeys()
@@ -164,6 +165,58 @@ export function useAPI() {
   }
 
   /**
+   * Download all files as a zip archive
+   */
+  const downloadAllAsZip = async (jobId) => {
+    try {
+      const response = await api.get(`/download/${jobId}/zip/all`, {
+        responseType: 'blob'
+      })
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      
+      // Get filename from response headers
+      const contentDisposition = response.headers['content-disposition']
+      let filename = `tex-tailor-results-${jobId}.zip`
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/)
+        if (filenameMatch) {
+          filename = filenameMatch[1]
+        }
+      }
+      
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      
+      return { success: true, filename }
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to download zip file')
+    }
+  }
+
+  /**
+   * Add skill to baseline skills JSON file
+   */
+  const addSkillToBaseline = async (jobId, skill, category = 'conversational_skills') => {
+    try {
+      const response = await api.post(`/results/${jobId}/add-skill`, {
+        skill,
+        category
+      })
+      
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add skill to baseline')
+    }
+  }
+
+  /**
    * Get PDF URL for viewing inline (no download)
    */
   const getPDFViewUrl = (jobId, fileType) => {
@@ -186,7 +239,7 @@ export function useAPI() {
             id: 'gemini',
             name: 'Google Gemini',
             available: false,
-            models: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro']
+            models: ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro-latest']
           },
           {
             id: 'openai', 
@@ -198,7 +251,7 @@ export function useAPI() {
             id: 'ollama',
             name: 'Ollama (Local)',
             available: false,
-            models: ['qwen2.5:14b-instruct', 'llama3.1:8b']
+            models: ['qwen2.5:14b-instruct', 'llama3:8b', 'phi3:mini', 'llama3.1:70b']
           }
         ]
       }
@@ -251,6 +304,8 @@ export function useAPI() {
     processResume,
     checkStatus,
     downloadFile,
+    downloadAllAsZip,
+    addSkillToBaseline,
     getPDFViewUrl,
     getProviders,
     getResults,
