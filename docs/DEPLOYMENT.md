@@ -155,16 +155,24 @@ The frontend will automatically connect to your backend using the configured API
    - LaTeX installation can be slow on first build
    - Subsequent builds use cached layers and are faster
 
-2. **Memory Issues**
+2. **Python Environment Error (FIXED)**
+   ```
+   error: externally-managed-environment
+   × This environment is externally managed
+   ```
+   - **Solution**: Docker now uses Python virtual environment
+   - **Status**: Fixed in latest Dockerfile
+
+3. **Memory Issues**
    - Consider upgrading to Render's Starter plan for more memory
    - Monitor memory usage in production
 
-3. **Database Connection Errors**
+4. **Database Connection Errors**
    - Verify MongoDB Atlas connection string
    - Check network access settings in MongoDB Atlas
    - Ensure database user has proper permissions
 
-4. **CORS Errors**
+5. **CORS Errors**
    - Verify `FRONTEND_URL` environment variable
    - Ensure it matches your frontend deployment URL exactly
 
