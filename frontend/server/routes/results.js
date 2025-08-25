@@ -142,6 +142,17 @@ router.get('/:jobId', async (req, res) => {
       // Review data not available, that's okay
     }
     
+    // Load original generation settings from status.json
+    let originalSettings = null
+    try {
+      const statusPath = path.join(tempDir, 'status.json')
+      const statusContent = await fs.readFile(statusPath, 'utf-8')
+      const statusData = JSON.parse(statusContent)
+      originalSettings = statusData.originalSettings || null
+    } catch (error) {
+      // Original settings not available, that's okay
+    }
+    
     // Load job description if available
     let jobDescription = null
     try {
@@ -195,6 +206,7 @@ router.get('/:jobId', async (req, res) => {
       suggestedAdditions,
       validationStatus,
       reviewData,
+      originalSettings,
       jobDescription,
       createdAt: new Date().toISOString(),
       completedAt: new Date().toISOString()

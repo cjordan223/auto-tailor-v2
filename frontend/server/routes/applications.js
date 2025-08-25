@@ -10,8 +10,17 @@ const router = express.Router()
  */
 router.post('/', async (req, res) => {
   try {
+    console.log('📝 Creating application...')
     const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
     const applicationData = req.body
+
+    console.log('📋 Application data received:', {
+      jobTitle: applicationData.jobTitle,
+      companyName: applicationData.companyName,
+      hasJobDescription: !!applicationData.jobDescription,
+      provider: applicationData.generationMeta?.provider,
+      model: applicationData.generationMeta?.model
+    })
 
     if (!applicationData.jobDescription) {
       return res.status(400).json({
@@ -21,6 +30,12 @@ router.post('/', async (req, res) => {
     }
 
     const result = await applicationService.createApplication(userId, applicationData)
+    
+    console.log('💾 Create application result:', {
+      success: result.success,
+      applicationId: result.applicationId,
+      error: result.error
+    })
     
     if (result.success) {
       res.status(201).json(result)
@@ -90,8 +105,11 @@ router.get('/saved', async (req, res) => {
  */
 router.post('/:id/save', async (req, res) => {
   try {
+    console.log('💾 Saving application...')
     const applicationId = req.params.id
     const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+
+    console.log('📋 Save request:', { applicationId, userId })
 
     if (!ObjectId.isValid(applicationId)) {
       return res.status(400).json({
@@ -101,6 +119,14 @@ router.post('/:id/save', async (req, res) => {
     }
 
     const result = await applicationService.saveApplication(applicationId, userId)
+    
+    console.log('💾 Save application result:', {
+      success: result.success,
+      applicationId: result.applicationId,
+      upserted: result.upserted,
+      modified: result.modified,
+      error: result.error
+    })
     
     if (result.success) {
       res.json(result)

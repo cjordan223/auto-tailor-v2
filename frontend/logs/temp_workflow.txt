@@ -1,0 +1,11 @@
+=== Workflow Run Started ===
+Job ID: 9390bf34-75d0-4845-89cd-dcf3981550ca
+Started: 2025-08-25T17:38:47.493Z
+==================================================
+
+[INFO] Workflow started - Provider: gemini, Model: gemini-1.5-flash, Personality: career_savvy_colleague
+
+==================================================
+=== Workflow Run Completed ===
+Job ID: 9390bf34-75d0-4845-89cd-dcf3981550ca
+Completed: 2025-08-25T17:38:47.497Z

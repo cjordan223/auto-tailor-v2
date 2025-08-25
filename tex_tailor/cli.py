@@ -27,6 +27,8 @@ from .differ import show_diffs, diff_specific_files, export_diff_report
 from .logger import WorkflowLogger, get_latest_log, show_latest_log
 from .config import config, get_model_for_provider, get_default_paths
 from .reviewer import generate_review
+from .ollama_optimized import propose_edits_ollama_optimized, get_recommended_ollama_models
+from .ollama_validation import validate_ollama_response, get_ollama_validation_summary
 
 
 @click.group()
@@ -196,6 +198,140 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], persona
         click.echo("✓ Edit proposal complete")
     except Exception as e:
         click.echo(f"Error during proposal: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command("propose-ollama")
+@click.option("--jd", required=True, help="Path to job description file")
+@click.option("--model", help="Ollama model name (optional, uses configured default)")
+@click.option("--base-text", default=None, help="Path to base text JSON")
+@click.option("--out", default=None, help="Output edits JSON file")
+@click.option("--list-models", is_flag=True, help="List recommended Ollama models and exit")
+@click.pass_context
+def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str], out: Optional[str], list_models: bool):
+    """
+    Propose edits using Ollama with optimized prompts and validation.
+    
+    This command uses a specialized workflow for local Ollama models that:
+    - Uses model-specific prompts with aggressive company name reminders
+    - Provides immediate feedback without expensive retry logic
+    - Auto-fixes common local model issues (placeholders, JSON formatting)
+    - Blocks resource-intensive models that freeze the system
+    """
+    
+    if list_models:
+        click.echo("🔧 Recommended Ollama Models:")
+        click.echo()
+        
+        # Sort by priority first, then by recommendation status
+        models = sorted(get_recommended_ollama_models(), 
+                       key=lambda x: (x.get("priority", 99), not x.get("recommended", False)))
+        
+        for model_info in models:
+            if model_info.get("recommended"):
+                marker = "⭐"
+            elif model_info["tier"] == "specialized":
+                marker = "🎯"
+            else:
+                marker = "  "
+            
+            click.echo(f"{marker} {model_info['model']} ({model_info['tier']})")
+            click.echo(f"     {model_info['description']}")
+            click.echo()
+        
+        click.echo("💡 Install models with: ollama pull <model-name>")
+        click.echo("🎯 Specialized models are trained specifically for resume tailoring")
+        click.echo("⚠️  Avoid models in the 'blocked' tier - they may freeze your system")
+        return
+
+    # Use default paths if not specified
+    if not base_text:
+        base_text = get_default_paths()["base_text"]
+    if not out:
+        out = get_default_paths()["edits"]
+
+    # Validate input files
+    if not Path(jd).exists():
+        click.echo(f"Error: Job description file not found: {jd}", err=True)
+        sys.exit(1)
+
+    if not Path(base_text).exists():
+        click.echo(f"Error: Base text file not found: {base_text}", err=True)
+        click.echo("Run 'tex-tailor extract' first.", err=True)
+        sys.exit(1)
+
+    # Load JD content for validation
+    try:
+        with open(jd, 'r') as f:
+            jd_content = f.read()
+    except Exception as e:
+        click.echo(f"Error reading job description: {e}", err=True)
+        sys.exit(1)
+
+    # Load base text for validation
+    try:
+        import json
+        with open(base_text, 'r') as f:
+            base_text_data = json.load(f)
+    except Exception as e:
+        click.echo(f"Error reading base text: {e}", err=True)
+        sys.exit(1)
+
+    # Show model selection
+    selected_model = model or config.providers.ollama.default_model
+    click.echo(f"🔧 Ollama Optimized Mode")
+    click.echo(f"Model: {selected_model}")
+    click.echo(f"URL: {config.apis.ollama_base_url}")
+    click.echo()
+
+    # Ensure output directory exists
+    out_path = Path(out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Use Ollama-optimized workflow
+        edits = propose_edits_ollama_optimized(jd, base_text, selected_model)
+        
+        # Use Ollama-specific validation
+        with open(jd, 'r', encoding='utf-8') as f:
+            jd_content = f.read()
+        
+        # Get raw response for validation (we'll need to modify propose_edits_ollama_optimized to return this)
+        # For now, we'll do a quick validation
+        _, warnings = validate_ollama_response(json.dumps(edits), jd_content, base_text_data)
+        
+        # Save edits
+        with open(out, 'w', encoding='utf-8') as f:
+            json.dump(edits, f, indent=2, ensure_ascii=False)
+        
+        click.echo(f"✅ Ollama edits saved to: {out}")
+        click.echo()
+        
+        # Show summary
+        summary = get_ollama_validation_summary(edits, warnings)
+        click.echo("📊 Generation Summary:")
+        click.echo(summary)
+        
+        # Show warnings if any
+        if warnings:
+            click.echo()
+            click.echo("⚠️  Warnings:")
+            for warning in warnings:
+                click.echo(f"  • {warning}")
+            click.echo()
+            click.echo("💡 Tips:")
+            click.echo("  • Try a higher-tier model for better results")
+            click.echo("  • Ensure company name is clearly stated in job description")
+            click.echo("  • Use 'propose-ollama --list-models' to see recommendations")
+        
+    except Exception as e:
+        click.echo(f"❌ Ollama generation failed: {e}", err=True)
+        click.echo()
+        click.echo("🔧 Troubleshooting:")
+        click.echo("  1. Check if Ollama is running: ollama serve")
+        click.echo("  2. Verify model is installed: ollama list")
+        click.echo("  3. Try a different model: --model qwen2.5:14b-instruct")
+        click.echo("  4. Check model recommendations: propose-ollama --list-models")
         sys.exit(1)
 
 
@@ -602,8 +738,33 @@ def run_workflow_steps(job_description: str):
             if model:
                 click.echo(f"Using model: {model}")
 
-        propose_and_save_edits(
-            job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
+        # Use Ollama-optimized workflow for specific models
+        if provider == "ollama" and model and model in ["resume-editor:latest", "qwen2.5:14b-instruct", "mixtral:latest"]:
+            click.echo(f"🔧 Using Ollama-optimized workflow for {model}")
+            try:
+                from .ollama_optimized import propose_edits_ollama_optimized
+                import json
+                
+                # Generate edits with Ollama optimization (simplified - no extra validation)
+                edits = propose_edits_ollama_optimized(
+                    job_description, default_paths["base_text"], model)
+                
+                # Save edits directly
+                with open(default_paths["edits"], 'w') as f:
+                    json.dump(edits, f, indent=2, ensure_ascii=False)
+                
+                click.echo("✅ Ollama-optimized edits generated")
+                
+            except Exception as e:
+                click.echo(f"⚠️ Ollama optimization failed, falling back to standard workflow: {e}")
+                # Fallback to standard workflow
+                propose_and_save_edits(
+                    job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
+        else:
+            # Use standard workflow
+            propose_and_save_edits(
+                job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
+        
         click.echo("✅ Edit proposal complete")
 
         # Step 4: Apply edits

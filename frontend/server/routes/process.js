@@ -316,11 +316,16 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     // Log workflow start
     await workflowLogger.writeWorkflowLog(jobId, `Workflow started - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
     
-    // Update status
+    // Update status with original generation settings
     await updateStatus(statusFile, { 
       status: 'processing', 
       progress: 10,
-      step: 'Initializing...'
+      step: 'Initializing...',
+      originalSettings: {
+        provider,
+        model,
+        personality
+      }
     })
     
     // Find the Python CLI script

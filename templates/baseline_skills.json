@@ -64,6 +64,7 @@
   ],
   "conversational_skills": [
     "Android",
+    "Ansible",
     "Arduino",
     "Azure basics",
     "Bash",
@@ -81,6 +82,7 @@
     "ETL",
     "Embedded Systems",
     "Flutter",
+    "GCP",
     "Game Development",
     "Google Cloud basics",
     "Hadoop",

@@ -82,11 +82,26 @@
             </div>
           </div>
 
-          <button @click="downloadFile('cover-letter')" :disabled="downloading.coverLetter"
-            class="btn btn-primary w-full">
-            <span v-if="downloading.coverLetter">Downloading...</span>
-            <span v-else>Download Cover Letter PDF</span>
-          </button>
+          <div class="flex gap-2">
+            <button @click="downloadFile('cover-letter')" :disabled="downloading.coverLetter"
+              class="btn btn-primary flex-1">
+              <span v-if="downloading.coverLetter">Downloading...</span>
+              <span v-else>Download Cover Letter PDF</span>
+            </button>
+            <button @click="showRegenerateModal = true" :disabled="regenerating.coverLetter" 
+              class="btn btn-secondary">
+              <span v-if="regenerating.coverLetter">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Regenerating...
+              </span>
+              <span v-else>
+                🔄 Regenerate
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -394,6 +409,117 @@
         <span v-else">Download All Files (ZIP)</span>
       </button>
     </div>
+
+    <!-- Regenerate Cover Letter Modal -->
+    <div v-if="showRegenerateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Regenerate Cover Letter</h3>
+            <button @click="showRegenerateModal = false" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mb-4">
+            <p class="text-sm text-gray-600 mb-4">
+              Generate a new version of your cover letter with different AI settings. Your resume will remain unchanged.
+            </p>
+            
+            <!-- Original Settings Info -->
+            <div v-if="originalSettings.provider" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p class="text-xs text-blue-700 mb-1">
+                <strong>Original Generation Settings:</strong>
+              </p>
+              <p class="text-xs text-blue-600">
+                {{ originalSettings.provider }} • {{ originalSettings.model }} • {{ originalSettings.personality }}
+              </p>
+            </div>
+            
+            <!-- Provider Selection -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                AI Provider
+                <span v-if="isUsingOriginalSettings" class="ml-1 text-xs text-green-600">(Original)</span>
+              </label>
+              <select v-model="regenSettings.provider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                <option value="gemini">Gemini (Google)</option>
+                <option value="openai">OpenAI</option>
+                <option value="mistral">Mistral</option>
+                <option value="groq">Groq</option>
+              </select>
+            </div>
+
+            <!-- Model Selection -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+              <select v-model="regenSettings.model" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                <option v-for="model in availableModels" :key="model.id" :value="model.id">
+                  {{ model.name }} {{ model.recommended ? '⭐' : '' }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Personality Selection -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Writing Style</label>
+              <select v-model="regenSettings.personality" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                <option value="career_savvy_colleague">Professional & Engaging</option>
+                <option value="confident_professional">Confident & Direct</option>
+                <option value="enthusiastic_applicant">Enthusiastic & Energetic</option>
+                <option value="experienced_expert">Expert & Authoritative</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <button 
+              v-if="originalSettings.provider && !isUsingOriginalSettings"
+              @click="resetToOriginalSettings" 
+              class="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Reset to Original Settings
+            </button>
+            <div class="flex space-x-3">
+              <button @click="showRegenerateModal = false" class="btn btn-secondary">
+                Cancel
+              </button>
+              <button @click="startRegeneration" :disabled="regenerating.coverLetter" class="btn btn-primary">
+                <span v-if="regenerating.coverLetter">Regenerating...</span>
+                <span v-else>🔄 Regenerate Cover Letter</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regeneration Progress Modal -->
+    <div v-if="regenerating.coverLetter" class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Regenerating Cover Letter</h3>
+          
+          <!-- Progress indicator -->
+          <ProcessingStatus 
+            :status="regenStatus.status" 
+            :progress="regenStatus.progress" 
+            :error="regenStatus.error"
+            :step="regenStatus.step" 
+            :detail="regenStatus.detail" 
+            :provider="regenSettings.provider" 
+          />
+          
+          <div class="mt-4">
+            <button @click="cancelRegeneration" class="btn btn-secondary">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -430,6 +556,32 @@ const addingSkills = ref(new Set()) // Track which skills are being added
 const savingApplication = ref(false)
 const isSaved = ref(false)
 const applicationId = ref(null)
+
+// Cover letter regeneration state
+const showRegenerateModal = ref(false)
+const regenerating = ref({
+  coverLetter: false
+})
+const regenSettings = ref({
+  provider: 'gemini',
+  model: 'gemini-2.5-flash-lite', 
+  personality: 'career_savvy_colleague'
+})
+
+// Original generation settings (populated from results)
+const originalSettings = ref({
+  provider: null,
+  model: null,
+  personality: null
+})
+const regenStatus = ref({
+  status: 'idle',
+  progress: 0,
+  step: '',
+  detail: ''
+})
+
+let regenPollTimer = null
 
 // Collapsible state
 const showJobDescription = ref(false)
@@ -486,6 +638,17 @@ const loadResults = async () => {
     const data = await getResults(jobId.value)
     console.log('Results loaded:', data)
     results.value = data
+    
+    // Set original settings for regeneration if available
+    if (data.originalSettings) {
+      originalSettings.value = data.originalSettings
+      // Update regeneration settings to match original
+      regenSettings.value = {
+        provider: data.originalSettings.provider || 'gemini',
+        model: data.originalSettings.model || 'gemini-2.5-flash-lite',
+        personality: data.originalSettings.personality || 'career_savvy_colleague'
+      }
+    }
   } catch (err) {
     console.error('Error loading results:', err)
     error.value = err.message
@@ -583,8 +746,8 @@ const saveApplication = async () => {
       }
     }
 
-    // Call the applications API
-    const response = await fetch('/api/applications', {
+    // First, create the application in generated_applications
+    const createResponse = await fetch('/api/applications', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -592,21 +755,41 @@ const saveApplication = async () => {
       body: JSON.stringify(applicationData)
     })
 
-    if (!response.ok) {
-      throw new Error(`Failed to save application: ${response.statusText}`)
+    if (!createResponse.ok) {
+      throw new Error(`Failed to create application: ${createResponse.statusText}`)
     }
 
-    const result = await response.json()
+    const createResult = await createResponse.json()
     
-    if (result.success) {
-      applicationId.value = result.applicationId
-      isSaved.value = true
-      
-      // Show success message
-      alert('✅ Application saved successfully! You can now track and manage this application in your database.')
-    } else {
-      throw new Error(result.error || 'Failed to save application')
+    if (!createResult.success) {
+      throw new Error(createResult.error || 'Failed to create application')
     }
+
+    // Then save it permanently to saved_applications
+    const saveResponse = await fetch(`/api/applications/${createResult.applicationId}/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: 'temp_user' })
+    })
+
+    if (!saveResponse.ok) {
+      throw new Error(`Failed to save application: ${saveResponse.statusText}`)
+    }
+
+    const saveResult = await saveResponse.json()
+    
+    if (!saveResult.success) {
+      throw new Error(saveResult.error || 'Failed to save application')
+    }
+
+    // Success - application is now saved permanently
+    applicationId.value = saveResult.applicationId
+    isSaved.value = true
+    
+    // Show success message
+    alert('✅ Application saved successfully! You can now track and manage this application in your database.')
 
   } catch (err) {
     console.error('Error saving application:', err)
@@ -659,6 +842,129 @@ const extractCompanyName = (jobDescription) => {
   }
   
   return 'Unknown Company'
+}
+
+// Regeneration methods
+const availableModels = computed(() => {
+  const modelsByProvider = {
+    gemini: [
+      { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', recommended: true },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', recommended: false },
+      { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro', recommended: false }
+    ],
+    openai: [
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', recommended: true },
+      { id: 'gpt-4o', name: 'GPT-4o', recommended: false }
+    ],
+    mistral: [
+      { id: 'mistral-large-latest', name: 'Mistral Large', recommended: true },
+      { id: 'mistral-medium-latest', name: 'Mistral Medium', recommended: false }
+    ],
+    groq: [
+      { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B', recommended: true },
+      { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', recommended: false }
+    ]
+  }
+  
+  return modelsByProvider[regenSettings.value.provider] || []
+})
+
+const isUsingOriginalSettings = computed(() => {
+  if (!originalSettings.value.provider) return false
+  return (
+    regenSettings.value.provider === originalSettings.value.provider &&
+    regenSettings.value.model === originalSettings.value.model &&
+    regenSettings.value.personality === originalSettings.value.personality
+  )
+})
+
+const resetToOriginalSettings = () => {
+  if (originalSettings.value.provider) {
+    regenSettings.value = {
+      provider: originalSettings.value.provider,
+      model: originalSettings.value.model,
+      personality: originalSettings.value.personality
+    }
+  }
+}
+
+const startRegeneration = async () => {
+  try {
+    showRegenerateModal.value = false
+    regenerating.value.coverLetter = true
+    
+    // Start regeneration
+    const response = await fetch(`/api/regenerate/${jobId.value}/cover-letter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(regenSettings.value)
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to start regeneration: ${response.statusText}`)
+    }
+    
+    const result = await response.json()
+    
+    if (result.success) {
+      // Start polling for status
+      startRegenPolling()
+    } else {
+      throw new Error(result.error || 'Failed to start regeneration')
+    }
+    
+  } catch (error) {
+    console.error('Error starting regeneration:', error)
+    alert(`Failed to start cover letter regeneration: ${error.message}`)
+    regenerating.value.coverLetter = false
+  }
+}
+
+const startRegenPolling = () => {
+  regenPollTimer = setInterval(async () => {
+    try {
+      const response = await fetch(`/api/regenerate/${jobId.value}/status`)
+      const status = await response.json()
+      
+      regenStatus.value = status
+      
+      if (status.status === 'completed') {
+        clearInterval(regenPollTimer)
+        regenPollTimer = null
+        regenerating.value.coverLetter = false
+        
+        // Refresh the cover letter PDF
+        setTimeout(() => {
+          coverLetterPdfKey.value++
+          if (coverLetterPdfViewer.value) {
+            coverLetterPdfViewer.value.forceRefresh()
+          }
+        }, 1000)
+        
+        alert('✅ Cover letter regenerated successfully! The new version is now displayed.')
+        
+      } else if (status.status === 'error') {
+        clearInterval(regenPollTimer)
+        regenPollTimer = null
+        regenerating.value.coverLetter = false
+        alert(`❌ Cover letter regeneration failed: ${status.error}`)
+      }
+      
+    } catch (error) {
+      console.error('Error polling regeneration status:', error)
+    }
+  }, 2000)
+}
+
+const cancelRegeneration = () => {
+  if (regenPollTimer) {
+    clearInterval(regenPollTimer)
+    regenPollTimer = null
+  }
+  regenerating.value.coverLetter = false
+  regenStatus.value = { status: 'idle', progress: 0, step: '', detail: '' }
 }
 
 const handleAddSkill = async (skill, category = 'conversational_skills') => {
@@ -957,5 +1263,6 @@ onBeforeUnmount(() => {
   if (pollTimer) clearInterval(pollTimer)
   if (resumeRecompileTimeout) clearTimeout(resumeRecompileTimeout)
   if (coverLetterRecompileTimeout) clearTimeout(coverLetterRecompileTimeout)
+  if (regenPollTimer) clearInterval(regenPollTimer)
 })
 </script>

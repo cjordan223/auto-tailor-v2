@@ -7,7 +7,9 @@ class ApplicationService {
   }
 
   async initialize() {
+    console.log('🔗 Initializing ApplicationService...')
     this.db = databaseConnection.getDb()
+    console.log('✅ ApplicationService initialized, database:', this.db ? 'connected' : 'not connected')
   }
 
   /**
@@ -15,6 +17,14 @@ class ApplicationService {
    */
   async createApplication(userId, applicationData) {
     try {
+      // Check if database is connected
+      if (!this.db) {
+        console.error('❌ Database not initialized in ApplicationService')
+        return {
+          success: false,
+          error: 'Database not connected'
+        }
+      }
       const application = {
         _id: new ObjectId(),
         userId: userId,
@@ -111,6 +121,14 @@ class ApplicationService {
    */
   async saveApplication(applicationId, userId) {
     try {
+      // Check if database is connected
+      if (!this.db) {
+        console.error('❌ Database not initialized in ApplicationService')
+        return {
+          success: false,
+          error: 'Database not connected'
+        }
+      }
       // Find in generated applications
       const application = await this.db.collection('generated_applications').findOne({
         _id: new ObjectId(applicationId),

@@ -266,10 +266,10 @@
       </div>
     </div>
 
-    <!-- Workflow Log -->
+    <!-- Current Run Log -->
     <div class="card">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold text-gray-900">Workflow Log</h2>
+        <h2 class="text-xl font-semibold text-gray-900">Current Run Log</h2>
         <button
           @click="refreshWorkflowLog"
           :disabled="loadingLog"
@@ -280,7 +280,7 @@
       </div>
       
       <div v-if="loadingLog" class="text-center py-8">
-        <div class="text-gray-500">Loading workflow log...</div>
+        <div class="text-gray-500">Loading current run log...</div>
       </div>
       
       <div v-else-if="workflowLog" class="space-y-4">
@@ -300,7 +300,7 @@
       </div>
       
       <div v-else class="text-center py-8 text-gray-500">
-        No workflow log found. Run a resume generation to see workflow data.
+        No current run log found. Start a resume generation to see workflow data.
       </div>
     </div>
   </div>

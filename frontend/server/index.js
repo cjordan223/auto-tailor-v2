@@ -15,6 +15,7 @@ import reviewRoutes from './routes/review.js'
 import recompileRoutes from './routes/recompile.js'
 import resultsRoutes from './routes/results.js'
 import applicationsRoutes from './routes/applications.js'
+import regenerateRoutes from './routes/regenerate.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 import databaseConnection from './config/database.js'
@@ -79,6 +80,7 @@ app.use('/api/review', reviewRoutes)
 app.use('/api/recompile', recompileRoutes)
 app.use('/api/results', resultsRoutes)
 app.use('/api/applications', applicationsRoutes)
+app.use('/api/regenerate', regenerateRoutes)
 
 // History endpoint
 app.get('/api/history', (req, res) => {

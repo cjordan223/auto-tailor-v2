@@ -1,0 +1,29 @@
+job_title: Cloud Engineer
+company: WorkInVirtual
+
+Are you a passionate technologist with a knack for the cloud? Do you dream of building, deploying, and optimizing scalable infrastructure for a global audience—all from the comfort of your home? WorkinVirtual is partnering with a leading, innovative tech company to find a motivated Cloud Engineer I to join their dynamic remote team.
+This is your entry-level ticket to the high-demand field of cloud computing. You will work alongside senior engineers to support and evolve our client’s cloud ecosystem, leveraging cutting-edge technologies like AWS, Azure, and Kubernetes. If you’re ready to solve complex problems and accelerate your career in tech, this is the perfect role for you.
+Key Responsibilities:
+As a Cloud Engineer I, you will be instrumental in maintaining and improving our client’s cloud infrastructure. Your day-to-day will include:
+    Cloud Infrastructure Support: Assist in the deployment, management, and monitoring of cloud-based systems and services on platforms like Amazon Web Services (AWS) or Microsoft Azure.
+    Automation & Scripting: Develop and maintain basic scripts (using Python, Bash, or PowerShell) to automate routine tasks and improve operational efficiency.
+    CI/CD Pipelines: Support the development and maintenance of Continuous Integration and Continuous Deployment (CI/CD) pipelines to enable rapid and reliable software delivery.
+    System Monitoring & Troubleshooting: Help monitor system performance, identify bottlenecks, and participate in troubleshooting incidents to ensure high availability and reliability.
+    Security & Compliance: Implement foundational security best practices and assist in ensuring cloud environments comply with industry standards.
+    Collaboration: Work closely with development and operations teams in a DevOps culture to bridge gaps and foster seamless workflows.
+    Documentation: Create and maintain clear documentation for system design, processes, and procedures.
+What We’re Looking For (Qualifications):
+Required:
+    Bachelor’s degree in Computer Science, Information Technology, or a related field (or equivalent practical experience).
+    Foundational understanding of core cloud computing concepts and service models (IaaS, PaaS, SaaS).
+    Hands-on experience with at least one major cloud provider (AWS, Google Cloud Platform (GCP), or Azure); relevant cloud certifications are a huge plus!
+    Basic proficiency in a scripting language such as Python, Bash, or PowerShell.
+    Familiarity with infrastructure-as-code (IaC) tools like Terraform or CloudFormation.
+    Understanding of containerization technologies, especially Docker.
+    Knowledge of key networking concepts (TCP/IP, DNS, HTTP, VPNs).
+    Strong problem-solving skills and a keen attention to detail.
+    Excellent communication skills and the ability to thrive in a fully remote, collaborative team.
+Preferred (Nice-to-Have):
+    Exposure to orchestration tools like Kubernetes.
+    Experience with CI/CD tools (e.g., Jenkins, GitLab CI, GitHub Actions).
+    Understanding of Linux/Unix system administration.
