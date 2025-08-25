@@ -46,9 +46,18 @@
               <div class="ml-3">
                 <div class="text-sm font-medium text-gray-900 flex items-center">
                   {{ currentModel.name }}
-                  <span v-if="currentModel.recommended"
+                  <span v-if="currentModel.badge === 'Specialized'"
+                    class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    🎯 Specialized
+                  </span>
+                  <span v-else-if="currentModel.recommended"
                     class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success-100 text-success-800">
                     Recommended
+                  </span>
+                  <span v-if="currentModel.warning"
+                    :class="getWarningClass(currentModel.warning)"
+                    class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
+                    {{ getWarningIcon(currentModel.warning) }} {{ currentModel.warning }}
                   </span>
                 </div>
                 <div class="text-xs text-gray-600 mt-1">{{ currentModel.description }}</div>
@@ -89,9 +98,18 @@
                 <div class="ml-3">
                   <div class="text-sm font-medium text-gray-900 flex items-center">
                     {{ model.name }}
-                    <span v-if="model.recommended"
+                    <span v-if="model.badge === 'Specialized'"
+                      class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                      🎯 Specialized
+                    </span>
+                    <span v-else-if="model.recommended"
                       class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success-100 text-success-800">
                       Recommended
+                    </span>
+                    <span v-if="model.warning"
+                      :class="getWarningClass(model.warning)"
+                      class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
+                      {{ getWarningIcon(model.warning) }} {{ model.warning }}
                     </span>
                   </div>
                   <div class="text-xs text-gray-600 mt-1">{{ model.description }}</div>
@@ -259,39 +277,43 @@ const providers = ref([
       },
       {
         id: 'gemini-2.5-flash',
-        name: 'Gemini 2.5 Flash',
-        description: 'Standard production model with excellent performance',
+        name: 'Gemini 2.5 Flash ❌',
+        description: '⚠️ BROKEN - Does not generate any output. Use 2.5 Flash-Lite instead.',
         recommended: false,
-        quality: 'High',
+        quality: 'Variable',
         speed: 'Fast',
-        rateLimits: '10 RPM, 250 RPD (Free) / 1,000+ RPM (Paid)'
+        rateLimits: '10 RPM, 250 RPD (Free) / 1,000+ RPM (Paid)',
+        warning: 'Broken'
       },
       {
         id: 'gemini-2.5-pro',
-        name: 'Gemini 2.5 Pro',
-        description: 'Highest quality analysis - best for final review before submitting',
+        name: 'Gemini 2.5 Pro ❌',
+        description: '⚠️ BROKEN - 500 errors and API failures. Use 2.5 Flash-Lite instead.',
         recommended: false,
-        quality: 'Highest',
+        quality: 'Variable',
         speed: 'Medium',
-        rateLimits: '5 RPM, 100 RPD (Free) / 150+ RPM (Paid)'
+        rateLimits: '5 RPM, 100 RPD (Free) / 150+ RPM (Paid)',
+        warning: 'Broken'
       },
       {
         id: 'gemini-1.5-flash',
         name: 'Gemini 1.5 Flash',
-        description: 'Proven stable model - current default choice',
+        description: '⚠️ Lower quality output - use for testing only. Prefer 2.5 Flash-Lite.',
         recommended: false,
-        quality: 'High',
+        quality: 'Good',
         speed: 'Fast',
-        rateLimits: '15 RPM, 1,500 RPD (Free) / 1,000+ RPM (Paid)'
+        rateLimits: '15 RPM, 1,500 RPD (Free) / 1,000+ RPM (Paid)',
+        warning: 'Low Quality'
       },
       {
         id: 'gemini-1.5-pro-latest',
         name: 'Gemini 1.5 Pro',
-        description: 'High-quality tasks with detailed analysis',
+        description: '⚠️ 500 errors due to low quota limits. Use sparingly.',
         recommended: false,
         quality: 'Highest',
         speed: 'Medium',
-        rateLimits: '2 RPM, 50 RPD (Free) / 150+ RPM (Paid)'
+        rateLimits: '2 RPM, 50 RPD (Free) / 150+ RPM (Paid)',
+        warning: 'Quota Issues'
       }
     ]
   },
@@ -422,31 +444,60 @@ const providers = ref([
     apiKeyEnv: null,
     models: [
       {
-        id: 'phi3:mini',
-        name: 'Phi-3 Mini (3.8B)',
-        description: 'Fastest and most lightweight model, suitable for simple tasks.',
-        recommended: false,
-        quality: 'Good',
-        speed: 'Very Fast',
-        rateLimits: 'No limits (local)'
+        id: 'resume-editor:latest',
+        name: '🎯 Resume Editor (Custom)',
+        description: 'SPECIALIZED MODEL - Custom trained for resume and cover letter tailoring. Best choice for job applications.',
+        recommended: true,
+        quality: 'Excellent',
+        speed: 'Medium',
+        rateLimits: 'No limits (local)',
+        badge: 'Specialized'
       },
       {
-        id: 'llama3:8b',
-        name: 'Llama 3.1 (8B)',
-        description: 'Excellent balance of performance and speed. Recommended for most users.',
+        id: 'qwen2.5:14b-instruct',
+        name: 'Qwen 2.5 (14B)',
+        description: 'Best general-purpose balance - excellent JSON parsing and company name recognition.',
         recommended: true,
         quality: 'High',
         speed: 'Fast',
         rateLimits: 'No limits (local)'
       },
       {
+        id: 'llama3:8b',
+        name: 'Llama 3.1 (8B)',
+        description: 'Good general capability but may struggle with JSON parsing and company names.',
+        recommended: false,
+        quality: 'Good',
+        speed: 'Fast',
+        rateLimits: 'No limits (local)'
+      },
+      {
+        id: 'mixtral:latest',
+        name: 'Mixtral (Latest)',
+        description: 'High-quality general model with excellent reasoning capabilities.',
+        recommended: false,
+        quality: 'High',
+        speed: 'Medium',
+        rateLimits: 'No limits (local)'
+      },
+      {
+        id: 'phi3:mini',
+        name: 'Phi-3 Mini (3.8B)',
+        description: '⚠️ Limited capability - testing only. Struggles with complex JSON and company extraction.',
+        recommended: false,
+        quality: 'Basic',
+        speed: 'Very Fast',
+        rateLimits: 'No limits (local)'
+      },
+      {
         id: 'llama3.1:70b',
-        name: 'Llama 3.1 (70B)',
-        description: 'Highest quality local model, requires significant resources.',
+        name: 'Llama 3.1 (70B) ⚠️',
+        description: 'BLOCKED - May freeze system due to resource requirements. Use quantized version if available.',
         recommended: false,
         quality: 'Highest',
-        speed: 'Slow',
-        rateLimits: 'No limits (local)'
+        speed: 'Very Slow',
+        rateLimits: 'No limits (local)',
+        warning: true
       }
     ]
   }
@@ -515,8 +566,10 @@ onUnmounted(() => {
 
 const getQualityClass = (quality) => {
   const classes = {
+    'Basic': 'text-gray-500',
     'Good': 'text-blue-600',
     'High': 'text-green-600',
+    'Excellent': 'text-purple-700',
     'Highest': 'text-purple-600',
     'Variable': 'text-gray-600'
   }
@@ -529,8 +582,29 @@ const getSpeedClass = (speed) => {
     'Fast': 'text-blue-600',
     'Medium': 'text-yellow-600',
     'Slow': 'text-red-600',
+    'Very Slow': 'text-red-700',
     'Variable': 'text-gray-600'
   }
   return classes[speed] || 'text-gray-600'
+}
+
+const getWarningClass = (warningType) => {
+  const classes = {
+    'Broken': 'bg-red-100 text-red-800',
+    'Low Quality': 'bg-yellow-100 text-yellow-800',
+    'Quota Issues': 'bg-orange-100 text-orange-800',
+    'Blocked': 'bg-red-100 text-red-800'
+  }
+  return classes[warningType] || 'bg-red-100 text-red-800'
+}
+
+const getWarningIcon = (warningType) => {
+  const icons = {
+    'Broken': '❌',
+    'Low Quality': '⚠️',
+    'Quota Issues': '⚠️',
+    'Blocked': '🚫'
+  }
+  return icons[warningType] || '⚠️'
 }
 </script>

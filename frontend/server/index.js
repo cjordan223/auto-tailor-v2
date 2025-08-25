@@ -14,8 +14,11 @@ import validateRoutes from './routes/validate.js'
 import reviewRoutes from './routes/review.js'
 import recompileRoutes from './routes/recompile.js'
 import resultsRoutes from './routes/results.js'
+import applicationsRoutes from './routes/applications.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
+import databaseConnection from './config/database.js'
+import applicationService from './services/ApplicationService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -34,7 +37,9 @@ if (envResult.error) {
   const hasMistral = !!process.env.MISTRAL_API_KEY
   const hasGroq = !!process.env.GROQ_API_KEY
   const hasOllama = !!process.env.OLLAMA_BASE_URL
+  const hasMongoDB = !!process.env.MONGODB_ATLAS_URI
   console.log(`🔑 API Keys loaded: Gemini: ${hasGemini ? '✓' : '✗'}, OpenAI: ${hasOpenAI ? '✓' : '✗'}, Mistral: ${hasMistral ? '✓' : '✗'}, Groq: ${hasGroq ? '✓' : '✗'}, Ollama: ${hasOllama ? '✓' : '✗'}`)
+  console.log(`🗄️  Database: MongoDB: ${hasMongoDB ? '✓' : '✗'}`)
 }
 
 const app = express()
@@ -73,6 +78,7 @@ app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/recompile', recompileRoutes)
 app.use('/api/results', resultsRoutes)
+app.use('/api/applications', applicationsRoutes)
 
 // History endpoint
 app.get('/api/history', (req, res) => {
@@ -91,11 +97,52 @@ app.use('*', (req, res) => {
   })
 })
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Tex-Tailor API Server running on port ${PORT}`)
-  console.log(`📱 Frontend should connect to: http://localhost:${PORT}`)
-  console.log(`🔍 Health check: http://localhost:${PORT}/health`)
+// Initialize database connection and start server
+async function startServer() {
+  try {
+    // Connect to MongoDB Atlas if URI is provided
+    if (process.env.MONGODB_ATLAS_URI && !process.env.MONGODB_ATLAS_URI.includes('<password>')) {
+      console.log('🔗 Connecting to MongoDB Atlas...')
+      try {
+        await databaseConnection.connect()
+        await applicationService.initialize()
+        console.log('✅ Database services initialized')
+      } catch (error) {
+        console.error('⚠️  MongoDB connection failed:', error.message)
+        console.log('🔄 Continuing without database - applications will not be saved')
+        console.log('   Check your MONGODB_ATLAS_URI in .env file')
+      }
+    } else {
+      console.log('⚠️  No valid MongoDB URI provided - database features disabled')
+      console.log('   Replace <password> in MONGODB_ATLAS_URI in your .env file to enable database')
+    }
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`🚀 Tex-Tailor API Server running on port ${PORT}`)
+      console.log(`📱 Frontend should connect to: http://localhost:${PORT}`)
+      console.log(`🔍 Health check: http://localhost:${PORT}/health`)
+      console.log(`📊 Applications API: http://localhost:${PORT}/api/applications`)
+    })
+  } catch (error) {
+    console.error('❌ Failed to start server:', error)
+    process.exit(1)
+  }
+}
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...')
+  await databaseConnection.close()
+  process.exit(0)
 })
+
+process.on('SIGINT', async () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...')
+  await databaseConnection.close()
+  process.exit(0)
+})
+
+startServer()
 
 export default app

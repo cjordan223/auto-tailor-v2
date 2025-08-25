@@ -374,9 +374,24 @@
       <router-link to="/" class="btn btn-secondary">
         Generate Another Resume
       </router-link>
+      <button v-if="results && !isSaved" @click="saveApplication" :disabled="savingApplication" class="btn btn-success">
+        <span v-if="savingApplication">
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Saving Application...
+        </span>
+        <span v-else>
+          💾 Save Application
+        </span>
+      </button>
+      <button v-if="results && isSaved" class="btn btn-success opacity-50 cursor-not-allowed">
+        ✅ Application Saved
+      </button>
       <button v-if="results" @click="downloadAll" :disabled="isDownloadingAll" class="btn btn-primary">
         <span v-if="isDownloadingAll">Downloading ZIP...</span>
-        <span v-else>Download All Files (ZIP)</span>
+        <span v-else">Download All Files (ZIP)</span>
       </button>
     </div>
   </div>
@@ -410,6 +425,11 @@ const downloading = ref({
 })
 const downloadingZip = ref(false)
 const addingSkills = ref(new Set()) // Track which skills are being added
+
+// Application saving state
+const savingApplication = ref(false)
+const isSaved = ref(false)
+const applicationId = ref(null)
 
 // Collapsible state
 const showJobDescription = ref(false)
@@ -521,6 +541,124 @@ const downloadAll = async () => {
   } finally {
     downloadingZip.value = false
   }
+}
+
+const saveApplication = async () => {
+  try {
+    savingApplication.value = true
+    
+    // Build application data from results
+    const applicationData = {
+      jobTitle: extractJobTitle(results.value.jobDescription),
+      companyName: extractCompanyName(results.value.jobDescription),
+      jobDescription: results.value.jobDescription,
+      
+      resume: {
+        fileName: 'resume.pdf',
+        summary: results.value.edits?.summary?.replace || null,
+        skills: results.value.edits?.skills || {}
+      },
+      
+      coverLetter: {
+        fileName: 'cover-letter.pdf',
+        paragraphs: results.value.edits?.cover_letter?.paragraphs || []
+      },
+
+      generationMeta: {
+        provider: results.value.provider || 'unknown',
+        model: results.value.model || 'unknown',
+        processingTime: 0,
+        validationPassed: true
+      },
+
+      files: {
+        resume: {
+          url: `/api/view/${jobId.value}/resume`,
+          storageKey: `${jobId.value}/resume.pdf`
+        },
+        coverLetter: {
+          url: `/api/view/${jobId.value}/cover-letter`, 
+          storageKey: `${jobId.value}/cover-letter.pdf`
+        }
+      }
+    }
+
+    // Call the applications API
+    const response = await fetch('/api/applications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(applicationData)
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to save application: ${response.statusText}`)
+    }
+
+    const result = await response.json()
+    
+    if (result.success) {
+      applicationId.value = result.applicationId
+      isSaved.value = true
+      
+      // Show success message
+      alert('✅ Application saved successfully! You can now track and manage this application in your database.')
+    } else {
+      throw new Error(result.error || 'Failed to save application')
+    }
+
+  } catch (err) {
+    console.error('Error saving application:', err)
+    alert(`Failed to save application: ${err.message}`)
+  } finally {
+    savingApplication.value = false
+  }
+}
+
+// Helper functions for job data extraction
+const extractJobTitle = (jobDescription) => {
+  if (!jobDescription) return 'Software Engineer'
+  
+  const patterns = [
+    /Position:\s*([^\n\r]+)/i,
+    /Role:\s*([^\n\r]+)/i,  
+    /Job Title:\s*([^\n\r]+)/i,
+    /seeking\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+at|\s*,|\s*\.)/i,
+    /hiring\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+to|\s*,|\s*\.)/i
+  ]
+  
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern)
+    if (match) {
+      return match[1].trim()
+    }
+  }
+  
+  return 'Software Engineer'
+}
+
+const extractCompanyName = (jobDescription) => {
+  if (!jobDescription) return 'Unknown Company'
+  
+  const patterns = [
+    /Company:\s*([^\n\r,]+)/i,
+    /at\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+is\s|\s*,|\s*\.|$)/i,
+    /join\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+as\s|\s*,|\s*\.|$)/i,
+    /([A-Z][a-zA-Z\s&.,]+?)\s+is\s+(?:seeking|hiring|looking)/i
+  ]
+  
+  for (const pattern of patterns) {
+    const match = jobDescription.match(pattern)
+    if (match) {
+      let company = match[1].trim()
+      // Clean up common suffixes  
+      company = company.replace(/\s+(Inc\.?|LLC\.?|Ltd\.?|Corp\.?|Corporation)\.?$/i, '')
+      return company
+    }
+  }
+  
+  return 'Unknown Company'
 }
 
 const handleAddSkill = async (skill, category = 'conversational_skills') => {
