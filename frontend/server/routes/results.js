@@ -11,7 +11,7 @@ const router = express.Router()
 // Add skill to baseline skills JSON file
 router.post('/:jobId/add-skill', async (req, res) => {
   try {
-    const { skill, category = 'conversational_skills' } = req.body
+    const { skill, category = 'conversational_skills', confidenceLevel = null } = req.body
     
     if (!skill) {
       return res.status(400).json({ message: 'Skill is required' })
@@ -21,6 +21,12 @@ router.post('/:jobId/add-skill', async (req, res) => {
     const validCategories = ['confirmed_skills', 'conversational_skills']
     if (!validCategories.includes(category)) {
       return res.status(400).json({ message: 'Invalid category. Must be confirmed_skills or conversational_skills' })
+    }
+    
+    // Validate confidence level if provided
+    const validConfidenceLevels = ['expert', 'proficient', 'familiar', 'learning']
+    if (confidenceLevel && !validConfidenceLevels.includes(confidenceLevel)) {
+      return res.status(400).json({ message: 'Invalid confidence level. Must be expert, proficient, familiar, or learning' })
     }
     
     // Path to baseline skills file
@@ -59,6 +65,22 @@ router.post('/:jobId/add-skill', async (req, res) => {
     
     skillsData[category].push(skill)
     
+    // Also add to confidence level category if specified
+    if (confidenceLevel) {
+      if (!skillsData.skill_confidence_levels) {
+        skillsData.skill_confidence_levels = {}
+      }
+      if (!skillsData.skill_confidence_levels[confidenceLevel]) {
+        skillsData.skill_confidence_levels[confidenceLevel] = []
+      }
+      
+      // Only add if not already in this confidence level
+      if (!skillsData.skill_confidence_levels[confidenceLevel].includes(skill)) {
+        skillsData.skill_confidence_levels[confidenceLevel].push(skill)
+        skillsData.skill_confidence_levels[confidenceLevel].sort()
+      }
+    }
+    
     // Sort the skills alphabetically
     skillsData[category].sort()
     
@@ -67,9 +89,10 @@ router.post('/:jobId/add-skill', async (req, res) => {
     
     res.json({ 
       success: true, 
-      message: `Skill "${skill}" added to ${category}`,
+      message: `Skill "${skill}" added to ${category}${confidenceLevel ? ` as ${confidenceLevel} level` : ''}`,
       skill,
       category,
+      confidenceLevel,
       updatedSkills: skillsData[category]
     })
     
@@ -101,18 +124,52 @@ router.get('/:jobId', async (req, res) => {
       const editsContent = await fs.readFile(editsPath, 'utf-8')
       edits = JSON.parse(editsContent)
       
-      // Extract validation status from suggested_additions
+      // Extract validation status from suggested_additions and recalculate based on current baseline
       if (edits.suggested_additions) {
-        const flaggedSkills = edits.suggested_additions
+        // Load current baseline skills to recalculate validation
+        const baselineSkillsPath = path.join(__dirname, '../../../templates/baseline_skills.json')
+        let currentBaselineSkills = null
+        
+        try {
+          const baselineContent = await fs.readFile(baselineSkillsPath, 'utf-8')
+          currentBaselineSkills = JSON.parse(baselineContent)
+        } catch (error) {
+          console.warn('Could not load baseline skills for validation recalculation:', error.message)
+        }
+        
+        // Get all skills that were originally flagged
+        const originallyFlaggedSkills = edits.suggested_additions
           .filter(suggestion => suggestion.why && suggestion.why.includes('Skills validation:'))
-          .map(suggestion => {
-            const whyMatch = suggestion.why.match(/Skills validation: (.+?) \(confidence: (.+?)\)/)
-            return {
-              skill: suggestion.term,
-              reason: whyMatch ? whyMatch[1] : suggestion.why,
-              confidence: whyMatch ? whyMatch[2] : 'low'
+          .map(suggestion => suggestion.term)
+        
+        // Recalculate which skills are still flagged based on current baseline
+        const flaggedSkills = []
+        if (currentBaselineSkills) {
+          const confirmedSkills = new Set(currentBaselineSkills.confirmed_skills || [])
+          const conversationalSkills = new Set(currentBaselineSkills.conversational_skills || [])
+          
+          for (const skill of originallyFlaggedSkills) {
+            if (!confirmedSkills.has(skill) && !conversationalSkills.has(skill)) {
+              flaggedSkills.push({
+                skill: skill,
+                reason: "Not in confirmed or conversational skills inventory",
+                confidence: "low"
+              })
             }
-          })
+          }
+        } else {
+          // Fallback to original validation if baseline can't be loaded
+          flaggedSkills.push(...edits.suggested_additions
+            .filter(suggestion => suggestion.why && suggestion.why.includes('Skills validation:'))
+            .map(suggestion => {
+              const whyMatch = suggestion.why.match(/Skills validation: (.+?) \(confidence: (.+?)\)/)
+              return {
+                skill: suggestion.term,
+                reason: whyMatch ? whyMatch[1] : suggestion.why,
+                confidence: whyMatch ? whyMatch[2] : 'low'
+              }
+            }))
+        }
         
         // Calculate confidence level
         let confidence = 'high'

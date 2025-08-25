@@ -17,6 +17,10 @@
               :class="{ 'active': $route.name === 'Home' }">
               Home
             </router-link>
+            <router-link to="/dashboard" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
+              :class="{ 'active': $route.name === 'Dashboard' }">
+              Dashboard
+            </router-link>
             <router-link to="/settings" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
               :class="{ 'active': $route.name === 'Settings' }">
               Settings

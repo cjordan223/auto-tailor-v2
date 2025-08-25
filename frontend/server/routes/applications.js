@@ -356,6 +356,102 @@ router.get('/:id', async (req, res) => {
 })
 
 /**
+ * Download application files
+ * GET /api/applications/:id/download
+ */
+router.get('/:id/download', async (req, res) => {
+  try {
+    const applicationId = req.params.id
+    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+
+    if (!ObjectId.isValid(applicationId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid application ID'
+      })
+    }
+
+    const result = await applicationService.getApplication(applicationId, userId)
+    
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Application not found'
+      })
+    }
+
+    const application = result.application
+    
+    // Check if files exist
+    const resumeUrl = application.files?.resume?.url
+    const coverLetterUrl = application.files?.coverLetter?.url
+    
+    if (!resumeUrl && !coverLetterUrl) {
+      return res.status(404).json({
+        success: false,
+        error: 'No files found for this application'
+      })
+    }
+
+    // For now, redirect to the existing download endpoint
+    // In the future, this could be enhanced to create a proper zip with application metadata
+    const jobId = applicationId // Use application ID as job ID for now
+    
+    res.redirect(`/api/download/${jobId}/zip/all`)
+    
+  } catch (error) {
+    console.error('Error downloading application:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    })
+  }
+})
+
+/**
+ * Add notes to application
+ * PATCH /api/applications/:id/notes
+ */
+router.patch('/:id/notes', async (req, res) => {
+  try {
+    const applicationId = req.params.id
+    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const { notes } = req.body
+
+    if (!ObjectId.isValid(applicationId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid application ID'
+      })
+    }
+
+    if (!notes) {
+      return res.status(400).json({
+        success: false,
+        error: 'Notes are required'
+      })
+    }
+
+    const result = await applicationService.addNotes(applicationId, userId, notes)
+    
+    if (result.success) {
+      res.json(result)
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Application not found'
+      })
+    }
+  } catch (error) {
+    console.error('Error adding notes:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    })
+  }
+})
+
+/**
  * Health check endpoint for database connection
  * GET /api/applications/health
  */

@@ -216,9 +216,17 @@ class ApplicationService {
         query.status = status
       }
 
+      // Handle nested field sorting
+      let sortField = sortBy
+      if (sortBy === 'jobTitle') {
+        sortField = 'jobDetails.jobTitle'
+      } else if (sortBy === 'companyName') {
+        sortField = 'jobDetails.companyName'
+      }
+
       const applications = await this.db.collection('saved_applications')
         .find(query)
-        .sort({ [sortBy]: sortOrder })
+        .sort({ [sortField]: sortOrder })
         .skip(skip)
         .limit(limit)
         .toArray()

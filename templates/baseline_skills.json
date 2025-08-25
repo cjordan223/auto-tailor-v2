@@ -7,6 +7,7 @@
     "C#",
     "C++",
     "CI/CD",
+    "CI/CD (GitHub Actions)",
     "CentOS",
     "Confluence",
     "Cybersecurity",
@@ -32,6 +33,7 @@
     "Kubernetes",
     "Lambda",
     "Linux",
+    "MDM",
     "Machine Learning",
     "Microservices",
     "Microsoft Office",
@@ -99,6 +101,7 @@
     "Raspberry Pi",
     "React Native",
     "Redis",
+    "SAML",
     "SCIM",
     "SQL",
     "SQLite",
@@ -265,22 +268,25 @@
       "Git"
     ],
     "proficient": [
-      "TypeScript",
-      "Java",
       "C++",
-      "Vue.js",
+      "CI/CD (GitHub Actions)",
       "Django",
+      "Java",
+      "Kubernetes",
+      "MDM",
       "PostgreSQL",
-      "Kubernetes"
+      "TypeScript",
+      "Vue.js"
     ],
     "familiar": [
-      "Go",
-      "Rust",
       "Angular",
       "Flask",
+      "Go",
+      "Machine Learning",
       "MongoDB",
-      "Terraform",
-      "Machine Learning"
+      "Rust",
+      "SAML",
+      "Terraform"
     ],
     "learning": [
       "Kubernetes",

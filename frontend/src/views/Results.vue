@@ -244,27 +244,90 @@
                       <p class="text-xs text-gray-600">{{ skill.reason }}</p>
                       <p class="text-xs text-yellow-700 mt-1">Confidence: {{ skill.confidence }}</p>
                     </div>
-                    <div class="flex-shrink-0 flex space-x-1">
-                      <button
-                        @click="handleAddSkill(skill.skill, 'conversational_skills')"
-                        :disabled="addingSkills.has(skill.skill)"
-                        class="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-xs rounded-md transition-colors duration-200 flex items-center space-x-1"
-                        title="Add this skill to your baseline skills inventory. It will no longer be flagged in future validations."
-                      >
-                        <span v-if="addingSkills.has(skill.skill)" class="flex items-center">
-                          <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Adding...
-                        </span>
-                        <span v-else class="flex items-center">
-                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                          </svg>
-                          Add to Skills
-                        </span>
-                      </button>
+                    <div class="flex-shrink-0">
+                      <div class="relative skill-dropdown" ref="skillDropdown">
+                        <button
+                          @click="toggleSkillMenu(skill.skill)"
+                          :disabled="addingSkills.has(skill.skill)"
+                          class="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-xs rounded-md transition-colors duration-200 flex items-center space-x-1"
+                          title="Add this skill to your baseline skills inventory with confidence level"
+                        >
+                          <span v-if="addingSkills.has(skill.skill)" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Adding...
+                          </span>
+                          <span v-else class="flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Skill
+                            <svg class="w-2 h-2 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                          </span>
+                        </button>
+                        
+                        <!-- Skill Addition Dropdown -->
+                        <div 
+                          v-if="openSkillMenus.has(skill.skill)"
+                          class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10"
+                        >
+                          <div class="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+                            Add as:
+                          </div>
+                          
+                          <!-- Expert Level -->
+                          <button
+                            @click="handleAddSkill(skill.skill, 'confirmed_skills', 'expert')"
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                          >
+                            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                            <div>
+                              <div class="font-medium text-gray-900">Expert</div>
+                              <div class="text-gray-500">High proficiency</div>
+                            </div>
+                          </button>
+                          
+                          <!-- Proficient Level -->
+                          <button
+                            @click="handleAddSkill(skill.skill, 'confirmed_skills', 'proficient')"
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                          >
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                            <div>
+                              <div class="font-medium text-gray-900">Proficient</div>
+                              <div class="text-gray-500">Good working knowledge</div>
+                            </div>
+                          </button>
+                          
+                          <!-- Familiar Level -->
+                          <button
+                            @click="handleAddSkill(skill.skill, 'conversational_skills', 'familiar')"
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                          >
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                            <div>
+                              <div class="font-medium text-gray-900">Familiar</div>
+                              <div class="text-gray-500">Basic understanding</div>
+                            </div>
+                          </button>
+                          
+                          <!-- Learning Level -->
+                          <button
+                            @click="handleAddSkill(skill.skill, 'conversational_skills', 'learning')"
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                          >
+                            <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                            <div>
+                              <div class="font-medium text-gray-900">Learning</div>
+                              <div class="text-gray-500">Currently learning</div>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -551,6 +614,7 @@ const downloading = ref({
 })
 const downloadingZip = ref(false)
 const addingSkills = ref(new Set()) // Track which skills are being added
+const openSkillMenus = ref(new Set()) // Track which skill dropdowns are open
 
 // Application saving state
 const savingApplication = ref(false)
@@ -967,14 +1031,38 @@ const cancelRegeneration = () => {
   regenStatus.value = { status: 'idle', progress: 0, step: '', detail: '' }
 }
 
-const handleAddSkill = async (skill, category = 'conversational_skills') => {
+const toggleSkillMenu = (skill) => {
+  if (openSkillMenus.value.has(skill)) {
+    openSkillMenus.value.delete(skill)
+  } else {
+    // Close all other menus first
+    openSkillMenus.value.clear()
+    openSkillMenus.value.add(skill)
+  }
+}
+
+const handleAddSkill = async (skill, category = 'conversational_skills', confidenceLevel = null) => {
   try {
     addingSkills.value.add(skill)
-    await addSkillToBaseline(jobId.value, skill, category)
+    openSkillMenus.value.delete(skill) // Close the dropdown
+    
+    await addSkillToBaseline(jobId.value, skill, category, confidenceLevel)
     
     // Show success message with better UX
-    const categoryDisplay = category === 'confirmed_skills' ? 'confirmed skill' : 'conversational skill'
-    const message = `✅ "${skill}" has been added to your skills inventory as a ${categoryDisplay}. This skill will no longer be flagged in future validations.`
+    let categoryDisplay = category === 'confirmed_skills' ? 'confirmed skill' : 'conversational skill'
+    let confidenceDisplay = ''
+    
+    if (confidenceLevel) {
+      const confidenceLabels = {
+        'expert': 'Expert level',
+        'proficient': 'Proficient level', 
+        'familiar': 'Familiar level',
+        'learning': 'Learning level'
+      }
+      confidenceDisplay = ` as ${confidenceLabels[confidenceLevel]}`
+    }
+    
+    const message = `✅ "${skill}" has been added to your skills inventory as a ${categoryDisplay}${confidenceDisplay}. This skill will no longer be flagged in future validations.`
     
     // Use a more user-friendly notification (could be replaced with a proper toast library)
     if (confirm(message + '\n\nWould you like to refresh the page to see updated validation status?')) {
@@ -1227,6 +1315,18 @@ const recompileLatex = async (fileType, content) => {
   }
 }
 
+// Click outside handler for skill dropdowns
+const handleClickOutside = (event) => {
+  // Close all skill dropdowns if clicking outside
+  if (openSkillMenus.value.size > 0) {
+    const target = event.target
+    const isDropdownClick = target.closest('.skill-dropdown')
+    if (!isDropdownClick) {
+      openSkillMenus.value.clear()
+    }
+  }
+}
+
 // Lifecycle
 onMounted(async () => {
   if (!jobId.value) {
@@ -1257,6 +1357,9 @@ onMounted(async () => {
     // Start polling status every 2s
     pollTimer = setInterval(pollStatus, 2000)
   }
+  
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside)
 })
 
 onBeforeUnmount(() => {
@@ -1264,5 +1367,6 @@ onBeforeUnmount(() => {
   if (resumeRecompileTimeout) clearTimeout(resumeRecompileTimeout)
   if (coverLetterRecompileTimeout) clearTimeout(coverLetterRecompileTimeout)
   if (regenPollTimer) clearInterval(regenPollTimer)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>

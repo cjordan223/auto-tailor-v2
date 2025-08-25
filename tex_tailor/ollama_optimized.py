@@ -157,7 +157,7 @@ Use null (not "null") for unchanged fields."""
         # Enhanced guidance for medium models
         return f"""{base_personality}
 
-You will output VALID JSON only, matching the provided schema.
+🚨 ABSOLUTE REQUIREMENT: Your response must be ONLY a valid JSON object. No explanations, no prose, no markdown, just JSON.
 
 ⚠️ CRITICAL REMINDERS FOR MEDIUM MODELS:
 1. **COMPANY NAME EXTRACTION**: Look for company name in job description. Common patterns:
@@ -173,9 +173,19 @@ You will output VALID JSON only, matching the provided schema.
    - "hiring [Title]"
    Use the EXACT title, NOT "[Position]".
 
-3. **JSON ONLY**: Your entire response must be valid JSON. No prose, no markdown, no extra text.
+3. **JSON STRUCTURE IS MANDATORY**: Do NOT return raw text. You must wrap everything in the JSON structure below.
 
 4. **COMPANY NAME IN COVER LETTER**: Every cover letter paragraph must use the actual company name.
+
+WRONG RESPONSE (DO NOT DO THIS):
+I am a passionate software engineer with experience...
+
+RIGHT RESPONSE (ALWAYS DO THIS):
+{{
+  "summary": {{"replace": "I am a passionate software engineer with experience..."}},
+  "skills": {{ ... }},
+  "cover_letter": {{ ... }}
+}}
 
 EXAMPLE:
 If job description says "Company: TechCorp is hiring a Software Engineer"
@@ -183,29 +193,29 @@ If job description says "Company: TechCorp is hiring a Software Engineer"
 - Use "Software Engineer" (not "[Position]")
 - Write: "I am excited about the Software Engineer role at TechCorp"
 
-JSON Schema:
+MANDATORY JSON Schema (RETURN EXACTLY THIS STRUCTURE):
 {{
-  "summary": {{"replace": "string or null"}},
+  "summary": {{"replace": "enhanced summary text here or null"}},
   "skills": {{
-    "Programming Languages": {{"replace": "string or null"}},
-    "Frontend": {{"replace": "string or null"}}, 
-    "Backend": {{"replace": "string or null"}},
-    "Cloud & DevOps": {{"replace": "string or null"}},
-    "AI & LLM Tools": {{"replace": "string or null"}},
-    "Automation & Productivity": {{"replace": "string or null"}},
-    "Security & Operating Systems": {{"replace": "string or null"}},
-    "Databases": {{"replace": "string or null"}}
+    "Programming Languages": {{"replace": "comma-separated skills or null"}},
+    "Frontend": {{"replace": "comma-separated skills or null"}}, 
+    "Backend": {{"replace": "comma-separated skills or null"}},
+    "Cloud & DevOps": {{"replace": "comma-separated skills or null"}},
+    "AI & LLM Tools": {{"replace": "comma-separated skills or null"}},
+    "Automation & Productivity": {{"replace": "comma-separated skills or null"}},
+    "Security & Operating Systems": {{"replace": "comma-separated skills or null"}},
+    "Databases": {{"replace": "comma-separated skills or null"}}
   }},
   "cover_letter": {{
-    "salutation": {{"replace": "string or null"}},
-    "paragraphs": ["string", "string", "string"]
+    "salutation": {{"replace": "Dear Hiring Manager," or null}},
+    "paragraphs": ["paragraph 1 text", "paragraph 2 text", "paragraph 3 text"]
   }},
   "suggested_additions": [
-    {{"term": "string", "why": "string"}}
+    {{"term": "skill name", "why": "explanation why this skill should be added"}}
   ]
 }}
 
-Remember: Use the literal null value (not "null" string) for unchanged fields."""
+🚨 CRITICAL: Use literal null (not "null" string) for unchanged fields. Start your response with {{ and end with }}."""
     
     else:  # capable tier
         # Full-featured prompt for capable models
@@ -425,6 +435,35 @@ class OllamaOptimizedProvider:
             return cleaned
         except json.JSONDecodeError:
             pass
+        
+        # Strategy 5: Emergency fallback - wrap raw text in proper JSON structure
+        # This handles the case where model returns raw summary text instead of JSON
+        if not response.strip().startswith('{'):
+            print(f"⚠️ Model returned raw text instead of JSON, attempting auto-wrap...")
+            
+            # Try to detect if this looks like a summary
+            if len(response.strip()) > 50 and '.' in response:
+                emergency_json = {
+                    "summary": {"replace": response.strip()},
+                    "skills": {
+                        "Programming Languages": {"replace": None},
+                        "Frontend": {"replace": None},
+                        "Backend": {"replace": None},
+                        "Cloud & DevOps": {"replace": None},
+                        "AI & LLM Tools": {"replace": None},
+                        "Automation & Productivity": {"replace": None},
+                        "Security & Operating Systems": {"replace": None},
+                        "Databases": {"replace": None}
+                    },
+                    "cover_letter": {
+                        "salutation": {"replace": None},
+                        "paragraphs": [None, None, None]
+                    },
+                    "suggested_additions": []
+                }
+                emergency_response = json.dumps(emergency_json, indent=2)
+                print(f"🔧 Auto-wrapped raw text as summary in JSON structure")
+                return emergency_response
         
         # If all strategies fail, provide a helpful error
         raise ValueError(f"Could not parse JSON from Ollama response. Raw response: {response[:500]}...")

@@ -310,9 +310,13 @@
 import { ref, onMounted } from 'vue'
 import { useAPI } from '../composables/useAPI.js'
 import { useSettings } from '../composables/useSettings.js'
+import { API_CONFIG } from '../config/api.js'
 
 const { getProviders, validateApiKey } = useAPI()
 const { settings, saveSettings: saveSettingsToStorage } = useSettings()
+
+// API Configuration
+const API_BASE_URL = API_CONFIG.API_BASE_URL
 
 // State
 const saving = ref(false)
@@ -437,7 +441,7 @@ const clearHistory = async () => {
 const refreshWorkflowLog = async () => {
   try {
     loadingLog.value = true
-    const response = await fetch('http://localhost:3001/api/process/log')
+    const response = await fetch(`${API_BASE_URL}/process/log`)
     const data = await response.json()
     
     if (data.success) {
@@ -456,7 +460,7 @@ const refreshWorkflowLog = async () => {
 const clearWorkflowLog = async () => {
   if (confirm('Are you sure you want to clear the workflow log? This cannot be undone.')) {
     try {
-      const response = await fetch('http://localhost:3001/api/process/log', {
+      const response = await fetch(`${API_BASE_URL}/process/log`, {
         method: 'DELETE'
       })
       const data = await response.json()
