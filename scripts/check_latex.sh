@@ -2,7 +2,7 @@
 
 # ChkTeX LaTeX checker script with custom configuration
 CHKTEX="/usr/local/texlive/2025/bin/universal-darwin/chktex"
-CONFIG_FILE=".chktexrc"
+CONFIG_FILE="../config/.chktexrc"
 
 echo "Running ChkTeX on all LaTeX files..."
 echo "Using custom configuration: $CONFIG_FILE"

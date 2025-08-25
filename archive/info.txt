@@ -208,9 +208,11 @@ In `schema.py`, modify FORBIDDEN_LATEX_PATTERNS to be more/less restrictive.
 
 **Gemini:** Best balance of speed, quality, and cost
 **OpenAI:** Highest quality, most expensive  
+**Mistral:** High quality, competitive pricing (Free: 1 RPS, 500K TPM, 1B tokens/month)
+**Groq:** Ultra-fast inference, competitive pricing (Free: 30 RPM, 14.4K RPD, 40K TPM)
 **Ollama:** Free local models, requires more setup
 
-Default priority: Gemini → OpenAI → Ollama
+Default priority: Gemini → OpenAI → Mistral → Groq → Ollama
 
 ## DEBUGGING TIPS
 
@@ -231,9 +233,13 @@ Default priority: Gemini → OpenAI → Ollama
 Required for providers:
 - `GEMINI_API_KEY` - Google Gemini API key
 - `OPENAI_API_KEY` - OpenAI API key  
+- `MISTRAL_API_KEY` - Mistral AI API key
+- `GROQ_API_KEY` - Groq API key
 - `OLLAMA_BASE_URL` - Ollama server URL (default: http://127.0.0.1:11434)
 
 Model selection:
 - `GEMINI_MODEL` - Override default Gemini model
 - `OPENAI_MODEL` - Override default OpenAI model
+- `MISTRAL_MODEL` - Override default Mistral model
+- `GROQ_MODEL` - Override default Groq model
 - `OLLAMA_MODEL` - Override default Ollama model

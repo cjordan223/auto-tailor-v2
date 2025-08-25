@@ -9,7 +9,7 @@
 %   "version": "1.0",
 %   "chunks": [
 %     {"id": "COVER.HEADER",      "editable": false},
-%     {"id": "COVER.DATE",        "editable": false},
+%     {"id": "COVER.DATE",        "editable": true,  "type": "date"},
 %     {"id": "COVER.SALUTATION",  "editable": false},
 %     {"id": "COVER.P1",          "editable": true,  "type": "paragraph"},
 %     {"id": "COVER.P2",          "editable": true,  "type": "paragraph"},
@@ -88,11 +88,11 @@
 
 \vspace{16pt}
 
-% === LLM:LOCK START COVER.DATE ===
+% === LLM:CHUNK START COVER.DATE ===
 \begin{flushright}
-August 13, 2025
+\ifdefined\jobdate\jobdate\else\today\fi
 \end{flushright}
-% === LLM:LOCK END COVER.DATE ===
+% === LLM:CHUNK END COVER.DATE ===
 
 % === LLM:LOCK START COVER.SALUTATION ===
 \noindent

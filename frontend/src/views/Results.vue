@@ -224,10 +224,32 @@
                       class="flex-shrink-0 w-4 h-4 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
                       ⚠️
                     </div>
-                    <div>
+                    <div class="flex-1">
                       <h4 class="font-medium text-gray-900 text-sm">{{ skill.skill }}</h4>
                       <p class="text-xs text-gray-600">{{ skill.reason }}</p>
                       <p class="text-xs text-yellow-700 mt-1">Confidence: {{ skill.confidence }}</p>
+                    </div>
+                    <div class="flex-shrink-0 flex space-x-1">
+                      <button
+                        @click="handleAddSkill(skill.skill, 'conversational_skills')"
+                        :disabled="addingSkills.has(skill.skill)"
+                        class="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-xs rounded-md transition-colors duration-200 flex items-center space-x-1"
+                        title="Add this skill to your baseline skills inventory. It will no longer be flagged in future validations."
+                      >
+                        <span v-if="addingSkills.has(skill.skill)" class="flex items-center">
+                          <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Adding...
+                        </span>
+                        <span v-else class="flex items-center">
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                          </svg>
+                          Add to Skills
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -353,8 +375,8 @@
         Generate Another Resume
       </router-link>
       <button v-if="results" @click="downloadAll" :disabled="isDownloadingAll" class="btn btn-primary">
-        <span v-if="isDownloadingAll">Downloading All...</span>
-        <span v-else>Download All Files</span>
+        <span v-if="isDownloadingAll">Downloading ZIP...</span>
+        <span v-else>Download All Files (ZIP)</span>
       </button>
     </div>
   </div>
@@ -369,7 +391,7 @@ import PDFViewer from '../components/PDFViewer.vue'
 import LaTeXEditor from '../components/LaTeXEditor.vue'
 
 const route = useRoute()
-const { getResults, downloadFile: apiDownloadFile, checkStatus } = useAPI()
+const { getResults, downloadFile: apiDownloadFile, downloadAllAsZip, addSkillToBaseline, checkStatus } = useAPI()
 
 // Props
 const props = defineProps({
@@ -386,6 +408,8 @@ const downloading = ref({
   coverLetter: false,
   edits: false
 })
+const downloadingZip = ref(false)
+const addingSkills = ref(new Set()) // Track which skills are being added
 
 // Collapsible state
 const showJobDescription = ref(false)
@@ -410,7 +434,7 @@ let pollTimer = null
 // Computed
 const jobId = computed(() => props.jobId || route.params.jobId)
 const isDownloadingAll = computed(() =>
-  Object.values(downloading.value).some(d => d)
+  Object.values(downloading.value).some(d => d) || downloadingZip.value
 )
 const isProcessing = computed(() => statusData.value?.status === 'processing')
 const isCompleted = computed(() => {
@@ -489,16 +513,34 @@ const downloadFile = async (fileType) => {
 }
 
 const downloadAll = async () => {
-  const files = ['resume', 'cover-letter', 'edits']
+  try {
+    downloadingZip.value = true
+    await downloadAllAsZip(jobId.value)
+  } catch (err) {
+    alert(`Failed to download zip file: ${err.message}`)
+  } finally {
+    downloadingZip.value = false
+  }
+}
 
-  for (const fileType of files) {
-    try {
-      await downloadFile(fileType)
-      // Small delay between downloads
-      await new Promise(resolve => setTimeout(resolve, 500))
-    } catch (err) {
-      console.error(`Failed to download ${fileType}:`, err)
+const handleAddSkill = async (skill, category = 'conversational_skills') => {
+  try {
+    addingSkills.value.add(skill)
+    await addSkillToBaseline(jobId.value, skill, category)
+    
+    // Show success message with better UX
+    const categoryDisplay = category === 'confirmed_skills' ? 'confirmed skill' : 'conversational skill'
+    const message = `✅ "${skill}" has been added to your skills inventory as a ${categoryDisplay}. This skill will no longer be flagged in future validations.`
+    
+    // Use a more user-friendly notification (could be replaced with a proper toast library)
+    if (confirm(message + '\n\nWould you like to refresh the page to see updated validation status?')) {
+      await loadResults()
     }
+    
+  } catch (err) {
+    alert(`Failed to add skill: ${err.message}`)
+  } finally {
+    addingSkills.value.delete(skill)
   }
 }
 

@@ -3,8 +3,8 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
-RESUME_FILE="Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
-COVER_LETTER_FILE="Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
+RESUME_FILE="templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
+COVER_LETTER_FILE="templates/Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
 LOG_FILE="workflow.log"
 
 # --- Functions ---

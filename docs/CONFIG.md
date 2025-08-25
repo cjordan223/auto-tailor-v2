@@ -42,6 +42,22 @@ providers:
     top_k: 1
     max_tokens: 2048
     # Available models: gemini-1.5-flash (15 RPM), gemini-1.5-pro (2 RPM), gemini-1.0-pro (60 RPM)
+    
+  mistral:
+    default_model: "mistral-large-latest"
+    timeout: 120
+    temperature: 0
+    max_tokens: 2048
+    # Available models: mistral-large-latest, mistral-medium-latest, mistral-small-latest
+    # Free tier: 1 RPS (60 RPM), 500K TPM, 1B tokens/month
+    
+  groq:
+    default_model: "llama-3.3-70b-versatile"
+    timeout: 120
+    temperature: 0
+    max_tokens: 2048
+    # Available models: llama-3.3-70b-versatile, llama-3.1-8b-versatile, mixtral-8x7b-32768
+    # Free tier: 30 RPM, 14.4K RPD, 40K TPM
 ```
 
 ### API Endpoints
@@ -50,14 +66,16 @@ apis:
   ollama_base_url: "http://127.0.0.1:11434"
   openai_base_url: "https://api.openai.com/v1"
   gemini_base_url: "https://generativelanguage.googleapis.com/v1beta/models"
+  mistral_base_url: "https://api.mistral.ai/v1"
+  groq_base_url: "https://api.groq.com/openai/v1"
 ```
 
 ### File Paths
 ```python
 paths:
   output_dir: "out"
-  baseline_resume_dir: "Baseline_Resume"
-  baseline_cover_dir: "Basline_Cover_Letter"
+  baseline_resume_dir: "templates/Baseline_Resume"
+  baseline_cover_dir: "templates/Basline_Cover_Letter"
   base_text_file: "base_text.json"
   edits_file: "edits.json"
   resume_llm_ready: "Conner_Jordan_Software_Engineer llm_ready.tex"
@@ -72,21 +90,27 @@ The following environment variables can override default configuration:
 - `OLLAMA_MODEL` - Override default Ollama model
 - `OPENAI_MODEL` - Override default OpenAI model  
 - `GEMINI_MODEL` - Override default Gemini model
+- `MISTRAL_MODEL` - Override default Mistral model
+- `GROQ_MODEL` - Override default Groq model
 
 Example:
 ```bash
 # Override models
-export OLLAMA_MODEL="llama3.1:8b"
+export OLLAMA_MODEL="llama3:8b"
 export OPENAI_MODEL="gpt-4"
 export GEMINI_MODEL="gemini-1.5-flash"
+export MISTRAL_MODEL="mistral-large-latest"
+export GROQ_MODEL="ollama-3.3-70b-versatile"
 
 # Override API endpoints
-export OLLAMA_BASE_URL="http://192.168.1.100:11434"
+export OLLAMA_BASE_URL="http://localhost:11434"
 
 # Use with any provider
 tex-tailor propose --jd job.txt --provider ollama
 tex-tailor propose --jd job.txt --provider openai
 tex-tailor propose --jd job.txt --provider gemini
+tex-tailor propose --jd job.txt --provider mistral
+tex-tailor propose --jd job.txt --provider groq
 ```
 
 ## Web Interface Configuration
@@ -101,19 +125,21 @@ The web frontend configuration is handled through:
 
 #### Environment Variables
 ```bash
-# API Server Configuration
-PORT=3001                           # Express.js server port
-FRONTEND_URL=http://localhost:3000   # CORS allowed origin
+# AI Provider API Keys
+GEMINI_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here
+MISTRAL_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
 
-# AI Provider API Keys (same as CLI)
-GEMINI_API_KEY=your_gemini_key
-OPENAI_API_KEY=your_openai_key
-OLLAMA_BASE_URL=http://localhost:11434
-
-# Model Overrides (same as CLI)
+# Model Selection
 GEMINI_MODEL=gemini-1.5-pro
 OPENAI_MODEL=gpt-4o
-OLLAMA_MODEL=qwen2.5:14b-instruct
+MISTRAL_MODEL=mistral-large-latest
+GROQ_MODEL=llama-3.3-70b-versatile
+
+# Server Configuration
+PORT=3001
+FRONTEND_URL=http://localhost:3000
 ```
 
 #### Settings Page Configuration
@@ -130,6 +156,8 @@ Access via `http://localhost:3000/settings`:
 **Provider Configuration:**
 - **Gemini Setup**: API key from Google AI Studio with validation
 - **OpenAI Setup**: API key from OpenAI Platform with validation  
+- **Mistral Setup**: API key from Mistral AI Platform with validation
+- **Groq Setup**: API key from Groq Platform with validation
 - **Ollama Setup**: Server URL configuration with connection testing
 - **Default Provider**: Choose preferred AI provider for new jobs
 - **Auto-download**: Automatically download generated files when processing completes
@@ -146,7 +174,9 @@ Settings are persisted in browser local storage:
 {
   "apiKeys": {
     "gemini": "user_provided_key",    // Securely stored, only sent during processing
-    "openai": "user_provided_key"     // Validated with real API calls
+    "openai": "user_provided_key",    // Validated with real API calls
+    "mistral": "user_provided_key",   // Validated with real API calls
+    "groq": "user_provided_key"       // Validated with real API calls
   },
   "ollamaUrl": "http://localhost:11434",  // Server URL for local models
   "defaultProvider": "gemini",            // Auto-selected on new jobs
@@ -315,12 +345,12 @@ All CLI commands now use sensible defaults from the configuration:
 
 ```bash
 # BEFORE: Required explicit paths everywhere
-tex-tailor extract --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..." --out "out/base_text.json"
+tex-tailor extract --resume "templates/Baseline_Resume/..." --cover "templates/Basline_Cover_Letter/..." --out "out/base_text.json"
 tex-tailor propose --jd job.txt --base-text "out/base_text.json" --out "out/edits.json"
-tex-tailor apply --edits "out/edits.json" --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..."
+tex-tailor apply --edits "out/edits.json" --resume "templates/Baseline_Resume/..." --cover "templates/Basline_Cover_Letter/..."
 
 # AFTER: Uses intelligent defaults
-tex-tailor extract --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..."
+tex-tailor extract --resume "templates/Baseline_Resume/..." --cover "templates/Basline_Cover_Letter/..."
 tex-tailor propose --jd job.txt
 tex-tailor apply
 
@@ -346,7 +376,7 @@ from tex_tailor.config import config, get_model_for_provider, get_default_paths
 paths = get_default_paths()
 print(paths["base_text"])     # "out/base_text.json"
 print(paths["edits"])        # "out/edits.json" 
-print(paths["baseline_resume"]) # "Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
+print(paths["baseline_resume"]) # "templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
 
 # Get model for provider (respects env var overrides)
 model = get_model_for_provider("ollama")  # "qwen2.5:14b-instruct" or OLLAMA_MODEL
@@ -373,7 +403,7 @@ source venv/bin/activate
 python -c "from tex_tailor.config import config; print('Config loaded:', config.providers.ollama.default_model)"
 
 # Test environment variable overrides
-OLLAMA_MODEL=llama3.1:8b python -c "from tex_tailor.config import get_model_for_provider; print(get_model_for_provider('ollama'))"
+OLLAMA_MODEL=llama3:8b python -c "from tex_tailor.config import get_model_for_provider; print(get_model_for_provider('ollama'))"
 
 # Test CLI with defaults
 tex-tailor status  # Shows all current configuration values
@@ -435,7 +465,7 @@ def __post_init__(self):
 ## ✅ Verification Status (August 2025)
 
 **All systems verified and working:**
-- ✅ **CLI Workflow**: `./run_workflow_clean.sh test_jd.txt` completes successfully
+- ✅ **CLI Workflow**: `./scripts/run_workflow_clean.sh test_jd.txt` completes successfully
 - ✅ **Web Interface**: Frontend (port 3000) and backend (port 3001) both functional
 - ✅ **File Upload**: Job description uploads process correctly
 - ✅ **Path Handling**: Works from any directory with absolute path resolution

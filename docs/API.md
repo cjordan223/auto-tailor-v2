@@ -160,6 +160,59 @@ console.log(`Progress: ${data.progress}% - ${data.step}`)
 2. **Strategy 2**: Falls back to direct `edits.json` parsing
 3. **Strategy 3**: Provides minimal default data
 
+### Add Skill to Baseline Skills
+
+**Endpoint:** `POST /api/results/:jobId/add-skill`  
+**Description:** Add a flagged skill to the baseline skills JSON file
+
+**Parameters:**
+- `jobId` (path): UUID of the job
+- `skill` (body): The skill name to add
+- `category` (body, optional): Category to add the skill to (`confirmed_skills` or `conversational_skills`, defaults to `conversational_skills`)
+
+**Request Body:**
+```json
+{
+  "skill": "RESTful & GraphQL API Development",
+  "category": "conversational_skills"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Skill \"RESTful & GraphQL API Development\" added to conversational_skills",
+  "skill": "RESTful & GraphQL API Development",
+  "category": "conversational_skills",
+  "updatedSkills": ["React", "RESTful & GraphQL API Development", "Vue.js", ...]
+}
+```
+
+**Error Responses:**
+- `400`: Skill is required or invalid category
+- `404`: Baseline skills file not found
+- `409`: Skill already exists in the skills inventory
+- `500`: Server error
+
+**Example:**
+```javascript
+// Add a flagged skill to the baseline
+const response = await fetch(`/api/results/${jobId}/add-skill`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    skill: 'RESTful & GraphQL API Development',
+    category: 'conversational_skills'
+  })
+})
+
+const result = await response.json()
+console.log(result.message) // "Skill added successfully"
+```
+
 ## 📁 File Management Endpoints
 
 ### Upload Files
@@ -214,6 +267,44 @@ window.open(`/api/download/${jobId}/resume`)
 // Download LaTeX source
 const response = await fetch(`/api/download/${jobId}/resume-tex`)
 const latexContent = await response.text()
+```
+
+### Download All Files as ZIP
+
+**Endpoint:** `GET /api/download/:jobId/zip/all`  
+**Description:** Download all generated files as a compressed ZIP archive
+
+**Parameters:**
+- `jobId` (path): UUID of the job
+
+**Response:** ZIP file download containing:
+- `Resume.pdf` - Generated resume PDF
+- `Cover_Letter.pdf` - Generated cover letter PDF
+- `Resume.tex` - Resume LaTeX source code
+- `Cover_Letter.tex` - Cover letter LaTeX source code
+- `Edit_Details.json` - Detailed edit information
+- `Job_Description.txt` - Original job description
+- `README.txt` - Instructions and file descriptions
+
+**Headers Set:**
+```
+Content-Type: application/zip
+Content-Disposition: attachment; filename="tex-tailor-results-{jobId}.zip"
+```
+
+**Example:**
+```javascript
+// Download all files as ZIP
+const response = await fetch(`/api/download/${jobId}/zip/all`)
+const zipBlob = await response.blob()
+
+// Create download link
+const url = window.URL.createObjectURL(zipBlob)
+const link = document.createElement('a')
+link.href = url
+link.download = `tex-tailor-results-${jobId}.zip`
+link.click()
+window.URL.revokeObjectURL(url)
 ```
 
 ### View PDF Files Inline

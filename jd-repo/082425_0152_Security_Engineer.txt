@@ -1,0 +1,23 @@
+job_title: Security Engineer
+company: Magic
+
+ About the job
+Magic’s mission is to build safe AGI that accelerates humanity’s progress on the world’s most important problems. We believe the most promising path to safe AGI lies in automating research and code generation to improve models and solve alignment more reliably than humans can alone. Our approach combines frontier-scale pre-training, domain-specific RL, ultra-long context, and inference-time compute to achieve this goal.
+About the role:
+Our models and infrastructure represent years of research and significant investment. If not properly protected, they could be misused in ways that carry real risk. That is why we are looking for a Security Engineer who will take the lead on protecting our systems from unauthorized access, data breaches, and emerging threats. In this role, you will help shape the foundation of our security program, build tools to detect and respond to threats, and work alongside our engineering and research teams to keep our most sensitive systems secure.
+What you might work on:
+    Design, build, and maintain security tooling used by Magic's engineering teams
+    Respond to and investigate security incidents
+    Develop strategies to safeguard AI training and inference processes from potential threats
+    Enhance our detection infrastructure to protect data and systems from emerging threats, improving detective and corrective controls
+    Conduct regular security assessments and red-teaming efforts to identify vulnerabilities and implement effective countermeasures
+    Tell us what we are missing on this list, and help us implement it
+What we’re looking for:
+    Significant experience as a security software engineer at a major organization or government agency
+    Strong software engineering skills
+    On-call readiness 24/7, assisted by our team
+    Experience with complex security breaches and remediation efforts
+    Ability to develop high-complexity cloud linux-based exploits
+    Experience architecting zero-trust environments
+    Track record of exceptional personal integrity, accountability and trustworthiness
+Magic strives to be the place where high-potential individuals can do their best work. We value quick learning and grit just as much as skill and experience.

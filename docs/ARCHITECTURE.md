@@ -67,9 +67,9 @@ tex-tailor/
 │   ├── extractor.py                 # Content extraction from LaTeX
 │   ├── schema.py                    # JSON validation schemas
 │   └── config.py                    # Configuration management
-├── Baseline_Resume/                 # LaTeX resume template
+├── templates/Baseline_Resume/       # LaTeX resume template
 │   └── Conner_Jordan_Software_Engineer llm_ready.tex
-├── Basline_Cover_Letter/           # LaTeX cover letter template
+├── templates/Basline_Cover_Letter/  # LaTeX cover letter template
 │   └── Conner_Jordan_Cover_Letter llm_ready.tex
 └── out/                            # Generated output files
     ├── *.pdf                       # Generated PDFs

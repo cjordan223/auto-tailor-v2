@@ -23,24 +23,13 @@ npm run dev
 
 ## 🎯 Features
 
-### 🌐 **Modern Web Interface**
-- **Drag & Drop**: Upload job descriptions effortlessly
-- **Real-time Processing**: See detailed progress, not just spinners  
-- **PDF Preview**: Embedded viewers for instant document review
-- **LaTeX Source Viewer**: Side-by-side source code and PDF with syntax highlighting
-- **Multi-provider Support**: Gemini, OpenAI, or local Ollama
-
-### 🤖 **Intelligent AI Processing**
-- **Smart Customization**: Tailors resume summary, skills, and cover letter
-- **Natural Language**: Conversational cover letters, not corporate speak
-- **Safe Editing**: Preserves LaTeX structure using marker system
-- **Fallback System**: Works even when AI providers are unavailable
-
-### 📱 **Automation & Integration**
-- **Raycast Commands**: One-click workflow from clipboard
-- **Silent Processing**: Background processing with result notifications
-- **Batch Support**: CLI for multiple job applications
-- **API Integration**: RESTful API for custom integrations
+- **🤖 AI-Powered Customization**: Uses advanced LLMs to tailor resumes and cover letters to specific job descriptions
+- **📄 LaTeX Support**: Full LaTeX source code editing with real-time PDF preview
+- **🎯 ATS Optimization**: Ensures resumes pass Applicant Tracking Systems
+- **📱 Universal Access**: Web, CLI, and Raycast command support
+- **📦 One-Click Download**: Download all files as a compressed ZIP archive
+- **🔍 Detailed Analysis**: Comprehensive review of changes and suggestions
+- **⚡ Real-time Processing**: Live status updates and progress tracking
 
 ## 🏗️ Architecture
 
@@ -113,11 +102,11 @@ export OPENAI_MODEL="gpt-4o-mini"        # Default: cost-effective
 ### CLI Workflow
 ```bash
 # Complete workflow (single command)
-./run_workflow_clean.sh job_description.txt
+./scripts/run_workflow_clean.sh job_description.txt
 
 # Step-by-step processing
 tex-tailor init
-tex-tailor extract --resume "Baseline_Resume/..." --cover "Basline_Cover_Letter/..."
+tex-tailor extract --resume "templates/Baseline_Resume/..." --cover "templates/Basline_Cover_Letter/..."
 tex-tailor propose --jd job.txt
 tex-tailor apply
 tex-tailor render
@@ -160,29 +149,29 @@ tex-tailor/
 │   └── patcher.py             # LaTeX editing
 ├── jd-repo/                    # Job description storage
 ├── out/                        # CLI generated files
-├── run_*.sh                    # Automation scripts
-└── Baseline_*/                 # LaTeX templates
+├── scripts/                    # Automation scripts
+└── templates/                  # LaTeX templates
 ```
 
 ## 🔧 Scripts & Automation
 
 | Script | Purpose | Usage |
 |--------|---------|--------|
-| `run_complete_workflow.sh` | Raycast automation | Full workflow from clipboard |
-| `run_silent_workflow.sh` | Background processing | Auto-detect latest JD and process |
-| `run_workflow_clean.sh` | CLI workflow | Complete processing from file |
+| `scripts/run_complete_workflow.sh` | Raycast automation | Full workflow from clipboard |
+| `scripts/run_silent_workflow.sh` | Background processing | Auto-detect latest JD and process |
+| `scripts/run_workflow_clean.sh` | CLI workflow | Complete processing from file |
 
 ## 🧪 Testing & Validation
 
 ```bash
 # Test complete pipeline
-./run_workflow_clean.sh test_jd.txt
+./scripts/run_workflow_clean.sh test_jd.txt
 
 # Test web interface
 curl http://localhost:3001/health
 
 # Test LaTeX quality
-./check_latex.sh
+./scripts/check_latex.sh
 
 # Run unit tests  
 python -m unittest discover tex_tailor/tests/ -v
@@ -196,14 +185,13 @@ python -m unittest discover tex_tailor/tests/ -v
 - **🔒 Safe Editing**: Never corrupts LaTeX structure or factual information
 - **📱 Universal Access**: Web, CLI, and Raycast command support
 
-## 🎯 AI Providers
+## 🤖 AI Providers Supported
 
-| Provider | Model | Speed | Quality | Rate Limit | Best For |
-|----------|-------|-------|---------|-----------|----------|
-| **Gemini** | 1.5-flash | ⚡⚡⚡ | ⭐⭐⭐⭐ | 15 RPM | **Recommended** |
-| Gemini | 1.0-pro | ⚡⚡ | ⭐⭐⭐ | 60 RPM | Testing |
-| OpenAI | gpt-4o-mini | ⚡⚡ | ⭐⭐⭐⭐⭐ | 500 RPM | Premium quality |
-| Ollama | qwen2.5:14b | ⚡ | ⭐⭐⭐ | ∞ | Privacy/Local |
+- **Google Gemini** - Best balance of speed, quality, and cost
+- **OpenAI** - Highest quality, premium pricing  
+- **Mistral** - High quality, competitive pricing (Free: 1 RPS, 500K TPM, 1B tokens/month)
+- **Groq** - Ultra-fast inference, competitive pricing (Free: 30 RPM, 14.4K RPD, 40K TPM)
+- **Ollama** - Free local models, requires setup
 
 ## 🔍 Troubleshooting
 
@@ -229,13 +217,13 @@ export GEMINI_API_KEY="your-key"
 ```bash
 # Check LaTeX installation
 tex-tailor render
-./check_latex.sh
+./scripts/check_latex.sh
 ```
 
 ### Reset Workflow
 ```bash
 # Clean working files (keeps baselines)
-rm -rf out/ frontend/temp/ Baseline_Resume/*llm_ready.tex Basline_Cover_Letter/*llm_ready.tex
+rm -rf out/ frontend/temp/ templates/Baseline_Resume/*llm_ready.tex templates/Basline_Cover_Letter/*llm_ready.tex
 tex-tailor init
 ```
 

@@ -5,8 +5,8 @@ set -e # Exit immediately if a command exits with a non-zero status.
 # --- Configuration ---
 # Resolve all paths relative to this script's directory so execution is cwd-agnostic
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RESUME_FILE="$SCRIPT_DIR/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
-COVER_LETTER_FILE="$SCRIPT_DIR/Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
+RESUME_FILE="$SCRIPT_DIR/../templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
+COVER_LETTER_FILE="$SCRIPT_DIR/../templates/Basline_Cover_Letter/Conner_Jordan_Cover_Letter llm_ready.tex"
 LOG_FILE="$SCRIPT_DIR/workflow.log"
 
 # --- Functions ---
@@ -37,7 +37,7 @@ exec > >(tee "$LOG_FILE") 2>&1
 log_message "Starting clean workflow for job description: $JD_FILE"
 
 # Activate virtual environment from project root
-source "$SCRIPT_DIR/venv/bin/activate"
+source "$SCRIPT_DIR/../venv/bin/activate"
 
 echo "🔄 Processing job description..."
 tex-tailor --quiet init

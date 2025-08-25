@@ -101,12 +101,30 @@ router.get('/', async (req, res) => {
             rateLimits: 'No limits (local)'
           },
           { 
-            id: 'llama3.1:8b', 
-            name: 'Llama 3.1 8B', 
+            id: 'llama3:8b', 
+            name: 'Llama 3 8B', 
             description: 'Lighter model, faster inference',
             recommended: false,
             quality: 'Good',
             speed: 'Fast',
+            rateLimits: 'No limits (local)'
+          },
+          { 
+            id: 'phi3:mini', 
+            name: 'Phi-3 Mini (3.8B)', 
+            description: 'Fastest and most lightweight model, suitable for simple tasks',
+            recommended: false,
+            quality: 'Good',
+            speed: 'Very Fast',
+            rateLimits: 'No limits (local)'
+          },
+          { 
+            id: 'llama3.1:70b', 
+            name: 'Llama 3.1 (70B)', 
+            description: 'Highest quality local model, requires significant resources',
+            recommended: false,
+            quality: 'Highest',
+            speed: 'Slow',
             rateLimits: 'No limits (local)'
           }
         ]

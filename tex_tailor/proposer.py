@@ -2,35 +2,65 @@
 Module for LLM calls (Ollama, Gemini, OpenAI) to propose edits.
 
 🧠 THIS IS THE MAIN AI BRAIN - PERSONALITY & BEHAVIOR CONTROLLED HERE
-📍 To tune model behavior, modify SYSTEM_PROMPT below (lines 15-95)
+📍 To tune model behavior, modify SYSTEM_PROMPT below or load personality files
 📍 To adjust creativity, modify temperature/top_k in provider classes (lines 175+)
 """
 import os
 import json
 import requests
 import time
+from pathlib import Path
 from typing import Dict, Any, Optional
 from .schema import validate_edits, validate_skills_against_inventory
 from .config import config, get_api_config_for_provider
 
 
-# 🎯 MAIN AI PROMPT - MODIFY HERE TO CHANGE PERSONALITY & BEHAVIOR
-# This controls how the AI behaves, what it prioritizes, and its "personality"
-SYSTEM_PROMPT = """You are a deterministic résumé/cover-letter tailor.
-Never output LaTeX or prose. Output VALID JSON only matching the provided schema.
-Preserve factual integrity (employers, titles, dates, metrics). Optimize skills and content to align with job description requirements.
-If a needed JD term is not present in the base text and cannot be inferred, list it under "suggested_additions" only.
+def load_personality_prompt(personality_name: str) -> str:
+    """Load personality prompt from file or return default."""
+    try:
+        # Get the project root directory (where personalities/ folder is located)
+        current_file = Path(__file__)
+        # tex_tailor/proposer.py -> project root
+        project_root = current_file.parent.parent
+        personality_file = project_root / \
+            "personalities" / f"{personality_name}.txt"
 
-CRITICAL CONSTRAINTS:
-# 🎛️ TUNE THESE TO CHANGE AI BEHAVIOR - More restrictive = safer, less restrictive = more creative
-- Summary: Preserve personal voice while optimizing for job relevance. Focus on key terminology alignment.
-- Skills: ONLY add skills from job description if they align with existing confirmed or conversational skills. NEVER add skills in exclude_skills list or unrelated technical domains. Use suggested_additions for skills outside your confirmed expertise.
-- Cover letter: Tailor content to job requirements while maintaining authentic tone and factual accuracy.
-- Suggested additions: "why" field should be concise and under 200 characters.
-- Use null (not the string "null") for unchanged fields when no improvement is needed.
-- Focus on strategic job-relevant modifications that improve keyword alignment.
-- PRESERVE FACTUAL INTEGRITY: Never change employers, titles, dates, or quantified metrics.
-- SKILLS VALIDATION: Only add skills you can confidently discuss. If uncertain about a skill, add it to suggested_additions instead of directly to skills sections.
+        if personality_file.exists():
+            with open(personality_file, 'r', encoding='utf-8') as f:
+                personality_prompt = f.read().strip()
+            print(f"🎭 Loaded personality: {personality_name}")
+            return personality_prompt
+        else:
+            print(f"⚠️ Personality file not found: {personality_file}")
+            return DEFAULT_PERSONALITY_PROMPT
+    except Exception as e:
+        print(f"❌ Error loading personality {personality_name}: {e}")
+        return DEFAULT_PERSONALITY_PROMPT
+
+
+# Default personality prompt (fallback)
+DEFAULT_PERSONALITY_PROMPT = """You are a career storyteller and a savvy colleague. Your goal is to help craft a compelling narrative that makes the candidate's experience come alive.
+Your tone is confident, competent, and professional, yet approachable. You communicate clearly and directly, avoiding jargon."""
+
+
+def build_system_prompt(personality_name: str = 'career_savvy_colleague') -> str:
+    """Build complete system prompt with personality and directives."""
+
+    # Get personality-specific instructions
+    personality_prompt = load_personality_prompt(personality_name)
+
+    # Build the complete prompt using string concatenation to avoid f-string issues with JSON schema
+    system_prompt = personality_prompt + """
+You will output VALID JSON only, matching the provided schema.
+
+CRITICAL DIRECTIVES:
+1.  **COMPANY & ROLE EXTRACTION:** Extract the company name and job role from the job description. Look for patterns like "Company:", "Position:", "Title:", "at [Company]", "joining [Company]", etc. Use the actual company name and role in the cover letter, NOT generic placeholders like "[Company Name]".
+2.  **NARRATIVE FOCUS:** Do not just list skills. Weave the candidate's experience into a story. For the cover letter, identify the 2-3 most critical requirements in the job description and build a narrative explaining how the candidate's accomplishments directly meet those needs.
+3.  **EVIDENCE-BASED:** Every claim in the cover letter must be implicitly backed by evidence from the resume text. Connect projects and experiences to the job's requirements.
+4.  **TONE & VOICE:** Write in a confident, competent, and enthusiastic first-person voice. Sound like a real person, not a robot.
+5.  **FACTUAL INTEGRITY:** NEVER change employers, titles, dates, or quantified metrics. Preserve the core facts of the resume.
+6.  **SKILLS VALIDATION:** Only add skills from the job description if they align with the candidate's existing experience. If a skill is mentioned in the JD but is not something the candidate can confidently discuss, add it to "suggested_additions" with a clear explanation.
+7.  **JSON ONLY:** Never output prose or LaTeX. Your entire response must be a single, valid JSON object that adheres to the schema below. Use `null` for fields that do not require changes.
 
 REQUIRED JSON SCHEMA:
 {
@@ -63,7 +93,7 @@ REQUIRED JSON SCHEMA:
         "paragraphs": {
           "type": "array",
           "items": {"type": ["string", "null"]},
-          "minItems": 4,
+          "minItems": 3,
           "maxItems": 4
         }
       },
@@ -76,7 +106,7 @@ REQUIRED JSON SCHEMA:
         "type": "object",
         "properties": {
           "term": {"type": "string"},
-          "why": {"type": "string", "maxLength": 200}
+          "why": {"type": "string"}
         },
         "required": ["term", "why"],
         "additionalProperties": false
@@ -89,24 +119,15 @@ REQUIRED JSON SCHEMA:
 
 YOU MUST include all required fields: summary, skills, cover_letter.
 
-# 📚 EXAMPLES SECTION - ADD MORE EXAMPLES HERE TO TEACH AI NEW BEHAVIORS
-EXAMPLES OF VALID EDITS:
-- Summary: Modify to highlight relevant experience for the target role.
-- Skills: ONLY add skills you can confidently discuss. If a skill from the job description is not in your confirmed expertise, add it to suggested_additions instead.
-  IMPORTANT: For skills, only provide the content after the colon, NOT the category name.
-  Example: For "Frontend", return "React, Vue.js, Angular" NOT "Frontend: React, Vue.js, Angular".
-  PREFERRED approach: "Python, Java, C++" → "Python, Java, C++, Go" (ADD Go if you can discuss it, keep existing).
-  AVOID: "Python, Java, C++" → "Go, Rust" (removes valuable existing skills).
-  SKILLS VALIDATION EXAMPLES:
-  - If JD mentions "SCADA" but you don't have SCADA experience → add to suggested_additions with reason "Not in confirmed skills"
-  - If JD mentions "React" and you have React experience → add to Frontend skills
-  - If JD mentions "CAD software" but you don't have CAD experience → add to suggested_additions with reason "Not in confirmed skills"
-- Cover letter salutation: Replace [Company Name] with the actual company name from the job description.
-- Cover letter paragraphs: Tailor content to emphasize job-relevant experience and match company needs.
-- Make strategic edits that improve job relevance - use null (not "null") only when no improvements are needed.
-- PRESERVE foundational skills unless they conflict with job requirements.
-- IMPORTANT: Return actual null values, not the string "null". Example: "replace": null is correct, "replace": "null" is wrong.
+# 📚 EXAMPLES OF NARRATIVE-DRIVEN EDITS:
+-   **Company & Role Extraction:** If the job description says "Company: HealthMetric Analytics" and "Position: Data Scientist", use "HealthMetric Analytics" and "Data Scientist" in the cover letter, NOT "[Company Name]" or generic terms.
+-   **Cover Letter Paragraph 1 (Introduction):** Instead of "I am writing to apply for the Software Engineer role," generate something like: "When I saw the opening for the Data Scientist position at HealthMetric Analytics, I was immediately drawn to your innovative work in healthcare analytics. My experience in developing machine learning models aligns perfectly with what you're building."
+-   **Cover Letter Paragraph 2 (Body):** Connect a key job requirement to a specific achievement. "The job description emphasizes a need for expertise in healthcare data analysis. In my previous role at [Previous Company], I led the development of predictive models for patient outcomes, resulting in a 25% improvement in treatment recommendations. This experience has prepared me to contribute effectively to HealthMetric Analytics' clinical insights team."
+-   **Skills:** Add skills that are both in the JD and supported by the resume content. For example, if the JD requires "Terraform" and the resume mentions "Infrastructure as Code (IaC) for AWS," it's safe to add "Terraform" to the skills list. If the resume has no IaC experience, add "Terraform" to `suggested_additions`.
+-   **JSON `null`:** Use `null` (the JSON literal, not the string "null") for any field where the existing text is already excellent and requires no changes. NEVER use the string "null" as a skill term or suggested addition.
 """
+
+    return system_prompt
 
 
 def build_user_prompt(jd_content: str, base_text: Dict[str, Any]) -> str:
@@ -178,13 +199,12 @@ class OllamaProvider:
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         """Generate response using Ollama."""
 
-        # Use chat API format
+        # Combine system and user prompts for Ollama's generate API
+        combined_prompt = f"{system_prompt}\n\n{user_prompt}"
+
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
+            "prompt": combined_prompt,
             "stream": False,
             "options": {
                 # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
@@ -197,14 +217,14 @@ class OllamaProvider:
 
         try:
             response = requests.post(
-                f"{self.base_url}/api/chat",
+                f"{self.base_url}/api/generate",
                 json=payload,
                 timeout=config.providers.ollama.timeout
             )
             response.raise_for_status()
 
             result = response.json()
-            return result["message"]["content"].strip()
+            return result["response"].strip()
 
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Ollama API error: {e}")
@@ -329,6 +349,105 @@ class OpenAIProvider:
             raise RuntimeError(f"Unexpected OpenAI response format: {e}")
 
 
+class MistralProvider:
+    """Mistral LLM provider - High quality, good performance."""
+
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+        self.api_key = api_key or os.getenv("MISTRAL_API_KEY")
+        self.model = model or config.providers.mistral.default_model
+
+        if not self.api_key:
+            raise ValueError(
+                "MISTRAL_API_KEY environment variable is required")
+
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        """Generate response using Mistral."""
+
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
+            "temperature": config.providers.mistral.temperature,  # 0=deterministic, 1=creative
+            "max_tokens": config.providers.mistral.max_tokens,
+            "response_format": {"type": "json_object"}
+        }
+
+        try:
+            url = f"{config.apis.mistral_base_url}/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}"
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=config.providers.mistral.timeout
+            )
+            response.raise_for_status()
+
+            result = response.json()
+            return result["choices"][0]["message"]["content"].strip()
+
+        except requests.exceptions.RequestException as e:
+            raise RuntimeError(f"Mistral API error: {e}")
+        except KeyError as e:
+            raise RuntimeError(f"Unexpected Mistral response format: {e}")
+
+
+class GroqProvider:
+    """Groq LLM provider - Very fast inference."""
+
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.model = model or config.providers.groq.default_model
+
+        if not self.api_key:
+            raise ValueError("GROQ_API_KEY environment variable is required")
+
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        """Generate response using Groq."""
+
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            # 🎛️ CREATIVITY CONTROLS - Modify these in config.py
+            "temperature": config.providers.groq.temperature,  # 0=deterministic, 1=creative
+            "max_tokens": config.providers.groq.max_tokens,
+            "response_format": {"type": "json_object"}
+        }
+
+        try:
+            url = f"{config.apis.groq_base_url}/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}"
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=config.providers.groq.timeout
+            )
+            response.raise_for_status()
+
+            result = response.json()
+            return result["choices"][0]["message"]["content"].strip()
+
+        except requests.exceptions.RequestException as e:
+            raise RuntimeError(f"Groq API error: {e}")
+        except KeyError as e:
+            raise RuntimeError(f"Unexpected Groq response format: {e}")
+
+
 def get_provider(provider_name: str, model: Optional[str] = None):
     """Get LLM provider instance."""
     if provider_name.lower() == "ollama":
@@ -337,6 +456,10 @@ def get_provider(provider_name: str, model: Optional[str] = None):
         return GeminiProvider(model=model)
     elif provider_name.lower() == "openai":
         return OpenAIProvider(model=model)
+    elif provider_name.lower() == "mistral":
+        return MistralProvider(model=model)
+    elif provider_name.lower() == "groq":
+        return GroqProvider(model=model)
     else:
         raise ValueError(f"Unknown provider: {provider_name}")
 
@@ -372,7 +495,8 @@ def parse_json_response(response: str) -> Dict[str, Any]:
 
 
 def propose_edits(jd_file: str, base_text_file: str, provider: str,
-                  model: Optional[str] = None, max_retries: int = 2) -> Dict[str, Any]:
+                  model: Optional[str] = None, personality: str = 'career_savvy_colleague',
+                  max_retries: int = 2) -> Dict[str, Any]:
     """Propose edits using LLM."""
 
     # Load inputs
@@ -382,8 +506,8 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
     with open(base_text_file, 'r', encoding='utf-8') as f:
         base_text = json.load(f)
 
-    # Build prompts
-    system_prompt = SYSTEM_PROMPT
+    # Build prompts with personality
+    system_prompt = build_system_prompt(personality)
     user_prompt = build_user_prompt(jd_content, base_text)
 
     # Get provider
@@ -416,7 +540,8 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
                         f"Validation failed (attempt {attempt + 1}): {violations}")
                     # Exponential backoff: wait 2^attempt seconds (2, 4, 8...)
                     backoff_time = 2 ** attempt
-                    print(f"Retrying in {backoff_time} seconds to avoid rate limits...")
+                    print(
+                        f"Retrying in {backoff_time} seconds to avoid rate limits...")
                     time.sleep(backoff_time)
                     continue
                 else:
@@ -434,7 +559,8 @@ def propose_edits(jd_file: str, base_text_file: str, provider: str,
                 print(f"Error on attempt {attempt + 1}: {e}")
                 # Exponential backoff: wait 2^attempt seconds (2, 4, 8...)
                 backoff_time = 2 ** attempt
-                print(f"Retrying in {backoff_time} seconds to avoid rate limits...")
+                print(
+                    f"Retrying in {backoff_time} seconds to avoid rate limits...")
                 time.sleep(backoff_time)
                 continue
             else:
@@ -467,6 +593,10 @@ def apply_skills_validation(edits: Dict[str, Any], base_text: Dict[str, Any]) ->
         original_skills = base_skills.get(skill_category, "")
         new_skills = skill_edit["replace"]
 
+        # Skip validation if new_skills is null or "null"
+        if new_skills is None or new_skills == "null" or new_skills.strip() == "":
+            continue
+
         # Validate skills against inventory
         validation_result = validate_skills_against_inventory(
             original_skills, new_skills)
@@ -476,10 +606,12 @@ def apply_skills_validation(edits: Dict[str, Any], base_text: Dict[str, Any]) ->
 
         # Add flagged skills to suggested_additions
         for flagged_skill in validation_result["flagged_skills"]:
-            validated_edits["suggested_additions"].append({
-                "term": flagged_skill["skill"],
-                "why": f"Skills validation: {flagged_skill['reason']} (confidence: {flagged_skill['confidence']})"
-            })
+            # Skip if the skill is null or "null"
+            if flagged_skill["skill"] and flagged_skill["skill"] != "null":
+                validated_edits["suggested_additions"].append({
+                    "term": flagged_skill["skill"],
+                    "why": f"Skills validation: {flagged_skill['reason']} (confidence: {flagged_skill['confidence']})"
+                })
 
     return validated_edits
 
@@ -494,10 +626,12 @@ def save_edits(edits: Dict[str, Any], output_file: str, quiet: bool = False) -> 
 
 
 def propose_and_save_edits(jd_file: str, base_text_file: str, output_file: str,
-                           provider: str, model: Optional[str] = None, quiet: bool = False) -> None:
+                           provider: str, model: Optional[str] = None,
+                           personality: str = 'career_savvy_colleague', quiet: bool = False) -> None:
     """Complete flow: propose edits and save to file."""
 
-    edits = propose_edits(jd_file, base_text_file, provider, model)
+    edits = propose_edits(jd_file, base_text_file,
+                          provider, model, personality)
     save_edits(edits, output_file, quiet=quiet)
 
     if not quiet:

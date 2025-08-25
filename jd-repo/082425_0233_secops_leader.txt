@@ -1,0 +1,54 @@
+job_title: secops leader
+company: tailscale
+
+ About the job
+About Tailscale
+Tailscale is building the new Internet by delivering software that makes it easy to securely interconnect people and their devices, no matter where they are. From hobbyists to multinational corporations, teams of every size use Tailscale each day to protect their networks, share access to internal tools, and more. We're building a future for the Internet that's easy, sensible, and safe, like it used to be. Founded in 2019 and fully distributed, we're backed by Accel, CRV, Insight, Heavybit, and Uncork Capital.
+Job Description
+We’re seeking a talented engineer, specializing in security operations, to help grow our security team. We’re looking for people who can move Tailscale forward while making it safer to use. The abilities to think on your feet, collaborate with highly technical teams, and be comfortable working asynchronously are essential.
+Responsibilities
+    Device Management including MDM policies, BYOD, Patch/Vulnerability management, Troubleshooting, and general OS management (macOS, Linux, and Windows)
+    Supporting Tailscale’s key platforms including Google Workspace, Jira, GitHub
+    Process automation (e.g. self-service access, patching)
+    Access management (OIDC, SAML, SCIM)
+    Data Loss Prevention/Mitigation
+    Tech-Stack Decision Making: Oversee tech decisions in coordination with Engineering Leadership, ensuring alignment with company-wide IT standards
+What We Are Looking For
+    Prior experience in a security-related or adjacent technical role, e.g.:
+        Identity and Access management
+        Endpoint Security
+        Data Loss Prevention
+        Security Operations Center experience
+        IT Engineering/Operations
+    Knowledge of operating systems and security mechanisms
+    Knowledge of common networking protocols
+    Knowledge of common authentication and user management protocols (OIDC, SAML, SCIM)
+    Knowledge of Google Workspace Security and Device Management
+    Experience with MDM products such as Jamf, Kandji, Fleet, Intune
+    Ability to give and process constructive feedback
+    Ability to work independently and collaboratively
+    Flexibility to adjust to the dynamic nature of a startup
+It's Nice if You Have
+    Experience with Jira workflows and automation
+    Application and/or Infrastructure security experience
+    Go, Python, or bash scripting preferred
+Why You Might Not Like this Role
+You will spend at least 25-50% of your time in this role on process automation. This might differ from what “Security Operations” roles look like at other companies. This role is not for you if you expect to spend most of your time doing:
+    Security and architecture reviews
+    Pentesting or other offensive security efforts
+    Spending all your time in a SIEM reviewing alerts
+    Operating vendor software or Ticket-based access approvals (because you’ll automate as much as you can)
+As a company, we strive to maintain fair and equitable compensation practices within our team across all roles and all levels. Tailscale's compensation package includes base salary, equity, and comprehensive benefits. The salary range displayed on each job posting represents the target range for a new hire's base salary. Individual offers may vary based on experience and skill set.
+US Pay Ranges
+$150,000—$200,000 USD
+Frequently cited statistics show that people who identify with historically marginalized groups are likely to apply to jobs only if they meet 100% of the qualifications. We encourage you to help us break that statistic!
+What We Offer
+    An inclusive, flexible environment where you can be your authentic self. We recognize the impact of diverse voices and backgrounds on the growth of our people, product, and company. And that flexibility in how and when you work empowers our team to integrate work and life.
+    A competitive total compensation package. This includes a base salary, an equity incentive plan and variable commission (for quota-based roles).
+    Comprehensive group benefits with no waiting period. Take advantage of coverage for health, vision, dental, and more for you and your family!
+    Remote first company—most of our teams work fully remotely. Enjoy a change of scenery wherever you can get wifi, participate in virtual and in-person social events, and leverage our corporate co-working program to visit WeWork (or other similar spaces near you). Some roles require in-office collaboration depending on team needs, which will be clearly noted in the job description.
+    Connect with other Tailscalars IRL. Attend our annual company retreat, participate in team/department off-sites, or use your individual travel budget to meet up with team members in Canada, the US, or the UK.
+    Support for your personal and professional development. Grow your career thoughtfully with $1500 USD annually for professional development, or take advantage of mentorship, coaching, and internal promotion opportunities.
+    Paid time off and a healthy work-life integration. Our flexible, paid time off program supports you for any situation life throws your way, whether moving homes or travelling the world!
+    A build-your-own home office setup. You choose your own company-owned laptop (Mac or PC), receive a monthly home internet reimbursement, and $1000 USD to customize your workstation to make it your own.
+    Generous parental leave program from your first day. We care about your life outside of work and encourage new parents to take advantage of parental leave top-ups for up to 26 weeks.

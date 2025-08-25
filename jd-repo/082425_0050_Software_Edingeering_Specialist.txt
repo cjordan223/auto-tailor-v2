@@ -1,0 +1,27 @@
+job_title: Software Edingeering Specialist
+company: xAI
+
+About xAI
+xAI's mission is to create AI systems that can accurately understand the universe and aid humanity in its pursuit of knowledge.
+Our team is small, highly motivated, and focused on engineering excellence. This organization is for individuals who appreciate challenging themselves and thrive on curiosity.
+We operate with a flat organizational structure. All employees are expected to be hands-on and to contribute directly to the company's mission. Leadership is given to those who show initiative and consistently deliver excellence. Work ethic and strong prioritization skills are important.
+All engineers and researchers are expected to have strong communication skills. They should be able to concisely and accurately share knowledge with their teammates.
+About the Role
+As a Software Engineering Specialist on the Human Data team, you will be responsible for creating cutting-edge data to facilitate the training of large language models. Collaborating closely with technical staff, you will contribute to datasets for model training, benchmarking, and overall advancement.
+The Software Engineering Specialist - Human Data role is a full-time remote position. Part-time may be offered on a case-by-case basis but full-time is strongly preferred (please see the bottom of this job description for more details).
+Responsibilities
+    AI model training initiatives by curating code examples, offering precise solutions, and meticulous corrections in Python, JavaScript (including ReactJS), C/C++, and Java.
+    Evaluate and refine AI-generated code, ensuring it adheres to industry standards for efficiency, scalability, and reliability.
+    Collaborate with cross-functional teams to enhance AI-driven coding solutions, ensuring they meet enterprise-level quality and performance benchmarks.
+Key Qualifications
+    Advanced proficiency in English, both verbal and written.
+    Strong experience in either Python or JavaScript, with a solid foundation in software development practices. Please note that for those with experience in only JavaScript, experience with ReactJS is preferred but not required. Knowledge of other languages is a strong plus.Strong grasp of computer science fundamentals like data structures, algorithms, and debugging skills.
+    A minimum of 2 years of hands-on industry experience with a proven track record in software development and/or public proof of work (such as on GitHub).
+    Extensive experience with a wide array of tools and systems such as Databases, SQL, Kubernetes, Spark, Kafka, gRPC, and AWS.
+Preferred Qualifications
+    The ideal candidate for this role is adaptable, possesses strong logical reasoning skills, is detail-oriented, and thrives in a fast-paced work environment.
+    Evidence of meaningful contributions to open source projects or high reputation on platforms like Stack Overflow or evidence of strong performance in programming competitions.
+    Enthusiasm to collaboratively build the best truth-seeking AI out there!
+Additional Requirements
+    Demonstrates a strong capacity to quickly adapt by learning new skills and unlearning outdated ones, thriving in dynamic and changing environments.
+    For those who will be working from a personal device, please note your computer must be capable of running Windows 10 or macOS BigSur 11.0 or later.
