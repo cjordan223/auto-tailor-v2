@@ -28,14 +28,14 @@ EDITS_SCHEMA = {
         "skills": {
             "type": "object",
             "properties": {
-                "Programming Languages": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Frontend": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Backend": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Cloud & DevOps": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "AI & LLM Tools": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Automation & Productivity": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Security & Operating Systems": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False},
-                "Databases": {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}
+                "Programming Languages": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Frontend": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Backend": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Cloud & DevOps": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "AI & LLM Tools": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Automation & Productivity": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Security & Operating Systems": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]},
+                "Databases": {"oneOf": [{"type": "null"}, {"type": "object", "properties": {"replace": {"type": ["string", "null"]}}, "required": ["replace"], "additionalProperties": False}]}
             },
             "additionalProperties": False
         },
@@ -441,7 +441,11 @@ def validate_edits(edits: Dict[str, Any], base_text: Dict[str, Any]) -> List[str
     if "skills" in edits:
         base_skills = base_text.get("resume", {}).get("skills", {})
         for skill_name, skill_edit in edits["skills"].items():
-            if skill_edit.get("replace"):
+            # Skip if skill_edit is None (no changes)
+            if skill_edit is None:
+                continue
+            # Handle both {"replace": "value"} and direct null formats
+            if isinstance(skill_edit, dict) and skill_edit.get("replace"):
                 original = base_skills.get(skill_name, "")
                 new = skill_edit["replace"]
                 skill_violations = validate_skills_edits(original, new)
@@ -495,12 +499,17 @@ def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
     if "summary" in cleaned and cleaned["summary"].get("replace") is None:
         cleaned["summary"]["replace"] = ""
 
-    # Clean skills - replace null values and "null" strings with empty strings
+    # Clean skills - handle both null directly and {"replace": null} formats
     if "skills" in cleaned:
         for skill_name in list(cleaned["skills"].keys()):
-            replace_value = cleaned["skills"][skill_name].get("replace")
-            if replace_value is None or replace_value == "null":
-                cleaned["skills"][skill_name]["replace"] = ""
+            skill_value = cleaned["skills"][skill_name]
+            if skill_value is None:
+                # Convert null to {"replace": ""} format
+                cleaned["skills"][skill_name] = {"replace": ""}
+            elif isinstance(skill_value, dict):
+                replace_value = skill_value.get("replace")
+                if replace_value is None or replace_value == "null":
+                    cleaned["skills"][skill_name]["replace"] = ""
 
     # Clean cover letter salutation
     if "cover_letter" in cleaned and "salutation" in cleaned["cover_letter"]:

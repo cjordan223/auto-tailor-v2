@@ -89,8 +89,8 @@ class ValidationConfig:
     max_cover_letter_paragraphs: int = 4
     max_suggestion_why_length: int = 200
     max_cover_letter_words: int = 300
-    min_cover_letter_words: int = 150
-    max_paragraph_words: int = 100
+    min_cover_letter_words: int = 100  # Lowered from 150 to allow shorter letters
+    max_paragraph_words: int = 120  # Increased slightly to allow more flexibility
 
 
 @dataclass
