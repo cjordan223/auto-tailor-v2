@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  API_BASE_URL: (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api',
   TIMEOUT: 300000 // 5 minutes
 }
 
