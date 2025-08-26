@@ -392,7 +392,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
       cwd: projectRoot, // Project root for venv and paths
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: mergedEnv
+      env: mergedEnv,
+      timeout: 600000 // 10 minute timeout
     })
     
     let stdout = ''
@@ -407,7 +408,21 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       workflowLogger.logServerOutput(jobId, output, false)
       
       // Parse output for meaningful progress updates
-      parseOutputAndUpdateStatus(statusFile, output, jobId)
+      try {
+        parseOutputAndUpdateStatus(statusFile, output, jobId)
+      } catch (parseError) {
+        console.error(`[${jobId}] Error parsing stdout:`, parseError)
+        // Ensure job status is preserved even if parsing fails
+        try {
+          await updateStatus(statusFile, { 
+            status: 'processing',
+            step: 'Processing...',
+            detail: 'Workflow in progress'
+          })
+        } catch (statusError) {
+          console.error(`[${jobId}] Failed to preserve status:`, statusError)
+        }
+      }
     })
     
     child.stderr.on('data', (data) => {
@@ -419,7 +434,21 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       workflowLogger.logServerOutput(jobId, output, true)
       
       // Parse stderr for errors and progress
-      parseOutputAndUpdateStatus(statusFile, output, jobId, true)
+      try {
+        parseOutputAndUpdateStatus(statusFile, output, jobId, true)
+      } catch (parseError) {
+        console.error(`[${jobId}] Error parsing stderr:`, parseError)
+        // Ensure job status is preserved even if parsing fails
+        try {
+          await updateStatus(statusFile, { 
+            status: 'processing',
+            step: 'Processing...',
+            detail: 'Workflow in progress'
+          })
+        } catch (statusError) {
+          console.error(`[${jobId}] Failed to preserve status:`, statusError)
+        }
+      }
     })
     
     child.on('error', async (error) => {
