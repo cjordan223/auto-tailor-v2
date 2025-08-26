@@ -111,6 +111,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { getFullUrl } from '../config/api.js'
 
 // Props
 const props = defineProps({
@@ -142,7 +143,7 @@ const refreshId = ref(0)
 
 // Computed
 const pdfUrl = computed(() => {
-  const baseUrl = `/api/view/${props.jobId}/${props.fileType}`
+  const baseUrl = getFullUrl(`/api/view/${props.jobId}/${props.fileType}`)
   // Add comprehensive parameters to hide the sidebar by default in browser PDF viewers
   // These parameters work across different PDF viewers (Chrome, Firefox, Safari, etc.)
   const random = Math.random().toString(36).substring(7)

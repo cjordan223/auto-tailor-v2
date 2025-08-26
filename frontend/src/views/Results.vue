@@ -590,6 +590,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
+import { getFullUrl } from '../config/api.js'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import PDFViewer from '../components/PDFViewer.vue'
 import LaTeXEditor from '../components/LaTeXEditor.vue'
@@ -800,11 +801,11 @@ const saveApplication = async () => {
 
       files: {
         resume: {
-          url: `/api/view/${jobId.value}/resume`,
+          url: getFullUrl(`/api/view/${jobId.value}/resume`),
           storageKey: `${jobId.value}/resume.pdf`
         },
         coverLetter: {
-          url: `/api/view/${jobId.value}/cover-letter`, 
+          url: getFullUrl(`/api/view/${jobId.value}/cover-letter`), 
           storageKey: `${jobId.value}/cover-letter.pdf`
         }
       }

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { globalSettings } from './useSettings.js'
-import { API_CONFIG } from '../config/api.js'
+import { API_CONFIG, getApiUrl } from '../config/api.js'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -222,7 +222,7 @@ export function useAPI() {
    * Get PDF URL for viewing inline (no download)
    */
   const getPDFViewUrl = (jobId, fileType) => {
-    return `/api/view/${jobId}/${fileType}`
+    return getApiUrl(`/view/${jobId}/${fileType}`)
   }
 
   /**

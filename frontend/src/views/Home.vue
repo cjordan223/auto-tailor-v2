@@ -90,6 +90,7 @@ import UnifiedInput from '../components/UnifiedInput.vue'
 import ProviderSelector from '../components/ProviderSelector.vue'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import { useAPI } from '../composables/useAPI.js'
+import { getFullUrl } from '../config/api.js'
 
 const router = useRouter()
 const { processResume, downloadAllAsZip } = useAPI()
@@ -200,14 +201,14 @@ const handleDownloadKit = async () => {
 const handleOpenResume = () => {
   if (currentJobId.value) {
     // Open resume PDF in new tab
-    window.open(`/api/view/${currentJobId.value}/resume`, '_blank')
+    window.open(getFullUrl(`/api/view/${currentJobId.value}/resume`), '_blank')
   }
 }
 
 const handleOpenCoverLetter = () => {
   if (currentJobId.value) {
     // Open cover letter PDF in new tab  
-    window.open(`/api/view/${currentJobId.value}/cover-letter`, '_blank')
+    window.open(getFullUrl(`/api/view/${currentJobId.value}/cover-letter`), '_blank')
   }
 }
 </script>

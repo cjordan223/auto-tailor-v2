@@ -91,6 +91,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { getApiUrl } from '../config/api.js'
 
 // Props
 const props = defineProps({
@@ -127,7 +128,7 @@ const autoSaveStatus = ref('')
 // const AUTO_SAVE_DELAY = 30000 // 30 seconds
 
 // Computed
-const latexUrl = computed(() => `/api/view/${props.jobId}/${props.fileType}/tex`)
+const latexUrl = computed(() => getApiUrl(`/view/${props.jobId}/${props.fileType}/tex`))
 const editorHeight = computed(() => typeof props.height === 'number' ? `${props.height}px` : props.height)
 
 const hasUnsavedChanges = computed(() => {
@@ -213,7 +214,7 @@ const loadLatexContent = async () => {
 
 const loadTailoredOriginal = async () => {
   try {
-    const response = await fetch(`/api/view/${props.jobId}/${props.fileType}/original`)
+    const response = await fetch(getApiUrl(`/view/${props.jobId}/${props.fileType}/original`))
     if (response.ok) {
       const originalContent = await response.text()
       tailoredOriginalContent.value = originalContent

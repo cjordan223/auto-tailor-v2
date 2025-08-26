@@ -47,6 +47,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
+import { getApiUrl } from '../config/api.js'
 
 // Props
 const props = defineProps({
@@ -69,7 +70,7 @@ const copied = ref(false)
 const codeElement = ref(null)
 
 // Computed
-const latexUrl = computed(() => `/api/view/${props.jobId}/${props.fileType}/tex`)
+const latexUrl = computed(() => getApiUrl(`/view/${props.jobId}/${props.fileType}/tex`))
 
 // Basic LaTeX syntax highlighting
 const highlightedContent = computed(() => {
