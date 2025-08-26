@@ -46,8 +46,19 @@ router.get('/:jobId/:fileType', async (req, res) => {
       res.setHeader('Expires', '0')
       res.setHeader('ETag', etag)
       res.setHeader('Last-Modified', lastModified)
-      res.setHeader('X-Frame-Options', 'SAMEORIGIN')
       res.setHeader('X-Content-Type-Options', 'nosniff')
+
+      // Allow embedding the PDF in iframes from trusted origins only
+      // Prefer Content-Security-Policy frame-ancestors over deprecated X-Frame-Options
+      const allowedAncestors = [
+        'http://localhost:3000',
+        'https://auto-tailor-v2.vercel.app',
+        process.env.FRONTEND_URL
+      ].filter(Boolean)
+
+      if (allowedAncestors.length > 0) {
+        res.setHeader('Content-Security-Policy', `frame-ancestors ${allowedAncestors.join(' ')};`)
+      }
       
       // Stream the file
       const fileStream = await fs.readFile(filePath)
