@@ -375,7 +375,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     console.log(`[${jobId}] - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
 
     // Execute the Python workflow directly using venv Python
-    const venvPython = path.join(__dirname, '../../../venv/bin/python')
+    const venvPython = process.env.NODE_ENV === 'production' ? '/opt/venv/bin/python' : path.join(__dirname, '../../../venv/bin/python')
     
     // Run the complete workflow using Python CLI directly
     const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
