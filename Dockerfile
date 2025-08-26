@@ -36,3 +36,4 @@ EXPOSE 3001
 
 # Start the server (Python venv is already in PATH via ENV)
 CMD ["npm", "run", "server"]
+

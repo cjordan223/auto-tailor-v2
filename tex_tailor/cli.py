@@ -97,7 +97,7 @@ def extract(ctx, resume: str, cover: str, out: Optional[str]):
 @click.option("--provider", type=click.Choice(["ollama", "gemini", "openai", "mistral", "groq"]),
               help="LLM provider to use (optional, auto-detects if not specified)")
 @click.option("--model", help="Model name (optional, uses env defaults)")
-@click.option("--personality", default="career_savvy_colleague", 
+@click.option("--personality", default="career_savvy_colleague",
               help="Writing personality to use (optional, defaults to career_savvy_colleague)")
 @click.option("--base-text", default=None, help="Path to base text JSON")
 @click.option("--out", default=None, help="Output edits JSON file")
@@ -212,22 +212,22 @@ def propose(ctx, jd: str, provider: Optional[str], model: Optional[str], persona
 def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str], out: Optional[str], list_models: bool):
     """
     Propose edits using Ollama with optimized prompts and validation.
-    
+
     This command uses a specialized workflow for local Ollama models that:
     - Uses model-specific prompts with aggressive company name reminders
     - Provides immediate feedback without expensive retry logic
     - Auto-fixes common local model issues (placeholders, JSON formatting)
     - Blocks resource-intensive models that freeze the system
     """
-    
+
     if list_models:
         click.echo("🔧 Recommended Ollama Models:")
         click.echo()
-        
+
         # Sort by priority first, then by recommendation status
-        models = sorted(get_recommended_ollama_models(), 
-                       key=lambda x: (x.get("priority", 99), not x.get("recommended", False)))
-        
+        models = sorted(get_recommended_ollama_models(),
+                        key=lambda x: (x.get("priority", 99), not x.get("recommended", False)))
+
         for model_info in models:
             if model_info.get("recommended"):
                 marker = "⭐"
@@ -235,14 +235,17 @@ def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str],
                 marker = "🎯"
             else:
                 marker = "  "
-            
-            click.echo(f"{marker} {model_info['model']} ({model_info['tier']})")
+
+            click.echo(
+                f"{marker} {model_info['model']} ({model_info['tier']})")
             click.echo(f"     {model_info['description']}")
             click.echo()
-        
+
         click.echo("💡 Install models with: ollama pull <model-name>")
-        click.echo("🎯 Specialized models are trained specifically for resume tailoring")
-        click.echo("⚠️  Avoid models in the 'blocked' tier - they may freeze your system")
+        click.echo(
+            "🎯 Specialized models are trained specifically for resume tailoring")
+        click.echo(
+            "⚠️  Avoid models in the 'blocked' tier - they may freeze your system")
         return
 
     # Use default paths if not specified
@@ -292,27 +295,28 @@ def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str],
     try:
         # Use Ollama-optimized workflow
         edits = propose_edits_ollama_optimized(jd, base_text, selected_model)
-        
+
         # Use Ollama-specific validation
         with open(jd, 'r', encoding='utf-8') as f:
             jd_content = f.read()
-        
+
         # Get raw response for validation (we'll need to modify propose_edits_ollama_optimized to return this)
         # For now, we'll do a quick validation
-        _, warnings = validate_ollama_response(json.dumps(edits), jd_content, base_text_data)
-        
+        _, warnings = validate_ollama_response(
+            json.dumps(edits), jd_content, base_text_data)
+
         # Save edits
         with open(out, 'w', encoding='utf-8') as f:
             json.dump(edits, f, indent=2, ensure_ascii=False)
-        
+
         click.echo(f"✅ Ollama edits saved to: {out}")
         click.echo()
-        
+
         # Show summary
         summary = get_ollama_validation_summary(edits, warnings)
         click.echo("📊 Generation Summary:")
         click.echo(summary)
-        
+
         # Show warnings if any
         if warnings:
             click.echo()
@@ -322,9 +326,11 @@ def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str],
             click.echo()
             click.echo("💡 Tips:")
             click.echo("  • Try a higher-tier model for better results")
-            click.echo("  • Ensure company name is clearly stated in job description")
-            click.echo("  • Use 'propose-ollama --list-models' to see recommendations")
-        
+            click.echo(
+                "  • Ensure company name is clearly stated in job description")
+            click.echo(
+                "  • Use 'propose-ollama --list-models' to see recommendations")
+
     except Exception as e:
         click.echo(f"❌ Ollama generation failed: {e}", err=True)
         click.echo()
@@ -332,7 +338,8 @@ def propose_ollama(ctx, jd: str, model: Optional[str], base_text: Optional[str],
         click.echo("  1. Check if Ollama is running: ollama serve")
         click.echo("  2. Verify model is installed: ollama list")
         click.echo("  3. Try a different model: --model qwen2.5:14b-instruct")
-        click.echo("  4. Check model recommendations: propose-ollama --list-models")
+        click.echo(
+            "  4. Check model recommendations: propose-ollama --list-models")
         sys.exit(1)
 
 
@@ -465,7 +472,7 @@ def render(out_dir: Optional[str]):
             # Run latexmk to generate PDF in the same directory as the .tex file
             result = subprocess.run([
                 "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_file.name
-            ], capture_output=True, text=True, cwd=out_path, timeout=60)
+            ], capture_output=True, text=True, cwd=out_path, timeout=300)
 
             if result.returncode == 0:
                 pdf_name = tex_file.stem + ".pdf"
@@ -474,7 +481,8 @@ def render(out_dir: Optional[str]):
                 click.echo(f"✗ Error rendering {tex_file.name}:")
                 click.echo(result.stderr, err=True)
         except TimeoutExpired:
-            click.echo(f"✗ Timeout rendering {tex_file.name} (LaTeX compilation took >60s)", err=True)
+            click.echo(
+                f"✗ Timeout rendering {tex_file.name} (LaTeX compilation took >60s)", err=True)
 
         except Exception as e:
             click.echo(f"✗ Error rendering {tex_file.name}: {e}", err=True)
@@ -651,7 +659,7 @@ def recompile(job_id: str, file_type: str, content: str, temp_dir: str):
         try:
             result = subprocess.run([
                 "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_filename
-            ], capture_output=True, text=True, cwd=job_dir, timeout=60)
+            ], capture_output=True, text=True, cwd=job_dir, timeout=300)
 
             if result.returncode == 0:
                 click.echo(f"✓ Successfully compiled {file_type} to PDF")
@@ -665,7 +673,8 @@ def recompile(job_id: str, file_type: str, content: str, temp_dir: str):
                 click.echo(f"✗ Compilation failed: {result.stderr}", err=True)
                 sys.exit(1)
         except TimeoutExpired:
-            click.echo(f"✗ PDF compilation timed out for {file_type} (LaTeX compilation took >60s)", err=True)
+            click.echo(
+                f"✗ PDF compilation timed out for {file_type} (LaTeX compilation took >60s)", err=True)
             sys.exit(1)
 
     except Exception as e:
@@ -751,19 +760,20 @@ def run_workflow_steps(job_description: str):
             try:
                 from .ollama_optimized import propose_edits_ollama_optimized
                 import json
-                
+
                 # Generate edits with Ollama optimization (simplified - no extra validation)
                 edits = propose_edits_ollama_optimized(
                     job_description, default_paths["base_text"], model)
-                
+
                 # Save edits directly
                 with open(default_paths["edits"], 'w') as f:
                     json.dump(edits, f, indent=2, ensure_ascii=False)
-                
+
                 click.echo("✅ Ollama-optimized edits generated")
-                
+
             except Exception as e:
-                click.echo(f"⚠️ Ollama optimization failed, falling back to standard workflow: {e}")
+                click.echo(
+                    f"⚠️ Ollama optimization failed, falling back to standard workflow: {e}")
                 # Fallback to standard workflow
                 propose_and_save_edits(
                     job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
@@ -771,7 +781,7 @@ def run_workflow_steps(job_description: str):
             # Use standard workflow
             propose_and_save_edits(
                 job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
-        
+
         click.echo("✅ Edit proposal complete")
 
         # Step 4: Apply edits
@@ -810,7 +820,7 @@ def render_pdfs(out_dir: str):
         try:
             result = subprocess.run([
                 "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_file.name
-            ], capture_output=True, text=True, cwd=out_path, timeout=60)
+            ], capture_output=True, text=True, cwd=out_path, timeout=300)
 
             if result.returncode != 0:
                 raise RuntimeError(

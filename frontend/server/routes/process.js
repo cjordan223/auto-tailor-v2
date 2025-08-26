@@ -463,7 +463,23 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       })
     })
     
+    // Set a timeout to kill the process if it takes too long
+    const processTimeout = setTimeout(async () => {
+      console.error(`[${jobId}] Process timeout - killing child process`)
+      child.kill('SIGTERM')
+      
+      await workflowLogger.writeWorkflowLog(jobId, 'Process killed due to timeout', 'error')
+      
+      await updateStatus(statusFile, { 
+        status: 'error', 
+        progress: 0,
+        step: 'Processing failed',
+        error: 'Process timed out after 10 minutes'
+      })
+    }, 600000) // 10 minutes
+    
     child.on('close', async (code) => {
+      clearTimeout(processTimeout) // Clear the timeout since process completed
       try {
         if (code === 0) {
           await workflowLogger.writeWorkflowLog(jobId, 'Workflow completed successfully', 'success')
@@ -491,9 +507,13 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
             const destPath = path.join(tempDir, file)
             
             try {
+              console.log(`[${jobId}] Copying ${file} from ${sourcePath} to ${destPath}`)
               await fs.copyFile(sourcePath, destPath)
+              console.log(`[${jobId}] Successfully copied ${file}`)
             } catch (error) {
-              console.warn(`Could not copy ${file}:`, error.message)
+              console.error(`[${jobId}] Could not copy ${file}:`, error.message)
+              console.error(`[${jobId}] Source path exists:`, await fs.access(sourcePath).then(() => true).catch(() => false))
+              console.error(`[${jobId}] Dest directory exists:`, await fs.access(path.dirname(destPath)).then(() => true).catch(() => false))
             }
           }
           
@@ -514,6 +534,10 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
           })
           
         } else {
+          console.error(`[${jobId}] Workflow failed with exit code ${code}`)
+          console.error(`[${jobId}] stderr:`, stderr)
+          console.error(`[${jobId}] stdout:`, stdout)
+          
           await workflowLogger.writeWorkflowLog(jobId, `Workflow failed with exit code ${code}`, 'error')
           
           await updateStatus(statusFile, { 
