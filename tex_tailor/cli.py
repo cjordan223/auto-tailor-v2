@@ -9,6 +9,7 @@ import click
 import os
 import sys
 import subprocess
+from subprocess import TimeoutExpired
 from pathlib import Path
 from typing import Optional
 
@@ -463,8 +464,8 @@ def render(out_dir: Optional[str]):
         try:
             # Run latexmk to generate PDF in the same directory as the .tex file
             result = subprocess.run([
-                "latexmk", "-pdf", tex_file.name
-            ], capture_output=True, text=True, cwd=out_path)
+                "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_file.name
+            ], capture_output=True, text=True, cwd=out_path, timeout=60)
 
             if result.returncode == 0:
                 pdf_name = tex_file.stem + ".pdf"
@@ -472,6 +473,8 @@ def render(out_dir: Optional[str]):
             else:
                 click.echo(f"✗ Error rendering {tex_file.name}:")
                 click.echo(result.stderr, err=True)
+        except TimeoutExpired:
+            click.echo(f"✗ Timeout rendering {tex_file.name} (LaTeX compilation took >60s)", err=True)
 
         except Exception as e:
             click.echo(f"✗ Error rendering {tex_file.name}: {e}", err=True)
@@ -645,20 +648,24 @@ def recompile(job_id: str, file_type: str, content: str, temp_dir: str):
         tex_file.write_text(content, encoding='utf-8')
 
         # Compile to PDF using latexmk
-        result = subprocess.run([
-            "latexmk", "-pdf", tex_filename
-        ], capture_output=True, text=True, cwd=job_dir)
+        try:
+            result = subprocess.run([
+                "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_filename
+            ], capture_output=True, text=True, cwd=job_dir, timeout=60)
 
-        if result.returncode == 0:
-            click.echo(f"✓ Successfully compiled {file_type} to PDF")
-            # Clean up auxiliary files
-            aux_patterns = ["*.aux", "*.log", "*.fls",
-                            "*.fdb_latexmk", "*.out", "*.toc"]
-            for pattern in aux_patterns:
-                for aux_file in job_dir.glob(pattern):
-                    aux_file.unlink(missing_ok=True)
-        else:
-            click.echo(f"✗ Compilation failed: {result.stderr}", err=True)
+            if result.returncode == 0:
+                click.echo(f"✓ Successfully compiled {file_type} to PDF")
+                # Clean up auxiliary files
+                aux_patterns = ["*.aux", "*.log", "*.fls",
+                                "*.fdb_latexmk", "*.out", "*.toc"]
+                for pattern in aux_patterns:
+                    for aux_file in job_dir.glob(pattern):
+                        aux_file.unlink(missing_ok=True)
+            else:
+                click.echo(f"✗ Compilation failed: {result.stderr}", err=True)
+                sys.exit(1)
+        except TimeoutExpired:
+            click.echo(f"✗ PDF compilation timed out for {file_type} (LaTeX compilation took >60s)", err=True)
             sys.exit(1)
 
     except Exception as e:
@@ -800,13 +807,17 @@ def render_pdfs(out_dir: str):
         raise RuntimeError("No tuned .tex files found")
 
     for tex_file in tex_files:
-        result = subprocess.run([
-            "latexmk", "-pdf", tex_file.name
-        ], capture_output=True, text=True, cwd=out_path)
+        try:
+            result = subprocess.run([
+                "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_file.name
+            ], capture_output=True, text=True, cwd=out_path, timeout=60)
 
-        if result.returncode != 0:
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"PDF rendering failed for {tex_file.name}: {result.stderr}")
+        except TimeoutExpired:
             raise RuntimeError(
-                f"PDF rendering failed for {tex_file.name}: {result.stderr}")
+                f"PDF rendering timed out for {tex_file.name} (LaTeX compilation took >60s)")
 
 
 if __name__ == "__main__":
