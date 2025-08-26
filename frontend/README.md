@@ -1,290 +1,109 @@
-# Tex-Tailor Frontend
+# TexTailor Frontend
 
-Modern Vue.js frontend for the Tex-Tailor AI resume customization tool.
+A modern, responsive frontend for the TexTailor resume and cover letter generation system.
 
-## ✨ Features
+## Features
 
-- **Job Description Upload** - Upload or paste job descriptions for AI customization
-- **Pre-configured Baseline Resume** - Uses optimized LaTeX template with LLM markers
-- **Real-time Processing** - Live status updates during AI processing  
-- **LaTeX Source Code Viewer** - Side-by-side LaTeX source and PDF preview with syntax highlighting
-- **Provider Selection** - Choose between Gemini (1.5 Flash, 1.5 Pro, 1.0 Pro), OpenAI, or Ollama
-- **Rate Limiting Protection** - Exponential backoff and frontend request throttling
-- **Results Dashboard** - Download generated PDFs and LaTeX files, view analysis
-- **Resilient Fallback System** - Works even when AI providers are unavailable
-- **Settings Management** - Configure API keys and preferences
-- **Responsive Design** - Works on desktop, tablet, and mobile
+### Step-by-Step Configuration Interface
 
-## 🚀 Quick Start
+The application now features a streamlined, modern step-by-step configuration interface that guides users through the AI provider setup process:
+
+1. **Provider Selection** - Choose from multiple AI providers (Google Gemini, OpenAI, Mistral, Groq, Ollama)
+2. **Model Selection** - Select the specific AI model for your tasks
+3. **Personality Selection** - Choose the writing style for your AI assistant
+4. **Review & Complete** - Review your configuration and get started
+
+#### Key Improvements
+
+- **Modern UI**: Clean, card-based design with smooth animations and transitions
+- **Progressive Disclosure**: Each step focuses on one decision, reducing cognitive load
+- **Auto-advance**: Automatically progresses to the next step after selection (with 800ms delay)
+- **Visual Feedback**: Progress bar, step indicators, and hover effects
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+
+#### User Experience Features
+
+- **Smooth Transitions**: Fade-in animations between steps
+- **Interactive Cards**: Hover effects and visual feedback for selections
+- **Progress Tracking**: Clear visual indication of completion status
+- **Accessibility**: Proper focus states and keyboard navigation
+- **Information Preservation**: All provider details and warnings are maintained
+
+## Development
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 16+ 
 - npm or yarn
-- Backend Python CLI running
-- Baseline resume template file: `templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex`
 
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start development servers (frontend + backend)
+### Development Server
+
+```bash
 npm run dev
-
-# Or start individually
-npm run dev:client  # Frontend only (port 3000)
-npm run dev:server  # Backend only (port 3001)
 ```
 
-### Production Build
+### Build for Production
 
 ```bash
-# Build for production
 npm run build
-
-# Preview production build
-npm run preview
-
-# Start production server
-npm run server
 ```
 
-## 🏗️ Architecture
+## Architecture
 
-### Frontend (Vue 3 + Vite)
-- **Port:** 3000
-- **Framework:** Vue 3 with Composition API
-- **Build Tool:** Vite for fast development
-- **Styling:** Tailwind CSS for rapid UI development
-- **Routing:** Vue Router for SPA navigation
+The frontend is built with Vue 3 and uses:
 
-### Backend API (Express.js)
-- **Port:** 3001  
-- **Framework:** Express.js with ES modules
-- **File Upload:** Multer for handling job description files only
-- **Process Management:** Spawns Python CLI as subprocess
-- **File Serving:** Serves generated PDFs for download
+- **Vue 3 Composition API** for reactive state management
+- **Tailwind CSS** for styling
+- **Vite** for fast development and building
+- **Vue Router** for navigation
+- **Axios** for API communication
 
-### Communication Flow
-```
-Vue Frontend → Express API → Python CLI → AI Provider → Generated Files
-```
+## Components
 
-## 📁 Project Structure
+### ProviderSelector.vue
 
-```
-frontend/
-├── src/
-│   ├── components/          # Reusable Vue components
-│   │   ├── FileUpload.vue   # Drag & drop file upload
-│   │   ├── LaTeXViewer.vue  # LaTeX source code viewer with syntax highlighting
-│   │   ├── PDFViewer.vue    # Embedded PDF preview
-│   │   ├── ProviderSelector.vue # AI provider selection
-│   │   └── ProcessingStatus.vue # Real-time status updates
-│   ├── views/               # Page components
-│   │   ├── Home.vue         # Main workflow page (job description only)
-│   │   ├── Results.vue      # Results with side-by-side LaTeX/PDF viewing
-│   │   └── Settings.vue     # Configuration page
-│   ├── composables/         # Reusable logic
-│   │   └── useAPI.js        # API communication
-│   └── assets/              # Styles and static files
-├── server/                  # Express.js backend
-│   ├── routes/              # API route handlers
-│   ├── middleware/          # Express middleware
-│   └── index.js             # Server entry point
-└── temp/                    # Temporary file storage
-```
+The main configuration component that implements the step-by-step wizard:
 
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# API Configuration
-PORT=3001
-FRONTEND_URL=http://localhost:3000
-
-# AI Provider API Keys (passed to Python CLI)
-GEMINI_API_KEY=your_gemini_key
-OPENAI_API_KEY=your_openai_key
-```
-
-### Baseline Resume Template
-
-The application uses a pre-configured baseline resume template located at:
-```
-templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex
-```
-
-This template includes LLM markers for optimal AI processing and consistent formatting.
-
-### Settings
-
-- **API Keys:** Configure in Settings page or environment variables
-- **Default Provider:** Choose preferred AI provider
-- **Auto-download:** Automatically download results when ready
-
-## 🔌 API Endpoints
-
-### File Processing
-- `POST /api/process` - Start resume processing (job description only)
-- `GET /api/status/:jobId` - Check processing status
-- `GET /api/results/:jobId` - Get job results
-
-### File Management  
-- `POST /api/upload` - Upload individual files
-- `GET /api/download/:jobId/:fileType` - Download generated files
-- `GET /api/view/:jobId/:fileType` - View PDF files inline
-- `GET /api/view/:jobId/:fileType/tex` - View LaTeX source files
-
-### Configuration
-- `GET /api/providers` - Get available AI providers
-- `GET /api/health` - Health check
-
-## 🎨 UI Components
-
-### FileUpload
-- Drag & drop interface for job descriptions
-- File type validation (.txt, .pdf, .doc, .docx)
-- Text input for pasting job descriptions
-- Progress indicators
-
-### ProviderSelector
-- Visual provider cards
-- Model selection dropdowns
-- API key status indicators
-- Performance comparisons
-
-### ProcessingStatus
-- Real-time progress updates
-- Step-by-step workflow display
-- Error handling and retry options
-
-### LaTeXViewer
-- **Syntax Highlighting**: Color-coded LaTeX commands, environments, comments, math mode
-- **Line Numbers**: Easy code reference and navigation
-- **Copy to Clipboard**: One-click copying with visual feedback
+- **Step Management**: Handles progression through configuration steps
+- **Provider Data**: Comprehensive provider and model information
+- **Auto-advance**: Configurable automatic progression
 - **Responsive Design**: Adapts to different screen sizes
-- **Error Handling**: Graceful fallbacks for missing files
-- **Real-time Loading**: Fetches LaTeX source via API
-- **Monospace Font**: Proper code display with syntax highlighting
+- **Accessibility**: Proper ARIA labels and keyboard navigation
 
-#### Syntax Highlighting Features
-- **Commands**: Green highlighting for `\textbf`, `\section`, etc.
-- **Environments**: Red highlighting for `\begin{document}`, `\end{itemize}`
-- **Comments**: Gray italic for `% comments`
-- **Math Mode**: Orange with background for `$equations$`
-- **Braces**: Blue highlighting for `{` and `}`
-- **Optional Arguments**: Purple for `[optional]` parameters
+## Configuration Options
 
-### PDFViewer
-- **Inline Preview**: Embedded PDF viewing without downloads
-- **Fallback Support**: Browser compatibility handling
-- **Loading States**: Visual feedback during PDF loading
-- **Error Recovery**: Graceful handling of PDF load failures
+### AI Providers
 
-## 🔄 Development Workflow
+- **Google Gemini**: Best balance of speed, quality, and cost (Recommended)
+- **OpenAI**: Highest quality, premium pricing
+- **Mistral**: High quality, competitive pricing
+- **Groq**: Ultra-fast inference, competitive pricing
+- **Ollama (Local)**: Free local models, requires setup
 
-1. **Start Development:**
-   ```bash
-   npm run dev
-   ```
+### Writing Personalities
 
-2. **Make Changes:**
-   - Frontend: Hot reload at http://localhost:3000
-   - Backend: Auto-restart with nodemon at http://localhost:3001
+- **Career-Savvy Colleague**: Trusted peer providing collaborative, grounded advice (Default)
+- **Direct & Confident**: Authoritative, results-focused with measurable outcomes
+- **Enthusiastic Innovator**: Forward-thinking, passionate about cutting-edge solutions
+- **Calm Mentor**: Wise, experienced guide with stable professionalism
+- **Engaging Storyteller**: Witty, narrative-driven approach to showcase experience
+- **Meticulous Analyst**: Data-driven, systematic approach with evidence-based claims
+- **Ambitious Go-Getter**: High-energy, achievement-focused with urgency for results
 
-3. **Test Processing:**
-   - Upload or paste job description
-   - Select AI provider
-   - Monitor real-time status updates
-   - Download generated files
-
-4. **Build for Production:**
-   ```bash
-   npm run build
-   ```
-
-## 🚢 Deployment
-
-### Frontend (Static)
-Deploy to Vercel, Netlify, or any static hosting:
-
-```bash
-npm run build
-# Deploy 'dist' directory
-```
-
-### Backend (Node.js)
-Deploy to Railway, Render, or any Node.js hosting:
-
-```bash
-# Ensure Python CLI is available on server
-# Ensure baseline resume template is present
-npm run server
-```
-
-### Environment Setup
-- Set API keys as environment variables
-- Ensure Python CLI dependencies are installed
-- Configure file storage permissions
-- Verify baseline resume template exists
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**"Backend not responding"**
-- Check if Express server is running on port 3001
-- Verify CORS configuration
-
-**"Processing failed"**
-- Ensure Python CLI is executable
-- Check API keys are configured
-- Verify file upload permissions
-- Confirm baseline resume template exists
-
-**"Files not downloading"**
-- Check temp directory permissions
-- Verify Python CLI output directory
-
-**"Baseline resume template not found"**
-- Ensure `templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex` exists
-- Check file permissions and path configuration
-
-### Debug Mode
-
-```bash
-# Enable debug logging
-DEBUG=tex-tailor:* npm run dev:server
-```
-
-## 🔮 Future Enhancements
-
-### Custom LaTeX Template Support
-The current version uses a pre-configured baseline resume template. Future releases will include:
-
-- **Custom Template Upload** - Allow users to upload their own LaTeX templates
-- **Marker Detection** - Automatically detect LLM markers in uploaded templates
-- **Template Validation** - Validate LaTeX syntax and marker placement
-- **Chunk Extraction** - Extract customizable sections from templates
-
-### Implementation Requirements
-- Marker detection algorithm
-- Template validation system
-- Chunk extraction logic
-- Backward compatibility with baseline template
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create feature branch: `git checkout -b feature/new-feature`
-3. Commit changes: `git commit -m 'Add new feature'`
-4. Push to branch: `git push origin feature/new-feature`
-5. Submit pull request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## 📄 License
+## License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License.

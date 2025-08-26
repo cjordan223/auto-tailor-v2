@@ -35,6 +35,28 @@ Now, open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 On your first visit, go to the **Settings** page to configure your AI provider API keys.
 
+### Test the production Docker build locally
+
+Build and run the same image used in production, then test locally before pushing changes:
+
+```bash
+./test_docker_build.sh
+```
+
+This will:
+- Build the Docker image and start the API at `http://localhost:3001`
+- Pass `FRONTEND_URL` to allow iframe embedding for the frontend (defaults to `http://localhost:3000`)
+
+Override the frontend origin if needed:
+
+```bash
+FRONTEND_URL=https://your-frontend.example.com ./test_docker_build.sh
+```
+
+Smoke tests:
+- Health: `http://localhost:3001/health`
+- PDF view: `http://localhost:3001/api/view/{jobId}/{fileType}`
+
 ### Production Deployment
 
 For production deployment on platforms like Render, see the **[Deployment Guide](./docs/DEPLOYMENT.md)** for detailed instructions on:
