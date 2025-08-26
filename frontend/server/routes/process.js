@@ -378,9 +378,19 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     // In Docker production, Python is in PATH due to ENV PATH="/opt/venv/bin:$PATH"
     const venvPython = process.env.NODE_ENV === 'production' ? 'python' : path.join(__dirname, '../../../venv/bin/python')
     
+    // Ensure output directory exists before running workflow
+    const projectRoot = path.join(__dirname, '../../..')
+    const outDir = path.join(projectRoot, 'out')
+    try {
+      await fs.mkdir(outDir, { recursive: true })
+      console.log(`[${jobId}] Created output directory: ${outDir}`)
+    } catch (error) {
+      console.log(`[${jobId}] Output directory already exists or error:`, error.message)
+    }
+    
     // Run the complete workflow using Python CLI directly
     const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
-      cwd: path.join(__dirname, '../../..'), // Project root for venv and paths
+      cwd: projectRoot, // Project root for venv and paths
       stdio: ['pipe', 'pipe', 'pipe'],
       env: mergedEnv
     })
