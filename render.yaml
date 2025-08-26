@@ -20,6 +20,8 @@ services:
         sync: false
       - key: OLLAMA_BASE_URL
         sync: false
+      - key: NODE_ENV
+        value: "production"
       - key: NODE_VERSION
         value: "18"
       - key: PYTHON_VERSION

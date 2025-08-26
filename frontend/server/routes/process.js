@@ -375,7 +375,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     console.log(`[${jobId}] - Provider: ${provider}, Model: ${model}, Personality: ${personality}`)
 
     // Execute the Python workflow directly using venv Python
-    const venvPython = path.join(__dirname, '../../../venv/bin/python')
+    // In Docker production, Python is in PATH due to ENV PATH="/opt/venv/bin:$PATH"
+    const venvPython = process.env.NODE_ENV === 'production' ? 'python' : path.join(__dirname, '../../../venv/bin/python')
     
     // Run the complete workflow using Python CLI directly
     const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
@@ -409,6 +410,18 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       
       // Parse stderr for errors and progress
       parseOutputAndUpdateStatus(statusFile, output, jobId, true)
+    })
+    
+    child.on('error', async (error) => {
+      console.error(`[${jobId}] Process error:`, error)
+      await workflowLogger.writeWorkflowLog(jobId, `Process spawn error: ${error.message}`, 'error')
+      
+      await updateStatus(statusFile, { 
+        status: 'error', 
+        progress: 0,
+        step: 'Failed to start processing',
+        error: `Failed to spawn Python process: ${error.message}`
+      })
     })
     
     child.on('close', async (code) => {
