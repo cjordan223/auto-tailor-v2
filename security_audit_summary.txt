@@ -1,0 +1,24 @@
+Security Audit Summary - August 26, 2025
+
+This document summarizes the security changes made to the application and outlines the remaining vulnerabilities.
+
+## Changes Implemented
+
+1.  **Input Sanitization (Critical Vulnerability Fixed):**
+    *   **File:** `frontend/server/routes/process.js`
+    *   **Change:** Added sanitization to the `jobDescriptionText` input field. The code now strips all HTML tags from the input before it is saved to a file or processed.
+    *   **Reason:** This prevents potential HTML/script injection attacks, which was the most critical vulnerability identified in the audit.
+
+## Outstanding Security Risks (Changes Not Made)
+
+1.  **Dependency Vulnerabilities:**
+    *   **Status:** 6 known vulnerabilities (3 high, 3 moderate) remain in the frontend's `npm` packages.
+    *   **Reason:** The automatic fix required major version updates (`npm audit fix --force`), which carries a risk of breaking the application. The decision was made to postpone this action.
+
+2.  **Lack of Authentication:**
+    *   **Status:** All API endpoints remain public and unprotected.
+    *   **Risk:** Allows unauthorized access to the service, which can lead to resource abuse and consumption of paid API quotas.
+
+3.  **Lack of Rate Limiting:**
+    *   **Status:** The server does not limit the number of requests a single user can make.
+    *   **Risk:** The application is vulnerable to Denial-of-Service (DoS) attacks, which could make it unavailable.
