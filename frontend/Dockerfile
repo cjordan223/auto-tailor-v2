@@ -3,7 +3,7 @@ FROM node:18-slim
 
 # Install Python, pip, venv, and LaTeX (using smaller texlive package for faster builds)
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv texlive-latex-base texlive-latex-extra texlive-fonts-recommended && \
+    apt-get install -y python3 python3-pip python3-venv texlive-latex-base texlive-latex-extra texlive-fonts-recommended latexmk && \
     rm -rf /var/lib/apt/lists/*
 
 # Set up the working directory
