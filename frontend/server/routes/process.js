@@ -399,7 +399,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     let stdout = ''
     let stderr = ''
     
-    child.stdout.on('data', (data) => {
+    child.stdout.on('data', async (data) => {
       const output = data.toString()
       stdout += output
       console.log(`[${jobId}] stdout:`, output)
@@ -425,7 +425,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
       }
     })
     
-    child.stderr.on('data', (data) => {
+    child.stderr.on('data', async (data) => {
       const output = data.toString()
       stderr += output
       console.error(`[${jobId}] stderr:`, output)

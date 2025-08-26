@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "tex-tailor": {
-      "command": "python",
-      "args": ["-m", "tex_tailor.mcp_server"],
-      "env": {}
-    }
-  }
-}

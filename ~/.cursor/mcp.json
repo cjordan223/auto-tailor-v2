@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "tex-tailor": {
+      "command": "python",
+      "args": ["-m", "tex_tailor.mcp_server"],
+      "env": {}
+    },
+    "render": {
+      "url": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${RENDER_API_KEY}"
+      }
+    }
+  }
+}
