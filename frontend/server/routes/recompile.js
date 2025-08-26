@@ -57,7 +57,8 @@ router.post('/:jobId/:fileType', async (req, res) => {
     }
     
     // Prepare Python CLI command  
-    const pythonScriptPath = process.env.NODE_ENV === 'production' ? '/opt/venv/bin/python' : path.join(__dirname, '../../../venv/bin/python3')
+    // In Docker production, Python is in PATH due to ENV PATH="/opt/venv/bin:$PATH"
+    const pythonScriptPath = process.env.NODE_ENV === 'production' ? 'python' : path.join(__dirname, '../../../venv/bin/python3')
     const workingDir = path.join(__dirname, '../../..')
     
     const args = [
