@@ -79,8 +79,7 @@ app.use('/api', apiLimiter)
 // Static files (for serving generated PDFs temporarily)
 app.use('/static', express.static(path.join(__dirname, '../temp')))
 
-// Serve static files from the built frontend
-app.use(express.static(path.join(__dirname, '../dist')))
+// Note: Frontend static files not served - frontend deployed separately on Vercel
 
 // Health check
 app.get('/health', (req, res) => {
@@ -146,10 +145,7 @@ app.use('/api/*', (req, res) => {
   })
 })
 
-// Catch-all handler for frontend routes (SPA)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'))
-})
+// API-only backend - no catch-all handler for frontend routes
 
 // Initialize database connection and start server
 async function startServer() {
