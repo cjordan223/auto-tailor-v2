@@ -16,8 +16,11 @@ import recompileRoutes from './routes/recompile.js'
 import resultsRoutes from './routes/results.js'
 import applicationsRoutes from './routes/applications.js'
 import regenerateRoutes from './routes/regenerate.js'
+import authRoutes from './routes/auth.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
+import { authenticateToken } from './middleware/auth.js'
+import rateLimit from 'express-rate-limit'
 import databaseConnection from './config/database.js'
 import applicationService from './services/ApplicationService.js'
 
@@ -60,6 +63,16 @@ app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 app.use(requestLogger)
 
+// Rate limiting - apply to all API routes
+const apiLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per windowMs
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests from this IP, please try again after 15 minutes.',
+})
+app.use('/api', apiLimiter)
+
 // Static files (for serving generated PDFs temporarily)
 app.use('/static', express.static(path.join(__dirname, '../temp')))
 
@@ -72,22 +85,44 @@ app.get('/health', (req, res) => {
   })
 })
 
-// API Routes
-app.use('/api/upload', uploadRoutes)
-app.use('/api/process', processRoutes)
-app.use('/api/download', downloadRoutes)
-app.use('/api/view', viewRoutes) // Dedicated view routes for inline PDF viewing
-app.use('/api/status', statusRoutes)
-app.use('/api/providers', providersRoutes)
-app.use('/api/validate', validateRoutes)
-app.use('/api/review', reviewRoutes)
-app.use('/api/recompile', recompileRoutes)
-app.use('/api/results', resultsRoutes)
-app.use('/api/applications', applicationsRoutes)
-app.use('/api/regenerate', regenerateRoutes)
+// Public API Routes (no authentication required)
+app.use('/api/auth', authRoutes)
+
+// Health endpoints (no auth needed)
+app.get('/api/applications/health', async (req, res) => {
+  try {
+    const healthCheck = await databaseConnection.db?.admin().ping()
+    res.json({
+      success: true,
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    })
+  } catch (error) {
+    res.status(503).json({
+      success: false,
+      database: 'disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    })
+  }
+})
+
+// Protected API Routes (authentication required)
+app.use('/api/upload', authenticateToken, uploadRoutes)
+app.use('/api/process', authenticateToken, processRoutes)
+app.use('/api/download', authenticateToken, downloadRoutes)
+app.use('/api/view', authenticateToken, viewRoutes)
+app.use('/api/status', authenticateToken, statusRoutes)
+app.use('/api/providers', authenticateToken, providersRoutes)
+app.use('/api/validate', authenticateToken, validateRoutes)
+app.use('/api/review', authenticateToken, reviewRoutes)
+app.use('/api/recompile', authenticateToken, recompileRoutes)
+app.use('/api/results', authenticateToken, resultsRoutes)
+app.use('/api/applications', authenticateToken, applicationsRoutes)
+app.use('/api/regenerate', authenticateToken, regenerateRoutes)
 
 // History endpoint
-app.get('/api/history', (req, res) => {
+app.get('/api/history', authenticateToken, (req, res) => {
   // In a real app, this would fetch from a database
   res.json({ jobs: [] })
 })

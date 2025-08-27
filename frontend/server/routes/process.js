@@ -91,7 +91,7 @@ async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, pro
     }
 
     // Save to database
-    const result = await applicationService.createApplication('temp_user', applicationData)
+    const result = await applicationService.createApplication(req.user.userId, applicationData)
     
     if (result.success) {
       console.log(`💾 Saved application to database: ${result.applicationId}`)

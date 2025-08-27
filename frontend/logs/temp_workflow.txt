@@ -1,11 +1,11 @@
 === Workflow Run Started ===
-Job ID: 8713c161-3660-4b31-9f62-1259f65b06f5
-Started: 2025-08-26T07:06:12.514Z
+Job ID: 13f977c8-e7ae-4a78-a230-602c9e1d256b
+Started: 2025-08-26T08:05:33.687Z
 ==================================================
 
-[INFO] Workflow started - Provider: gemini, Model: gemini-1.5-flash, Personality: engaging_storyteller
+[INFO] Workflow started - Provider: gemini, Model: gemini-1.5-flash, Personality: calm_mentor
 
 ==================================================
 === Workflow Run Completed ===
-Job ID: 8713c161-3660-4b31-9f62-1259f65b06f5
-Completed: 2025-08-26T07:06:12.519Z
+Job ID: 13f977c8-e7ae-4a78-a230-602c9e1d256b
+Completed: 2025-08-26T08:05:33.692Z

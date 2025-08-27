@@ -11,7 +11,7 @@ const router = express.Router()
 router.post('/', async (req, res) => {
   try {
     console.log('📝 Creating application...')
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const applicationData = req.body
 
     console.log('📋 Application data received:', {
@@ -57,7 +57,7 @@ router.post('/', async (req, res) => {
  */
 router.get('/recent', async (req, res) => {
   try {
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const limit = parseInt(req.query.limit) || 10
 
     const result = await applicationService.getRecentGeneratedApplications(userId, limit)
@@ -77,7 +77,7 @@ router.get('/recent', async (req, res) => {
  */
 router.get('/saved', async (req, res) => {
   try {
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     
     const options = {
       status: req.query.status || null,
@@ -107,7 +107,7 @@ router.post('/:id/save', async (req, res) => {
   try {
     console.log('💾 Saving application...')
     const applicationId = req.params.id
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
 
     console.log('📋 Save request:', { applicationId, userId })
 
@@ -149,7 +149,7 @@ router.post('/:id/save', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const { status, ...additionalData } = req.body
 
     if (!ObjectId.isValid(applicationId)) {
@@ -202,7 +202,7 @@ router.patch('/:id/status', async (req, res) => {
 router.patch('/:id/notes', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const { notes } = req.body
 
     if (!ObjectId.isValid(applicationId)) {
@@ -242,7 +242,7 @@ router.patch('/:id/notes', async (req, res) => {
 router.patch('/:id/archive', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const { archived = true } = req.body
 
     if (!ObjectId.isValid(applicationId)) {
@@ -274,7 +274,7 @@ router.patch('/:id/archive', async (req, res) => {
  */
 router.get('/search', async (req, res) => {
   try {
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const searchTerm = req.query.q
 
     if (!searchTerm) {
@@ -307,7 +307,7 @@ router.get('/search', async (req, res) => {
  */
 router.get('/stats', async (req, res) => {
   try {
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
 
     const result = await applicationService.getApplicationStats(userId)
     res.json(result)
@@ -327,7 +327,7 @@ router.get('/stats', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
 
     if (!ObjectId.isValid(applicationId)) {
       return res.status(400).json({
@@ -362,7 +362,7 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/download', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.query.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
 
     if (!ObjectId.isValid(applicationId)) {
       return res.status(400).json({
@@ -415,7 +415,7 @@ router.get('/:id/download', async (req, res) => {
 router.patch('/:id/notes', async (req, res) => {
   try {
     const applicationId = req.params.id
-    const userId = req.body.userId || 'temp_user' // TODO: Replace with actual auth
+    const userId = req.user.userId
     const { notes } = req.body
 
     if (!ObjectId.isValid(applicationId)) {
@@ -451,26 +451,5 @@ router.patch('/:id/notes', async (req, res) => {
   }
 })
 
-/**
- * Health check endpoint for database connection
- * GET /api/applications/health
- */
-router.get('/health', async (req, res) => {
-  try {
-    const healthCheck = await applicationService.db?.admin().ping()
-    res.json({
-      success: true,
-      database: 'connected',
-      timestamp: new Date().toISOString()
-    })
-  } catch (error) {
-    res.status(503).json({
-      success: false,
-      database: 'disconnected',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    })
-  }
-})
 
 export default router

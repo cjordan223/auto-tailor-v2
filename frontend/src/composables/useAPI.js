@@ -15,6 +15,13 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`)
+    
+    // Add JWT token to all requests except auth endpoints
+    const token = localStorage.getItem('auth_token')
+    if (token && !config.url?.includes('/auth/')) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    
     return config
   },
   (error) => {
@@ -35,6 +42,21 @@ api.interceptors.response.use(
     if (error.response?.status === 429) {
       const retryAfter = error.response?.headers['retry-after'] || 60
       error.message = `Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`
+    }
+    
+    // Handle authentication errors
+    if (error.response?.status === 401) {
+      const token = localStorage.getItem('auth_token')
+      if (token) {
+        // Token is invalid, clear it and redirect to login
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_user')
+        
+        // Only redirect to login if we're not already on an auth page
+        if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        }
+      }
     }
     
     return Promise.reject(error)
