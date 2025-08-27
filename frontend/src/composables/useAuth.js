@@ -45,7 +45,7 @@ export function useAuth() {
     try {
       isLoading.value = true
       
-      const response = await authApi.post('/api/auth/login', {
+      const response = await authApi.post('/auth/login', {
         email,
         password
       })
@@ -73,7 +73,7 @@ export function useAuth() {
     try {
       isLoading.value = true
       
-      const response = await authApi.post('/api/auth/register', {
+      const response = await authApi.post('/auth/register', {
         email,
         password
       })
@@ -122,7 +122,7 @@ export function useAuth() {
     
     try {
       // Make a test request to a protected endpoint
-      const response = await authApi.get('/api/auth/me', {
+      const response = await authApi.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${token.value}`
         }
