@@ -1,5 +1,5 @@
 # Stage 1: Base image with Node.js and Python
-FROM node:18-slim
+FROM node:20-slim
 
 # Install Python, pip, venv, and comprehensive LaTeX packages
 RUN apt-get update && \
@@ -30,9 +30,6 @@ WORKDIR /app/frontend
 
 # Install Node.js dependencies
 RUN npm install
-
-# Build the frontend for production
-RUN npm run build
 
 # Expose the port
 EXPOSE 3001
