@@ -12,15 +12,13 @@
             </router-link>
           </div>
 
-          <div class="flex items-center space-x-2">
-            <!-- Always show Home -->
-            <router-link to="/" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
-              :class="{ 'active': $route.name === 'Home' }">
-              Home
-            </router-link>
-            
+          <div class="flex items-center space-x-2">            
             <!-- Authenticated user navigation -->
             <template v-if="isAuthenticated">
+              <router-link to="/home" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
+                :class="{ 'active': $route.name === 'Home' }">
+                Home
+              </router-link>
               <router-link to="/dashboard" class="nav-link text-gray-700 hover:text-blue-600 text-sm font-medium"
                 :class="{ 'active': $route.name === 'Dashboard' }">
                 Dashboard
@@ -89,7 +87,7 @@ onMounted(() => {
 // Handle logout
 const handleLogout = async () => {
   logout()
-  // Redirect to home page after logout
+  // Redirect to welcome page after logout
   await router.push('/')
 }
 </script>

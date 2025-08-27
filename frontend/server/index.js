@@ -53,10 +53,13 @@ const PORT = process.env.PORT || 3001
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'https://auto-tailor-v2.vercel.app',
     process.env.FRONTEND_URL
   ].filter(Boolean),
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }))
 
 app.use(express.json({ limit: '50mb' }))
@@ -76,6 +79,9 @@ app.use('/api', apiLimiter)
 // Static files (for serving generated PDFs temporarily)
 app.use('/static', express.static(path.join(__dirname, '../temp')))
 
+// Serve static files from the built frontend
+app.use(express.static(path.join(__dirname, '../dist')))
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
@@ -87,6 +93,19 @@ app.get('/health', (req, res) => {
 
 // Public API Routes (no authentication required)
 app.use('/api/auth', authRoutes)
+
+// Core functionality routes (public - no authentication required)
+app.use('/api/upload', uploadRoutes)
+app.use('/api/process', processRoutes)
+app.use('/api/download', downloadRoutes)
+app.use('/api/view', viewRoutes)
+app.use('/api/status', statusRoutes)
+app.use('/api/providers', providersRoutes)
+app.use('/api/validate', validateRoutes)
+app.use('/api/review', reviewRoutes)
+app.use('/api/recompile', recompileRoutes)
+app.use('/api/results', resultsRoutes)
+app.use('/api/regenerate', regenerateRoutes)
 
 // Health endpoints (no auth needed)
 app.get('/api/applications/health', async (req, res) => {
@@ -107,21 +126,10 @@ app.get('/api/applications/health', async (req, res) => {
   }
 })
 
-// Protected API Routes (authentication required)
-app.use('/api/upload', authenticateToken, uploadRoutes)
-app.use('/api/process', authenticateToken, processRoutes)
-app.use('/api/download', authenticateToken, downloadRoutes)
-app.use('/api/view', authenticateToken, viewRoutes)
-app.use('/api/status', authenticateToken, statusRoutes)
-app.use('/api/providers', authenticateToken, providersRoutes)
-app.use('/api/validate', authenticateToken, validateRoutes)
-app.use('/api/review', authenticateToken, reviewRoutes)
-app.use('/api/recompile', authenticateToken, recompileRoutes)
-app.use('/api/results', authenticateToken, resultsRoutes)
+// Protected API Routes (authentication required for user-specific features)
 app.use('/api/applications', authenticateToken, applicationsRoutes)
-app.use('/api/regenerate', authenticateToken, regenerateRoutes)
 
-// History endpoint
+// History endpoint (protected - requires authentication)
 app.get('/api/history', authenticateToken, (req, res) => {
   // In a real app, this would fetch from a database
   res.json({ jobs: [] })
@@ -130,12 +138,17 @@ app.get('/api/history', authenticateToken, (req, res) => {
 // Error handling
 app.use(errorHandler)
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({ 
-    message: 'Endpoint not found',
+    message: 'API endpoint not found',
     path: req.originalUrl
   })
+})
+
+// Catch-all handler for frontend routes (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
 
 // Initialize database connection and start server

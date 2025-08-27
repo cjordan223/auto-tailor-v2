@@ -5,6 +5,7 @@ import './assets/style.css'
 import { useAuth } from './composables/useAuth.js'
 
 // Import views
+import Welcome from './views/Welcome.vue'
 import Home from './views/Home.vue'
 import Results from './views/Results.vue'
 import Settings from './views/Settings.vue'
@@ -18,9 +19,15 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'Welcome',
+      component: Welcome,
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/home',
       name: 'Home',
       component: Home,
-      meta: { requiresAuth: false }
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
@@ -83,7 +90,7 @@ router.beforeEach(async (to, from, next) => {
   // Check if route is guest-only (login/register pages)
   if (to.meta.guestOnly && isAuthenticated.value) {
     // Redirect authenticated users away from login/register pages
-    next({ name: 'Dashboard' })
+    next({ name: 'Home' })
     return
   }
   

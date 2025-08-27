@@ -192,11 +192,11 @@ const handleRegister = async () => {
   const result = await register(form.email, form.password)
   
   if (result.success) {
-    successMessage.value = 'Account created successfully! Redirecting to dashboard...'
+    successMessage.value = 'Account created successfully! Redirecting to home...'
     
-    // Redirect to dashboard after a short delay
+    // Redirect to home after a short delay
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push('/home')
     }, 2000)
   } else {
     errors.general = result.error
