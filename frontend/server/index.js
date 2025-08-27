@@ -47,7 +47,7 @@ if (envResult.error) {
 }
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 10000
 
 // Middleware
 app.use(cors({
@@ -88,6 +88,26 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'tex-tailor-api'
   })
+})
+
+// Root route to prevent 404s
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Tex-Tailor API Server',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      applications: '/api/applications'
+    }
+  })
+})
+
+// HEAD handler for root route (for health checks)
+app.head('/', (req, res) => {
+  res.status(200).end()
 })
 
 // Public API Routes (no authentication required)

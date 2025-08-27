@@ -32,7 +32,7 @@ WORKDIR /app/frontend
 RUN npm install
 
 # Expose the port
-EXPOSE 3001
+EXPOSE 10000
 
 # Start the server (Python venv is already in PATH via ENV)
 CMD ["npm", "run", "server"]
