@@ -1,5 +1,5 @@
 # Stage 1: Base image with Node.js and Python
-FROM node:18-slim
+FROM node:20-slim
 
 # Install Python, pip, venv, and comprehensive LaTeX packages
 RUN apt-get update && \
