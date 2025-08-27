@@ -39,6 +39,24 @@
           </div>
           
           <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input 
+              id="name" 
+              name="name" 
+              type="text" 
+              autocomplete="name" 
+              required
+              v-model="form.name"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              :class="{ 'border-red-300': errors.name }"
+              placeholder="Enter your full name"
+            >
+            <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
+          </div>
+          
+          <div>
             <label for="password" class="block text-sm font-medium text-gray-700">
               Password
             </label>
@@ -127,7 +145,8 @@ const { register, isLoading } = useAuth()
 const form = reactive({
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  name: ''
 })
 
 // Form errors
@@ -135,7 +154,8 @@ const errors = reactive({
   email: '',
   password: '',
   confirmPassword: '',
-  general: ''
+  general: '',
+  name: ''
 })
 
 const successMessage = ref('')
@@ -146,6 +166,7 @@ const clearMessages = () => {
   errors.password = ''
   errors.confirmPassword = ''
   errors.general = ''
+  errors.name = ''
   successMessage.value = ''
 }
 
@@ -158,6 +179,11 @@ const validateForm = () => {
     isValid = false
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = 'Please enter a valid email address'
+    isValid = false
+  }
+
+  if (!form.name) {
+    errors.name = 'Full name is required'
     isValid = false
   }
   
@@ -189,7 +215,7 @@ const handleRegister = async () => {
   }
   
   // Attempt registration
-  const result = await register(form.email, form.password)
+  const result = await register(form.email, form.password, form.name)
   
   if (result.success) {
     successMessage.value = 'Account created successfully! Redirecting to home...'

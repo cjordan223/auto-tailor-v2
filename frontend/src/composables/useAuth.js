@@ -69,13 +69,14 @@ export function useAuth() {
   /**
    * Register new user (restricted to specific email)
    */
-  const register = async (email, password) => {
+  const register = async (email, password, name) => {
     try {
       isLoading.value = true
       
       const response = await authApi.post('/auth/register', {
         email,
-        password
+        password,
+        name
       })
       
       const { token: authToken, user: authUser } = response.data
