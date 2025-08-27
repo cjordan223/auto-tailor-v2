@@ -62,6 +62,37 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }))
 
+// Security headers middleware
+app.use((req, res, next) => {
+  // Content Security Policy (CSP)
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com https://api.mistral.ai https://api.groq.com; " +
+    "frame-ancestors 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self'"
+  )
+  
+  // X-Frame-Options (replaced by CSP frame-ancestors, but kept for older browsers)
+  res.setHeader('X-Frame-Options', 'DENY')
+  
+  // X-Content-Type-Options
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  
+  // Referrer Policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  
+  // Additional security headers
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+  
+  next()
+})
+
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 app.use(requestLogger)
