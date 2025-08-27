@@ -1,0 +1,17 @@
+frontend/server/
+frontend/temp/
+frontend/logs/
+frontend/node_modules/
+frontend/dist/
+archive/
+tex_tailor/
+templates/
+out/
+jd-repo/
+venv/
+*.log
+*.aux
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz
