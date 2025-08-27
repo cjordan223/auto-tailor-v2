@@ -1,5 +1,5 @@
 # Stage 1: Base image with Node.js and Python
-FROM node:20-slim
+FROM node:18-slim
 
 # Install Python, pip, venv, and comprehensive LaTeX packages
 RUN apt-get update && \
@@ -32,7 +32,7 @@ WORKDIR /app/frontend
 RUN npm install
 
 # Expose the port
-EXPOSE 10000
+EXPOSE 3001
 
 # Start the server (Python venv is already in PATH via ENV)
 CMD ["npm", "run", "server"]
