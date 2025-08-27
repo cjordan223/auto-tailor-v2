@@ -125,8 +125,8 @@ const handleLogin = async () => {
   const result = await login(form.email, form.password)
   
   if (result.success) {
-    // Redirect to dashboard or intended route
-    const redirectTo = router.currentRoute.value.query.redirect || '/dashboard'
+    // Redirect to home or intended route
+    const redirectTo = router.currentRoute.value.query.redirect || '/home'
     router.push(redirectTo)
   } else {
     errors.general = result.error

@@ -31,6 +31,9 @@ WORKDIR /app/frontend
 # Install Node.js dependencies
 RUN npm install
 
+# Build the frontend for production
+RUN npm run build
+
 # Expose the port
 EXPOSE 3001
 
