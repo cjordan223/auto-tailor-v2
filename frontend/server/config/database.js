@@ -17,24 +17,80 @@ class DatabaseConnection {
         throw new Error('MONGODB_ATLAS_URI environment variable is not set')
       }
 
-      this.client = new MongoClient(uri, {
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      })
+      console.log('🔗 Attempting MongoDB Atlas connection...')
+      console.log('📍 Node.js version:', process.version)
+      console.log('📦 MongoDB driver version: 6.19.0 (latest)')
 
+      // MongoDB client options - Production-ready secure configuration
+      const clientOptions = {
+        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 15000,
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 15000,
+        retryWrites: true,
+        retryReads: true,
+        
+        // Secure TLS configuration for production
+        tls: true,
+        tlsAllowInvalidCertificates: false,
+        tlsAllowInvalidHostnames: false,
+        
+        // Additional security hardening
+        authSource: 'admin',
+        compressors: ['zlib'],  // Enable compression for better performance
+        zlibCompressionLevel: 6,
+        
+        // Connection monitoring and security
+        monitorCommands: false,  // Disable command monitoring in production
+        heartbeatFrequencyMS: 30000,
+        
+        // Security timeouts
+        maxIdleTimeMS: 300000,   // 5 minutes max idle time
+        waitQueueTimeoutMS: 10000,
+      }
+      
+      console.log('⚙️  Client options:', JSON.stringify(clientOptions, null, 2))
+      
+      this.client = new MongoClient(uri, clientOptions)
+
+      console.log('🔌 Connecting to MongoDB...')
       await this.client.connect()
+      
+      console.log('🏗️  Setting up database...')
       this.db = this.client.db(process.env.MONGODB_DATABASE_NAME || 'resume_tailor')
       this.isConnected = true
+
+      // Test the connection with a ping
+      console.log('🏓 Testing connection...')
+      await this.db.admin().ping()
 
       // Set up collections with proper configuration
       await this.setupCollections()
 
-      console.log('✅ Connected to MongoDB Atlas')
+      console.log('✅ Successfully connected to MongoDB Atlas')
       return this.db
     } catch (error) {
-      console.error('❌ MongoDB connection failed:', error)
-      throw error
+      console.error('❌ MongoDB connection failed:', error.message)
+      
+      // Production-safe error logging (avoid exposing sensitive connection details)
+      const safeErrorDetails = {
+        name: error.name,
+        code: error.code,
+        codeName: error.codeName,
+        timestamp: new Date().toISOString()
+      }
+      console.error('🔍 Error details:', safeErrorDetails)
+      
+      // In production, log to monitoring service instead of console
+      if (process.env.NODE_ENV === 'production') {
+        // TODO: Integrate with monitoring service (e.g., CloudWatch, DataDog)
+        console.error('🚨 Production MongoDB connection failure - alerting required')
+      }
+      
+      // Graceful degradation - allow server to continue without database
+      this.isConnected = false
+      console.log('⚠️  Server will continue in degraded mode without database')
+      return null
     }
   }
 

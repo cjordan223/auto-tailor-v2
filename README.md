@@ -9,6 +9,7 @@ AI-powered resume and cover letter customization with a modern web interface and
 ## 🎯 Core Features
 
 - **🤖 AI-Powered Customization**: Leverages Gemini, OpenAI, or local Ollama models to tailor resumes and cover letters.
+- **🔐 Secure Authentication**: JWT-based user authentication with bcrypt password hashing.
 - **📄 Interactive LaTeX Editor**: Edit LaTeX source code with a real-time, side-by-side PDF preview.
 - **📊 Application Dashboard**: View, manage, and track all your saved and applied-to job applications in a central dashboard.
 - **📦 One-Click Download**: Download all generated files (PDF, TeX, JSON) as a single ZIP archive.
@@ -33,7 +34,10 @@ npm run dev
 ```
 Now, open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-On your first visit, go to the **Settings** page to configure your AI provider API keys.
+**First Time Setup:**
+1. **Register/Login**: Create an account or login to access the application
+2. **Configure API Keys**: Go to the **Settings** page to configure your AI provider API keys
+3. **Upload Job Description**: Start customizing your resume with your first job application
 
 ### Test the production Docker build locally
 
@@ -83,3 +87,22 @@ For more detailed information, please refer to the documentation:
 - **Mistral**
 - **Groq**
 - **Ollama** (for local models)
+
+## 🔐 Security Features
+
+Tex-Tailor implements comprehensive security measures for production use:
+
+- **🔑 JWT Authentication**: Secure user authentication with JSON Web Tokens
+- **🛡️ Password Security**: Bcrypt hashing with 12 salt rounds
+- **🚫 Input Sanitization**: All user inputs sanitized to prevent XSS attacks
+- **⚡ Rate Limiting**: API rate limiting prevents abuse and DoS attacks
+- **🔒 User Isolation**: Each user's data is completely isolated and secure
+- **🌐 CORS Protection**: Configured for authorized frontend origins only
+- **📁 File Validation**: Strict file type and size validation for uploads
+
+### Environment Variables
+For production deployment, set the following security variables:
+```bash
+JWT_SECRET=your-secure-random-secret-key
+MONGODB_ATLAS_URI=your-mongodb-connection-string
+```
