@@ -6,6 +6,8 @@ services:
     healthCheckPath: /health
     dockerfilePath: ./Dockerfile
     envVars:
+      - key: JWT_SECRET
+        sync: false
       - key: MONGODB_ATLAS_URI
         sync: false
       - key: FRONTEND_URL
@@ -23,6 +25,6 @@ services:
       - key: NODE_ENV
         value: "production"
       - key: NODE_VERSION
-        value: "18"
+        value: "20"
       - key: PYTHON_VERSION
         value: "3.10"
