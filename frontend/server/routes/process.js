@@ -91,7 +91,7 @@ async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, pro
     }
 
     // Save to database
-    const result = await applicationService.createApplication('temp_user', applicationData)
+    const result = await applicationService.createApplication(req.user.userId, applicationData)
     
     if (result.success) {
       console.log(`💾 Saved application to database: ${result.applicationId}`)
@@ -239,6 +239,11 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
       apiKeys: apiKeysString = '{}' // API keys from frontend as JSON string
     } = req.body
     
+    // Sanitize text input to remove HTML tags as a basic security measure
+    const sanitizedJobDescriptionText = jobDescriptionText
+      ? jobDescriptionText.replace(/<[^>]*>/g, '')
+      : ''
+
     // Parse API keys JSON
     let apiKeys = {}
     try {
@@ -250,7 +255,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     const jobFile = req.file
     
     // Validate inputs
-    if (!jobFile && !jobDescriptionText) {
+    if (!jobFile && !sanitizedJobDescriptionText) {
       return res.status(400).json({ message: 'Job description (file or text) is required' })
     }
     
@@ -261,9 +266,9 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     
     // Save job description text if provided
     let jobDescriptionPath = jobFile?.path
-    if (jobDescriptionText) {
+    if (sanitizedJobDescriptionText) {
       jobDescriptionPath = path.join(tempDir, 'job-description.txt')
-      await fs.writeFile(jobDescriptionPath, jobDescriptionText, 'utf8')
+      await fs.writeFile(jobDescriptionPath, sanitizedJobDescriptionText, 'utf8')
     }
     
     // Use hardcoded baseline resume path

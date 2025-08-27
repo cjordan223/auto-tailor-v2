@@ -11,7 +11,18 @@ Production: [Your deployment URL]
 
 ## 📋 API Overview
 
-The Tex-Tailor API provides endpoints for resume customization workflow, file management, and system configuration. All endpoints return JSON responses unless specified otherwise.
+The Tex-Tailor API provides endpoints for resume customization workflow, file management, user authentication, and system configuration. All endpoints (except auth and health) require JWT authentication. All endpoints return JSON responses unless specified otherwise.
+
+## 🔐 Authentication
+
+The API uses JWT (JSON Web Token) based authentication. Include the token in the `Authorization` header:
+
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Public Endpoints:** `/health`, `/api/auth/*`  
+**Protected Endpoints:** All others require valid JWT token
 
 ### Response Format
 
@@ -34,12 +45,79 @@ The Tex-Tailor API provides endpoints for resume customization workflow, file ma
 }
 ```
 
+## 🔑 Authentication Endpoints
+
+### User Registration
+
+**Endpoint:** `POST /api/auth/register`  
+**Description:** Create a new user account (restricted access)  
+**Access:** Public endpoint - no authentication required  
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword123",
+  "name": "Full Name"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": "user-uuid",
+    "email": "user@example.com", 
+    "name": "Full Name"
+  },
+  "token": "jwt-token-string"
+}
+```
+
+**Security Notes:**
+- Registration restricted to authorized email addresses only
+- Passwords hashed with bcrypt (12 salt rounds)
+- Minimum password length: 6 characters
+
+### User Login
+
+**Endpoint:** `POST /api/auth/login`  
+**Description:** Authenticate user and receive JWT token  
+**Access:** Public endpoint - no authentication required  
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "userpassword"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Login successful",
+  "user": {
+    "id": "user-uuid",
+    "email": "user@example.com",
+    "name": "Full Name"
+  },
+  "token": "jwt-token-string"
+}
+```
+
+**Token Details:**
+- Expiration: 24 hours
+- Include in Authorization header for protected endpoints
+
 ## 🔄 Core Processing Endpoints
 
 ### Start Resume Processing
 
 **Endpoint:** `POST /api/process`  
 **Description:** Initiates the resume customization workflow  
+**Authentication:** Required - JWT token  
 **Content-Type:** `multipart/form-data`
 
 **Request Body:**
@@ -80,6 +158,7 @@ const response = await fetch('/api/process', {
 
 **Endpoint:** `GET /api/status/:jobId`  
 **Description:** Retrieve real-time processing status and progress  
+**Authentication:** Required - JWT token  
 
 **Parameters:**
 - `jobId` (path): UUID of the processing job
@@ -544,9 +623,128 @@ try {
 
 ## 🔐 Authentication & Security
 
-### Current Implementation
-- **No Authentication Required**: Currently operates without user authentication
-- **CORS Enabled**: Configured for frontend origin
+### Authentication System
+The API uses **JWT (JSON Web Token)** authentication for all protected endpoints. All API requests (except `/api/auth/*` and `/health`) require a valid JWT token.
+
+#### Authentication Flow
+1. Register or login to receive a JWT token
+2. Include token in `Authorization` header for all requests
+3. Token expires after 24 hours and must be renewed
+
+#### Headers Required
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+### Authentication Endpoints
+
+#### User Registration
+**Endpoint:** `POST /api/auth/register`  
+**Description:** Register a new user account  
+**Access:** Public (Currently restricted to authorized email addresses)
+
+> **Note:** Registration is currently limited to pre-authorized email addresses. Contact system administrator for access.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword123",
+  "name": "User Name"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com", 
+    "name": "User Name"
+  },
+  "token": "jwt_token_string"
+}
+```
+
+**Validation:**
+- Email: Valid email format required
+- Password: Minimum 8 characters
+- Name: Required, trimmed of whitespace
+- Passwords hashed with bcrypt (12 salt rounds)
+
+#### User Login
+**Endpoint:** `POST /api/auth/login`  
+**Description:** Login with existing credentials  
+**Access:** Public
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Login successful",
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "User Name"
+  },
+  "token": "jwt_token_string"
+}
+```
+
+#### Get Current User
+**Endpoint:** `GET /api/auth/me`  
+**Description:** Get current user information  
+**Access:** Protected (requires JWT)
+
+**Response:**
+```json
+{
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "User Name",
+    "createdAt": "2025-08-26T08:16:46.984Z",
+    "lastLoginAt": "2025-08-26T08:20:15.123Z"
+  }
+}
+```
+
+#### Logout
+**Endpoint:** `POST /api/auth/logout`  
+**Description:** Logout (token invalidation is handled client-side)  
+**Access:** Protected (requires JWT)
+
+**Response:**
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+### Authentication Error Codes
+- `MISSING_TOKEN`: No authorization token provided
+- `INVALID_TOKEN`: Token is malformed or invalid
+- `TOKEN_EXPIRED`: Token has expired
+- `MISSING_CREDENTIALS`: Email/password not provided
+- `INVALID_CREDENTIALS`: Invalid email/password combination
+- `USER_EXISTS`: Email already registered
+- `ACCOUNT_DEACTIVATED`: User account is disabled
+- `REGISTRATION_RESTRICTED`: Email not authorized for registration
+
+### Current Security Implementation
+- **JWT Authentication**: All API endpoints require valid JWT tokens
+- **Password Security**: bcrypt hashing with 12 salt rounds
+- **Input Validation**: Email format and password strength validation
+- **CORS Enabled**: Configured for authorized frontend origins
 - **File Validation**: Strict validation of uploaded files
 - **Input Sanitization**: All inputs sanitized and validated
 
@@ -596,6 +794,29 @@ Cache-Control: no-cache (for sensitive endpoints)
 class TexTailorAPI {
   constructor(baseUrl = 'http://localhost:3001') {
     this.baseUrl = baseUrl
+    this.token = null
+  }
+  
+  async login(email, password) {
+    const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message)
+    
+    this.token = data.token
+    return data.user
+  }
+  
+  getAuthHeaders() {
+    if (!this.token) throw new Error('Not authenticated')
+    return {
+      'Authorization': `Bearer ${this.token}`,
+      'Content-Type': 'application/json'
+    }
   }
   
   async processResume(jobDescriptionFile, provider = 'gemini') {
@@ -606,6 +827,7 @@ class TexTailorAPI {
     
     const processResponse = await fetch(`${this.baseUrl}/api/process`, {
       method: 'POST',
+      headers: { 'Authorization': `Bearer ${this.token}` },
       body: formData
     })
     
@@ -617,7 +839,9 @@ class TexTailorAPI {
     
     // 2. Poll for completion
     while (true) {
-      const statusResponse = await fetch(`${this.baseUrl}/api/status/${jobId}`)
+      const statusResponse = await fetch(`${this.baseUrl}/api/status/${jobId}`, {
+        headers: { 'Authorization': `Bearer ${this.token}` }
+      })
       const statusData = await statusResponse.json()
       
       console.log(`Progress: ${statusData.progress}% - ${statusData.step}`)
@@ -629,7 +853,9 @@ class TexTailorAPI {
     }
     
     // 3. Get results
-    const resultsResponse = await fetch(`${this.baseUrl}/api/results/${jobId}`)
+    const resultsResponse = await fetch(`${this.baseUrl}/api/results/${jobId}`, {
+      headers: { 'Authorization': `Bearer ${this.token}` }
+    })
     const results = await resultsResponse.json()
     
     console.log('Processing complete:', results)
@@ -642,7 +868,9 @@ class TexTailorAPI {
     
     for (const fileType of fileTypes) {
       try {
-        const response = await fetch(`${this.baseUrl}/api/download/${jobId}/${fileType}`)
+        const response = await fetch(`${this.baseUrl}/api/download/${jobId}/${fileType}`, {
+          headers: { 'Authorization': `Bearer ${this.token}` }
+        })
         if (response.ok) {
           downloads[fileType] = response.blob()
         }
@@ -668,6 +896,11 @@ document.getElementById('process').addEventListener('click', async () => {
   }
   
   try {
+    // Login first
+    if (!api.token) {
+      await api.login('user@example.com', 'password123')
+    }
+    
     const { jobId, results } = await api.processResume(file, 'gemini')
     console.log('Success! Job ID:', jobId)
     
