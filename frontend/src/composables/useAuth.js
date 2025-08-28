@@ -45,6 +45,9 @@ export function useAuth() {
     try {
       isLoading.value = true
       
+      // Debug logging
+      console.log('Login attempt with:', { email, API_BASE_URL: API_CONFIG.API_BASE_URL })
+      
       const response = await authApi.post('/auth/login', {
         email,
         password
@@ -59,6 +62,11 @@ export function useAuth() {
       return { success: true }
     } catch (error) {
       console.error('Login error:', error)
+      console.error('Error response:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      console.error('Request URL:', error.config?.url)
+      console.error('Request data:', error.config?.data)
+      
       const message = error.response?.data?.message || 'Login failed'
       return { success: false, error: message }
     } finally {
