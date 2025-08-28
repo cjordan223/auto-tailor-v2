@@ -72,6 +72,8 @@ app.use((req, res, next) => {
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
     "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com https://api.mistral.ai https://api.groq.com https://tex-tailor-backend.onrender.com; " +
+    "frame-src 'self' https://tex-tailor-backend.onrender.com; " +
+    "object-src 'self' https://tex-tailor-backend.onrender.com; " +
     "frame-ancestors 'none'; " +
     "base-uri 'self'; " +
     "form-action 'self'"
