@@ -469,7 +469,7 @@
       </button>
       <button v-if="results" @click="downloadAll" :disabled="isDownloadingAll" class="btn btn-primary">
         <span v-if="isDownloadingAll">Downloading ZIP...</span>
-        <span v-else">Download All Files (ZIP)</span>
+        <span v-else>Download All Files (ZIP)</span>
       </button>
     </div>
 
@@ -590,6 +590,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAPI } from '../composables/useAPI.js'
+import { useAuth } from '../composables/useAuth.js'
 import { getFullUrl } from '../config/api.js'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import PDFViewer from '../components/PDFViewer.vue'
@@ -597,6 +598,7 @@ import LaTeXEditor from '../components/LaTeXEditor.vue'
 
 const route = useRoute()
 const { getResults, downloadFile: apiDownloadFile, downloadAllAsZip, addSkillToBaseline, checkStatus } = useAPI()
+const { getToken } = useAuth()
 
 // Props
 const props = defineProps({
@@ -775,6 +777,12 @@ const saveApplication = async () => {
   try {
     savingApplication.value = true
     
+    // Check if user is authenticated
+    const token = getToken()
+    if (!token) {
+      throw new Error('You must be logged in to save applications')
+    }
+    
     // Build application data from results
     const applicationData = {
       jobTitle: extractJobTitle(results.value.jobDescription),
@@ -816,6 +824,7 @@ const saveApplication = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(applicationData)
     })
@@ -835,8 +844,9 @@ const saveApplication = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ userId: 'temp_user' })
+      body: JSON.stringify({})
     })
 
     if (!saveResponse.ok) {

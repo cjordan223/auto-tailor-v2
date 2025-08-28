@@ -1,84 +1,70 @@
 <template>
-  <div class="flex flex-col h-full space-y-4">
+  <div class="flex flex-col h-full">
     <!-- Header -->
-    <div class="text-center flex-shrink-0 mb-4">
-      <h1 class="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">
+    <div class="text-center mb-4">
+      <h1 class="text-2xl md:text-3xl font-bold text-white mb-1 drop-shadow-lg">
         AI-Powered Resume Customization
       </h1>
-
+      <p class="text-white/80 text-base">Configure your AI assistant and generate tailored resumes</p>
     </div>
 
-    <!-- Main Workflow -->
-    <div class="max-w-4xl mx-auto flex-1 flex flex-col relative">
-      <!-- Step Indicator -->
-      <div class="mb-6">
-        <div class="flex items-center justify-center space-x-6">
-          <div class="flex items-center space-x-2">
-            <div
-              class="step-indicator flex items-center justify-center w-10 h-10 rounded-xl font-bold text-base transition-all duration-300"
-              :class="step >= 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl animate-glow' : 'glassmorphism-card text-gray-500'">
-              1
+    <!-- Processing View -->
+    <div v-if="step === 3" class="flex-1">
+      <ProcessingStatus :status="processingStatus" :progress="processingProgress" :error="processingError"
+        :step="processingStep" :detail="processingDetail" :provider="processingProvider"
+        @download-kit="handleDownloadKit" @open-resume="handleOpenResume" @open-cover-letter="handleOpenCoverLetter" />
+    </div>
+
+    <!-- Multi-Panel Layout -->
+    <div v-else class="flex-1 max-w-7xl mx-auto w-full flex gap-4">
+      <!-- Left Panel: Job Description -->
+      <div class="w-1/2 flex flex-col">
+        <div class="desktop-panel rounded-xl p-4 flex-1 flex flex-col">
+          <div class="flex items-center mb-3">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-2 shadow-md">
+              <span class="text-white font-bold text-sm">1</span>
             </div>
+            <h2 class="text-lg font-bold text-gray-900">Job Description</h2>
           </div>
 
-          <div class="w-16 h-1.5 rounded-full transition-all duration-500"
-            :class="step >= 2 ? 'progress-bar' : 'bg-white/20'"></div>
-
-          <div class="flex items-center space-x-2">
-            <div
-              class="step-indicator flex items-center justify-center w-10 h-10 rounded-xl font-bold text-base transition-all duration-300"
-              :class="step >= 2 ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl animate-glow' : 'glassmorphism-card text-gray-500'">
-              2
-            </div>
-            <span class="text-sm font-semibold text-white">Configure & Generate</span>
+          <div class="flex-1 min-h-0">
+            <UnifiedInput placeholder="Paste your job description here or drag and drop a file..."
+              accept=".txt,.pdf,.doc,.docx" @file-uploaded="handleJobUpload" @text-changed="handleJobText"
+              @content-changed="handleContentChange" class="h-full" />
           </div>
         </div>
       </div>
 
-      <!-- Step 1: Job Description Upload -->
-      <div v-if="step === 1" class="flex-1 flex flex-col">
-        <div class="max-w-4xl mx-auto flex-1 flex flex-col space-y-4">
-          <!-- Job Description Input Header -->
-          <div class="text-center">
-            <h2 class="text-2xl font-bold text-white mb-2 drop-shadow-lg">Job Description</h2>
-          </div>
-
-          <!-- Unified Input Component - Exact dimensions -->
-          <div class="flex-1 flex justify-center">
-            <div class="w-[1300px] h-[546px] flex-shrink-0">
-              <UnifiedInput placeholder="Paste your job description here or drag and drop a file..."
-                accept=".txt,.pdf,.doc,.docx" @file-uploaded="handleJobUpload" @text-changed="handleJobText"
-                @content-changed="handleContentChange" />
+      <!-- Right Panel: Configuration -->
+      <div class="w-1/2 flex flex-col">
+        <div class="desktop-panel rounded-xl p-4 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-2 shadow-md">
+                <span class="text-white font-bold text-sm">2</span>
+              </div>
+              <h2 class="text-lg font-bold text-gray-900">AI Configuration</h2>
             </div>
           </div>
+
+          <div class="flex-1 min-h-0 overflow-y-auto">
+            <ModernProviderSelector v-model:provider="selectedProvider" v-model:model="selectedModel"
+              v-model:personality="selectedPersonality" @update="handleProviderUpdate" />
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Step 2: Configuration -->
-      <div v-if="step === 2" class="flex-1">
-        <ProviderSelector v-model:provider="selectedProvider" v-model:model="selectedModel" 
-          v-model:personality="selectedPersonality" @update="handleProviderUpdate" />
-      </div>
-
-      <!-- Step 3: Processing -->
-      <div v-if="step === 3" class="flex-1">
-        <ProcessingStatus :status="processingStatus" :progress="processingProgress" :error="processingError"
-          :step="processingStep" :detail="processingDetail" :provider="processingProvider" 
-          @download-kit="handleDownloadKit" @open-resume="handleOpenResume" @open-cover-letter="handleOpenCoverLetter" />
-      </div>
-
-      <!-- Navigation Buttons - Fixed positioning to prevent layout shifts -->
-      <div class="absolute bottom-0 left-0 right-0 flex justify-center pb-4">
-        <div class="flex space-x-4">
-          <button v-if="step > 1" @click="previousStep" class="btn btn-secondary">
-            Previous
-          </button>
-          <button v-if="step < 3" @click="nextStep" :disabled="!canProceed" class="btn btn-primary"
-            :class="{ 'opacity-50 cursor-not-allowed': !canProceed }">
-            {{ step === 2 ? 'Generate Resume' : 'Next' }}
-          </button>
-        </div>
-      </div>
+    <!-- Generate Button - Always Visible -->
+    <div v-if="step < 3" class="fixed bottom-6 right-6 z-50">
+      <button @click="startProcessing" :disabled="!canProceed"
+        class="generate-button text-white px-8 py-4 rounded-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        :class="{ 'animate-pulse': canProceed }">
+        <span class="flex items-center space-x-2">
+          <span>✨</span>
+          <span>Generate Resume</span>
+        </span>
+      </button>
     </div>
   </div>
 </template>
@@ -87,7 +73,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import UnifiedInput from '../components/UnifiedInput.vue'
-import ProviderSelector from '../components/ProviderSelector.vue'
+import ModernProviderSelector from '../components/ModernProviderSelector.vue'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import { useAPI } from '../composables/useAPI.js'
 import { getFullUrl } from '../config/api.js'
@@ -100,7 +86,7 @@ const step = ref(1)
 const jobFile = ref(null)
 const jobText = ref('')
 const selectedProvider = ref('gemini')
-const selectedModel = ref('gemini-1.5-flash')
+const selectedModel = ref('gemini-2.5-flash-lite')
 const selectedPersonality = ref('career_savvy_colleague')
 const processingStatus = ref('idle')
 const processingProgress = ref(0)
@@ -110,15 +96,12 @@ const processingDetail = ref('')
 const processingProvider = ref('')
 const currentJobId = ref(null)
 
-// Computed
+// Computed - Updated for new single-view approach
 const canProceed = computed(() => {
-  if (step.value === 1) {
-    return jobFile.value || jobText.value
-  }
-  if (step.value === 2) {
-    return selectedProvider.value && selectedModel.value && selectedPersonality.value
-  }
-  return false
+  return (jobFile.value || jobText.value) &&
+    selectedProvider.value &&
+    selectedModel.value &&
+    selectedPersonality.value
 })
 
 // Methods
@@ -143,21 +126,7 @@ const handleProviderUpdate = (provider, model, personality) => {
   selectedPersonality.value = personality
 }
 
-const previousStep = () => {
-  if (step.value > 1) {
-    step.value--
-  }
-}
-
-const nextStep = async () => {
-  if (step.value === 2) {
-    // Start processing
-    step.value = 3
-    await startProcessing()
-  } else if (step.value < 3) {
-    step.value++
-  }
-}
+// Remove step navigation - no longer needed with single panel view
 
 const startProcessing = async () => {
   try {
@@ -179,7 +148,7 @@ const startProcessing = async () => {
   } catch (error) {
     processingStatus.value = 'error'
     processingError.value = error.message
-    
+
     // If it's a rate limit error, go back to step 2 so user can try again
     if (error.message.includes('Rate limit') || error.message.includes('Please wait')) {
       step.value = 2

@@ -7,13 +7,15 @@
         <div class="bg-primary-600 h-2 rounded-full transition-all duration-500 ease-out"
           :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"></div>
       </div>
-      
+
       <div class="flex items-center justify-center space-x-4">
         <div v-for="(step, index) in steps" :key="step.id" class="flex items-center">
-          <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 shadow-sm"
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 shadow-sm"
             :class="getStepClass(index)">
             <span v-if="currentStep > index" class="text-white text-sm font-medium">✓</span>
-            <span v-else class="text-sm font-medium" :class="currentStep === index ? 'text-primary-600' : 'text-gray-500'">{{ index + 1 }}</span>
+            <span v-else class="text-sm font-medium"
+              :class="currentStep === index ? 'text-primary-600' : 'text-gray-500'">{{ index + 1 }}</span>
           </div>
           <span v-if="index < steps.length - 1" class="w-16 h-0.5 mx-2 transition-all duration-300"
             :class="currentStep > index ? 'bg-primary-600' : 'bg-gray-300'"></span>
@@ -27,19 +29,19 @@
 
     <!-- Step Content -->
     <div class="min-h-[400px] relative">
-             <!-- Provider Selection Step -->
-       <div v-if="currentStep === 0" class="step-content">
-         <div class="grid gap-4">
-           <div v-for="provider in providers" :key="provider.id"
-             class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
+      <!-- Provider Selection Step -->
+      <div v-if="currentStep === 0" class="step-content">
+        <div class="grid gap-4">
+          <div v-for="provider in providers" :key="provider.id"
+            class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
             :class="{
               'border-primary-600 bg-primary-50 shadow-lg scale-[1.02]': selectedProvider === provider.id,
               'border-gray-200 hover:border-gray-300': selectedProvider !== provider.id
-            }"
-            @click="selectProvider(provider.id)">
+            }" @click="selectProvider(provider.id)">
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-2xl">
+                <div
+                  class="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-2xl">
                   {{ provider.icon }}
                 </div>
               </div>
@@ -51,8 +53,7 @@
                     Recommended
                   </span>
                   <span v-if="provider.apiKeyRequired"
-                    :class="hasApiKey(provider.id) ? 'text-success-600' : 'text-warning-600'"
-                    class="text-lg">
+                    :class="hasApiKey(provider.id) ? 'text-success-600' : 'text-warning-600'" class="text-lg">
                     {{ hasApiKey(provider.id) ? '✓' : '⚠' }}
                   </span>
                 </div>
@@ -83,19 +84,19 @@
         </div>
       </div>
 
-             <!-- Model Selection Step -->
-       <div v-if="currentStep === 1" class="step-content">
-         <div class="space-y-4">
-           <div v-for="model in availableModels" :key="model.id"
-             class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
+      <!-- Model Selection Step -->
+      <div v-if="currentStep === 1" class="step-content">
+        <div class="space-y-4">
+          <div v-for="model in availableModels" :key="model.id"
+            class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
             :class="{
               'border-primary-600 bg-primary-50 shadow-lg scale-[1.02]': selectedModel === model.id,
               'border-gray-200 hover:border-gray-300': selectedModel !== model.id
-            }"
-            @click="selectModel(model.id)">
+            }" @click="selectModel(model.id)">
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                <div
+                  class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                   <span class="text-xl">🤖</span>
                 </div>
               </div>
@@ -110,8 +111,7 @@
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
                     Recommended
                   </span>
-                  <span v-if="model.warning"
-                    :class="getWarningClass(model.warning)"
+                  <span v-if="model.warning" :class="getWarningClass(model.warning)"
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                     {{ getWarningIcon(model.warning) }} {{ model.warning }}
                   </span>
@@ -147,19 +147,19 @@
         </div>
       </div>
 
-             <!-- Personality Selection Step -->
-       <div v-if="currentStep === 2" class="step-content">
-         <div class="grid gap-4">
-           <div v-for="personality in personalities" :key="personality.id"
-             class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
+      <!-- Personality Selection Step -->
+      <div v-if="currentStep === 2" class="step-content">
+        <div class="grid gap-4">
+          <div v-for="personality in personalities" :key="personality.id"
+            class="relative cursor-pointer rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:border-primary-400"
             :class="{
               'border-primary-600 bg-primary-50 shadow-lg scale-[1.02]': selectedPersonality === personality.id,
               'border-gray-200 hover:border-gray-300': selectedPersonality !== personality.id
-            }"
-            @click="selectPersonality(personality.id)">
+            }" @click="selectPersonality(personality.id)">
             <div class="flex items-start space-x-4">
               <div class="flex-shrink-0">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center text-2xl">
+                <div
+                  class="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center text-2xl">
                   {{ personality.icon }}
                 </div>
               </div>
@@ -176,7 +176,8 @@
               <div class="flex-shrink-0">
                 <div class="w-6 h-6 rounded-full border-2 transition-all duration-200"
                   :class="selectedPersonality === personality.id ? 'border-primary-600 bg-primary-600' : 'border-gray-300'">
-                  <div v-if="selectedPersonality === personality.id" class="w-2 h-2 bg-white rounded-full m-auto mt-1"></div>
+                  <div v-if="selectedPersonality === personality.id" class="w-2 h-2 bg-white rounded-full m-auto mt-1">
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,13 +193,15 @@
               <span class="text-white text-2xl">✓</span>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">Configuration Complete!</h3>
-            <p class="text-gray-600">Your AI assistant is ready to help you create amazing resumes and cover letters.</p>
+            <p class="text-gray-600">Your AI assistant is ready to help you create amazing resumes and cover letters.
+            </p>
           </div>
-          
+
           <div class="space-y-4">
             <div class="bg-white rounded-lg p-4 border border-gray-200">
               <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                <div
+                  class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
                   {{ currentProvider.icon }}
                 </div>
                 <div>
@@ -207,10 +210,11 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="bg-white rounded-lg p-4 border border-gray-200">
               <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center">
+                <div
+                  class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center">
                   {{ currentPersonality.icon }}
                 </div>
                 <div>
@@ -228,36 +232,26 @@
               <p><span class="font-medium">Quality:</span> {{ currentModel.quality }}</p>
               <p><span class="font-medium">Speed:</span> {{ currentModel.speed }}</p>
               <p><span class="font-medium">Cost:</span> {{ currentProvider.cost }}</p>
-              <p :class="hasApiKey(currentProvider.id) ? 'text-success-600' : 'text-warning-600'">
-                <span class="font-medium">{{ hasApiKey(currentProvider.id) ? '✅ API Key Configured' : '⚠️ API Key Required' }}</span>
-                <span v-if="!hasApiKey(currentProvider.id)">: {{ currentProvider.apiKeyEnv }}</span>
-              </p>
-              <p v-if="currentProvider.apiKeyRequired && !hasApiKey(currentProvider.id)" class="text-sm">
-                <router-link to="/settings" class="text-primary-600 hover:underline">
-                  Configure API key in Settings →
-                </router-link>
-              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-         <!-- Navigation Buttons -->
-     <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
-       <button v-if="currentStep > 0" @click="previousStep"
-         class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-all duration-200 hover:bg-gray-100 rounded-lg">
-         ← Back
-       </button>
-       <div v-else></div>
-       
-       <button v-if="currentStep < steps.length - 1" @click="nextStep"
-         :disabled="!canProceed"
-         class="px-8 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-         {{ currentStep === steps.length - 2 ? 'Complete Setup' : 'Continue' }}
-       </button>
-       <div v-else></div>
-     </div>
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+      <button v-if="currentStep > 0" @click="previousStep"
+        class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-all duration-200 hover:bg-gray-100 rounded-lg">
+        ← Back
+      </button>
+      <div v-else></div>
+
+      <button v-if="currentStep < steps.length - 1" @click="nextStep" :disabled="!canProceed"
+        class="px-8 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        {{ currentStep === steps.length - 2 ? 'Complete Setup' : 'Continue' }}
+      </button>
+      <div v-else></div>
+    </div>
   </div>
 </template>
 
@@ -779,6 +773,7 @@ const getWarningIcon = (warningType) => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

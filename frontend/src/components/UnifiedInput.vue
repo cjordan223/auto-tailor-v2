@@ -240,51 +240,67 @@ onUnmounted(() => {
 .unified-input {
   @apply relative w-full h-full rounded-2xl border-2 border-gray-200/50 transition-all duration-300 ease-in-out cursor-text overflow-hidden;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px solid rgba(59, 130, 246, 0.1);
-  min-height: 546px !important;
-  height: 546px !important;
+  background: rgba(15, 23, 42, 0.6);
+  border: 2px solid rgba(34, 197, 94, 0.1);
+  min-height: 400px !important;
+  height: 400px !important;
 }
 
 .glassmorphism {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .unified-input:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+  border-color: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
 .unified-input.glow-active,
 .unified-input.drag-active {
-  border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 12px 40px rgba(59, 130, 246, 0.3);
-  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1), 0 12px 40px rgba(34, 197, 94, 0.3);
+  background: rgba(15, 23, 42, 0.8);
 }
 
 .upload-icon {
   @apply absolute top-4 right-4 p-2 rounded-lg bg-white/60 hover:bg-white/80 cursor-pointer transition-all duration-200;
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .upload-icon:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
 }
 
 .icon-paperclip {
-  @apply w-5 h-5 text-blue-600;
+  @apply w-5 h-5 text-green-400;
 }
 
 .main-textarea {
-  @apply w-full h-full p-6 bg-transparent border-none outline-none resize-none text-gray-900 placeholder-gray-500 text-base leading-relaxed;
+  @apply w-full h-full p-4 bg-transparent border-none outline-none resize-none text-gray-900 placeholder-gray-500 text-base leading-relaxed;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  min-height: 546px !important;
-  height: 546px !important;
+  min-height: 400px !important;
+  height: 400px !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  color: #e2e8f0 !important;
+}
+
+.main-textarea:focus {
+  background: rgba(15, 23, 42, 0.8) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.main-textarea::placeholder {
+  color: #64748b !important;
 }
 
 .main-textarea.with-file {
@@ -293,9 +309,9 @@ onUnmounted(() => {
 
 .file-chip {
   @apply absolute top-4 left-4 flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(34, 197, 94, 0.1);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .file-info {
@@ -303,19 +319,19 @@ onUnmounted(() => {
 }
 
 .file-icon {
-  @apply w-4 h-4 text-blue-600;
+  @apply w-4 h-4 text-green-400;
 }
 
 .file-name {
-  @apply text-gray-800 font-medium;
+  @apply text-green-100 font-medium;
 }
 
 .file-size {
-  @apply text-gray-600;
+  @apply text-green-200;
 }
 
 .remove-file-btn {
-  @apply p-1 rounded hover:bg-red-100 text-red-500 hover:text-red-700 transition-colors duration-200;
+  @apply p-1 rounded hover:bg-red-900/20 text-red-400 hover:text-red-300 transition-colors duration-200;
 }
 
 .remove-file-btn svg {
@@ -324,12 +340,12 @@ onUnmounted(() => {
 
 .drop-overlay {
   @apply absolute inset-0 flex items-center justify-center;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(34, 197, 94, 0.1);
   backdrop-filter: blur(15px);
 }
 
 .drop-content {
-  @apply text-center text-blue-600;
+  @apply text-center text-green-400;
 }
 
 .drop-icon {
@@ -340,28 +356,45 @@ onUnmounted(() => {
   @apply text-lg font-medium;
 }
 
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .unified-input {
-    background: rgba(17, 24, 39, 0.85);
-    border-color: rgba(99, 102, 241, 0.2);
-  }
+/* Light mode support */
+body.light-mode .unified-input {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(34, 197, 94, 0.2);
+}
 
-  .main-textarea {
-    @apply text-gray-100 placeholder-gray-400;
-  }
+body.light-mode .main-textarea {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1e293b !important;
+}
 
-  .upload-icon {
-    background: rgba(55, 65, 81, 0.8);
-  }
+body.light-mode .main-textarea:focus {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #1e293b !important;
+}
 
-  .file-chip {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.3);
-  }
+body.light-mode .main-textarea::placeholder {
+  color: #6b7280 !important;
+}
 
-  .file-name {
-    @apply text-gray-200;
-  }
+body.light-mode .upload-icon {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+body.light-mode .icon-paperclip {
+  color: #22c55e;
+}
+
+body.light-mode .file-chip {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+body.light-mode .file-name {
+  color: #1e293b;
+}
+
+body.light-mode .file-size {
+  color: #4b5563;
 }
 </style>

@@ -218,7 +218,11 @@ router.post('/login', async (req, res) => {
     const users = db.collection('users')
     const user = await users.findOne({ email: email.toLowerCase() })
 
+    console.log('🔍 Login attempt for:', email.toLowerCase())
+    console.log('👤 User found:', !!user)
+
     if (!user) {
+      console.log('❌ No user found with email:', email.toLowerCase())
       return res.status(401).json({ 
         message: 'Invalid credentials',
         code: 'INVALID_CREDENTIALS'
@@ -232,8 +236,13 @@ router.post('/login', async (req, res) => {
       })
     }
 
+    console.log('🔐 Comparing password for user:', user.email)
+    console.log('🔑 Stored hash exists:', !!user.password)
     const isValidPassword = await bcrypt.compare(password, user.password)
+    console.log('✅ Password valid:', isValidPassword)
+    
     if (!isValidPassword) {
+      console.log('❌ Password comparison failed for user:', user.email)
       return res.status(401).json({ 
         message: 'Invalid credentials',
         code: 'INVALID_CREDENTIALS'
