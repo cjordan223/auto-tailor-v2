@@ -300,6 +300,9 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+
+const { getToken } = useAuth()
 
 // Reactive data
 const loadingSaved = ref(true)
@@ -425,7 +428,11 @@ const fetchSavedApplications = async (reset = false) => {
       params.set('status', selectedFilter.value)
     }
     
-    const response = await fetch(`/api/applications/saved?${params}`)
+    const response = await fetch(`/api/applications/saved?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
     const result = await response.json()
     
     if (result.success) {
@@ -459,7 +466,8 @@ const handleStatusChange = async (applicationId, newStatus) => {
     const response = await fetch(`/api/applications/${applicationId}/status`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
       },
       body: JSON.stringify({ status: newStatus })
     })
@@ -484,7 +492,11 @@ const viewApplication = (applicationId) => {
 
 const downloadApplication = async (applicationId) => {
   try {
-    const response = await fetch(`/api/applications/${applicationId}/download`)
+    const response = await fetch(`/api/applications/${applicationId}/download`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
     if (response.ok) {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -508,7 +520,8 @@ const addNotes = async (applicationId) => {
       const response = await fetch(`/api/applications/${applicationId}/notes`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ notes: notes })
       })
@@ -534,7 +547,8 @@ const archiveApplication = async (applicationId) => {
       const response = await fetch(`/api/applications/${applicationId}/archive`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ archived: true })
       })

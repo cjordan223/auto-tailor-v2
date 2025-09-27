@@ -9,7 +9,8 @@
     <!-- Loading/Processing State -->
     <div v-if="loading || isProcessing" class="py-6">
       <ProcessingStatus :status="isProcessing ? 'processing' : 'idle'" :progress="statusProgress" :error="null"
-        :step="statusData?.step" :detail="statusData?.detail" :provider="statusData?.provider" />
+        :step="statusData?.step" :detail="statusData?.detail" :provider="statusData?.provider" 
+        @cancel="handleProcessingCancel" />
     </div>
 
     <!-- Error State -->
@@ -672,6 +673,7 @@ let pollTimer = null
 
 // Computed
 const jobId = computed(() => props.jobId || route.params.jobId)
+const isViewingSavedApplication = computed(() => route.name === 'Application')
 const isDownloadingAll = computed(() =>
   Object.values(downloading.value).some(d => d) || downloadingZip.value
 )
@@ -696,6 +698,82 @@ const headerSubtitle = computed(() => {
 })
 
 // Methods
+const loadSavedApplication = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    
+    console.log('Loading saved application:', jobId.value)
+    const token = getToken()
+    
+    const response = await fetch(`/api/applications/${jobId.value}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load application: ${response.statusText}`)
+    }
+    
+    const data = await response.json()
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to load application')
+    }
+    
+    const app = data.application
+    
+    // Extract original jobId from multiple possible sources
+    const originalJobId = app.generationMeta?.originalJobId ||
+                         app.files?.resume?.storageKey?.split('/')[0] || 
+                         app.files?.coverLetter?.storageKey?.split('/')[0] ||
+                         jobId.value
+    
+    console.log('Saved application file mapping:', {
+      applicationId: jobId.value,
+      originalJobId: originalJobId,
+      resumeStorageKey: app.files?.resume?.storageKey,
+      coverLetterStorageKey: app.files?.coverLetter?.storageKey
+    })
+    
+    // Transform saved application data to match Results format
+    results.value = {
+      jobId: originalJobId,
+      jobDescription: app.jobDetails?.jobDescription || '',
+      edits: {
+        summary: { replace: app.jobDetails?.resume?.summary },
+        skills: app.jobDetails?.resume?.skills || {},
+        cover_letter: { paragraphs: app.jobDetails?.coverLetter?.paragraphs || [] }
+      },
+      suggestedAdditions: [],
+      skillsChanges: {},
+      validationStatus: null,
+      reviewData: {
+        overview: `This is a saved application for ${app.jobDetails?.jobTitle || 'Unknown Position'} at ${app.jobDetails?.companyName || 'Unknown Company'}.`,
+        statistics: {
+          total_chunks_modified: 0,
+          skills_sections_updated: 0,
+          cover_letter_paragraphs: app.jobDetails?.coverLetter?.paragraphs?.length || 0,
+          suggested_additions: 0
+        }
+      },
+      createdAt: app.createdAt,
+      provider: app.generationMeta?.provider || 'unknown',
+      model: app.generationMeta?.model || 'unknown'
+    }
+    
+    console.log('Saved application loaded:', results.value)
+    isSaved.value = true
+    
+  } catch (err) {
+    console.error('Error loading saved application:', err)
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
+
 const loadResults = async () => {
   try {
     loading.value = true
@@ -804,7 +882,8 @@ const saveApplication = async () => {
         provider: results.value.provider || 'unknown',
         model: results.value.model || 'unknown',
         processingTime: 0,
-        validationPassed: true
+        validationPassed: true,
+        originalJobId: jobId.value  // Store original job ID for file lookup
       },
 
       files: {
@@ -1042,6 +1121,22 @@ const cancelRegeneration = () => {
   regenStatus.value = { status: 'idle', progress: 0, step: '', detail: '' }
 }
 
+const handleProcessingCancel = () => {
+  console.log('Processing cancelled by user')
+  
+  // Clear any polling timers
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+  
+  // Reset status
+  statusData.value = { status: 'idle', progress: 0 }
+  
+  // Navigate back to home
+  window.location.href = '/home'
+}
+
 const toggleSkillMenu = (skill) => {
   if (openSkillMenus.value.has(skill)) {
     openSkillMenus.value.delete(skill)
@@ -1275,7 +1370,7 @@ const debouncedRecompileCoverLetter = () => {
   }, 2000) // 2 second delay
 }
 
-// Recompile LaTeX content
+// Recompile LaTeX content with polling-based verification
 const recompileLatex = async (fileType, content) => {
   if (recompiling.value[fileType]) {
     return // Already recompiling
@@ -1284,43 +1379,59 @@ const recompileLatex = async (fileType, content) => {
   try {
     recompiling.value[fileType] = true
 
-    const response = await fetch(`/api/recompile/${jobId.value}/${fileType}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content })
-    })
+    // Import the enhanced recompile function
+    const { recompileWithVerification } = await import('../utils/pdf-utils.js')
 
-    if (!response.ok) {
-      throw new Error(`Recompilation failed: ${response.statusText}`)
-    }
-
-    const result = await response.json()
+    console.log(`Starting recompilation for ${fileType}...`)
+    const result = await recompileWithVerification(jobId.value, fileType, content)
 
     if (result.success) {
-      console.log(`${fileType} recompiled successfully`)
+      console.log(`${fileType} recompiled successfully`, {
+        updated: result.updated,
+        fileSize: result.fileSize
+      })
 
-      // Wait for backend to confirm file is ready, then force refresh once
-      setTimeout(() => {
+      if (result.updated) {
+        // PDF was verified as updated, force refresh immediately
+        console.log(`PDF verified as updated, refreshing viewer for ${fileType}`)
+
         if (fileType === 'resume') {
-          resumePdfKey.value++ // Single key update
+          resumePdfKey.value++
           if (resumePdfViewer.value) {
             resumePdfViewer.value.forceRefresh()
           }
-        } else {
-          coverLetterPdfKey.value++ // Single key update
+        } else if (fileType === 'cover-letter') {
+          coverLetterPdfKey.value++
           if (coverLetterPdfViewer.value) {
             coverLetterPdfViewer.value.forceRefresh()
           }
         }
-      }, 2000) // Increased to 2 seconds for file system consistency
+      } else {
+        // PDF update wasn't verified, but compilation succeeded
+        // Try a delayed refresh as fallback
+        console.warn(`PDF update not verified for ${fileType}, trying delayed refresh`)
+        setTimeout(() => {
+          if (fileType === 'resume') {
+            resumePdfKey.value++
+            if (resumePdfViewer.value) {
+              resumePdfViewer.value.forceRefresh()
+            }
+          } else if (fileType === 'cover-letter') {
+            coverLetterPdfKey.value++
+            if (coverLetterPdfViewer.value) {
+              coverLetterPdfViewer.value.forceRefresh()
+            }
+          }
+        }, 3000) // Longer fallback delay
+      }
     } else {
       throw new Error(result.error || 'Recompilation failed')
     }
   } catch (err) {
     console.error(`Failed to recompile ${fileType}:`, err)
-    // You might want to show an error notification to the user here
+    // Show user-friendly error notification
+    const errorMessage = `Failed to update ${fileType === 'resume' ? 'resume' : 'cover letter'} PDF: ${err.message}`
+    alert(errorMessage) // You might want to replace this with a proper toast notification
   } finally {
     recompiling.value[fileType] = false
   }
@@ -1346,27 +1457,36 @@ onMounted(async () => {
     return
   }
 
-  console.log('Component mounted, checking initial status...')
+  console.log('Component mounted, isViewingSavedApplication:', isViewingSavedApplication.value)
 
-  // Check initial status first
-  try {
-    const initialStatus = await checkStatus(jobId.value)
-    console.log('Initial status:', initialStatus)
-    statusData.value = initialStatus
+  if (isViewingSavedApplication.value) {
+    // Load saved application directly
+    console.log('Loading saved application...')
+    await loadSavedApplication()
+    // Set status to completed since it's a saved application
+    statusData.value = { status: 'completed', progress: 100 }
+  } else {
+    // Check initial status first for new jobs
+    console.log('Checking initial status for new job...')
+    try {
+      const initialStatus = await checkStatus(jobId.value)
+      console.log('Initial status:', initialStatus)
+      statusData.value = initialStatus
 
-    if (initialStatus.status === 'completed') {
-      console.log('Job already completed, loading results directly')
-      await loadResults()
-      // Don't start polling since it's already done
-    } else {
-      console.log('Job not completed, starting polling')
+      if (initialStatus.status === 'completed') {
+        console.log('Job already completed, loading results directly')
+        await loadResults()
+        // Don't start polling since it's already done
+      } else {
+        console.log('Job not completed, starting polling')
+        // Start polling status every 2s
+        pollTimer = setInterval(pollStatus, 2000)
+      }
+    } catch (err) {
+      console.log('Initial status check failed, starting polling anyway:', err.message)
       // Start polling status every 2s
       pollTimer = setInterval(pollStatus, 2000)
     }
-  } catch (err) {
-    console.log('Initial status check failed, starting polling anyway:', err.message)
-    // Start polling status every 2s
-    pollTimer = setInterval(pollStatus, 2000)
   }
   
   // Add click outside listener

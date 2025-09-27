@@ -135,7 +135,7 @@
       
       <button
         v-if="status === 'processing'"
-        @click="$emit('cancel')"
+        @click="handleCancel"
         class="btn btn-secondary"
       >
         Cancel
@@ -163,6 +163,12 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['retry', 'view-results', 'cancel', 'download-kit', 'open-resume', 'open-cover-letter'])
+
+// Methods
+const handleCancel = () => {
+  console.log('Cancel button clicked')
+  emit('cancel')
+}
 
 // Processing steps
 const processingSteps = [
