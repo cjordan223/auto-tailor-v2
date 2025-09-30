@@ -23,6 +23,9 @@ router.post('/:jobId/:fileType', async (req, res) => {
       return res.status(400).json({ message: 'Invalid file type' })
     }
     
+    // Use consistent temp directory path that matches the project structure
+    // In production: /app/frontend/temp/{jobId}
+    // In development: {project_root}/frontend/temp/{jobId}
     const tempDir = path.join(__dirname, '../../temp', jobId)
     
     // Check if job directory exists
@@ -61,13 +64,26 @@ router.post('/:jobId/:fileType', async (req, res) => {
     const pythonScriptPath = process.env.NODE_ENV === 'production' ? 'python' : path.join(__dirname, '../../../venv/bin/python3')
     const workingDir = path.join(__dirname, '../../..')
     
+    // Use absolute path for temp directory to avoid path resolution issues
+    const tempDirAbsolute = path.resolve(__dirname, '../../temp')
+    
+    // Debug logging for production troubleshooting
+    console.log('Recompile debug info:', {
+      jobId,
+      fileType,
+      tempDir: tempDirAbsolute,
+      workingDir,
+      pythonScriptPath,
+      nodeEnv: process.env.NODE_ENV
+    })
+    
     const args = [
       '-m', 'tex_tailor.cli',
       'recompile',
       '--job-id', jobId,
       '--file-type', fileType,
       '--content', content,
-      '--temp-dir', path.join(__dirname, '../../temp')
+      '--temp-dir', tempDirAbsolute
     ]
     
     // Execute recompile command
@@ -88,6 +104,10 @@ router.post('/:jobId/:fileType', async (req, res) => {
     })
 
     childProcess.on('close', async (code) => {
+      console.log(`Python process exited with code: ${code}`)
+      console.log('STDOUT:', stdout)
+      console.log('STDERR:', stderr)
+      
       if (code === 0) {
         console.log('Recompilation successful:', stdout)
         
@@ -121,7 +141,13 @@ router.post('/:jobId/:fileType', async (req, res) => {
           res.status(500).json({
             success: false,
             message: 'PDF file not found after compilation',
-            error: verifyError.message
+            error: verifyError.message,
+            debug: {
+              expectedFile,
+              tempDir,
+              stdout,
+              stderr
+            }
           })
         }
       } else {
@@ -129,7 +155,15 @@ router.post('/:jobId/:fileType', async (req, res) => {
         res.status(500).json({
           success: false,
           message: 'LaTeX compilation failed',
-          error: stderr
+          error: stderr,
+          debug: {
+            exitCode: code,
+            stdout,
+            stderr,
+            tempDir,
+            workingDir,
+            pythonScriptPath
+          }
         })
       }
     })

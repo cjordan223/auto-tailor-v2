@@ -14,8 +14,8 @@ router.get('/', async (req, res) => {
     const { format = 'json', provider } = req.query
     
     // Execute the Python CLI review command
-    // Use full path to Python since Node.js may not find it in PATH
-    const pythonCmd = '/opt/homebrew/opt/python@3.13/bin/python3.13'
+    // In Docker production, Python is in PATH due to ENV PATH="/opt/venv/bin:$PATH"
+    const pythonCmd = process.env.NODE_ENV === 'production' ? 'python' : '/opt/homebrew/opt/python@3.13/bin/python3.13'
     
     const args = ['-m', 'tex_tailor.cli', 'review', '--format', format]
     if (provider) {
