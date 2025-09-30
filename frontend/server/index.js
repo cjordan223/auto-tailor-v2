@@ -13,6 +13,7 @@ import providersRoutes from './routes/providers.js'
 import validateRoutes from './routes/validate.js'
 import reviewRoutes from './routes/review.js'
 import recompileRoutes from './routes/recompile.js'
+import checkPdfRoutes from './routes/check-pdf.js'
 import resultsRoutes from './routes/results.js'
 import applicationsRoutes from './routes/applications.js'
 import regenerateRoutes from './routes/regenerate.js'
@@ -28,7 +29,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Load .env file
-const envPath = path.join(__dirname, '../../.env')
+const envPath = path.join(__dirname, '../.env')
 const envResult = dotenv.config({ path: envPath })
 
 if (envResult.error) {
@@ -74,13 +75,13 @@ app.use((req, res, next) => {
     "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com https://api.mistral.ai https://api.groq.com https://tex-tailor-backend.onrender.com; " +
     "frame-src 'self' https://tex-tailor-backend.onrender.com; " +
     "object-src 'self' https://tex-tailor-backend.onrender.com; " +
-    "frame-ancestors 'none'; " +
+    "frame-ancestors 'self'; " +
     "base-uri 'self'; " +
     "form-action 'self'"
   )
   
   // X-Frame-Options (replaced by CSP frame-ancestors, but kept for older browsers)
-  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN')
   
   // X-Content-Type-Options
   res.setHeader('X-Content-Type-Options', 'nosniff')
@@ -156,6 +157,7 @@ app.use('/api/providers', providersRoutes)
 app.use('/api/validate', validateRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/recompile', recompileRoutes)
+app.use('/api/check-pdf', checkPdfRoutes)
 app.use('/api/results', resultsRoutes)
 app.use('/api/regenerate', regenerateRoutes)
 

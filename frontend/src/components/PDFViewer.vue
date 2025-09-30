@@ -111,7 +111,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { getFullUrl } from '../config/api.js'
+import { getApiUrl } from '../config/api.js'
 
 // Props
 const props = defineProps({
@@ -143,7 +143,7 @@ const refreshId = ref(0)
 
 // Computed
 const pdfUrl = computed(() => {
-  const baseUrl = getFullUrl(`/api/view/${props.jobId}/${props.fileType}`)
+  const baseUrl = getApiUrl(`/view/${props.jobId}/${props.fileType}`)
   // Add comprehensive parameters to hide the sidebar by default in browser PDF viewers
   // These parameters work across different PDF viewers (Chrome, Firefox, Safari, etc.)
   const random = Math.random().toString(36).substring(7)
@@ -253,38 +253,68 @@ watch(showModal, (newValue) => {
   }
 })
 
-const forceRefresh = () => {
-  console.log('Forcing PDF refresh...')
+const forceRefresh = async () => {
+  console.log('Forcing PDF refresh with enhanced cache busting...')
   loading.value = true
   error.value = null
-  
-  cacheBuster.value = Date.now()
-  refreshId.value++
-  console.log('New PDF URL will be:', pdfUrl.value)
-  console.log('Cache buster:', cacheBuster.value, 'Refresh ID:', refreshId.value)
 
   // Clear any existing timeout
   clearTimeout(loadTimeout)
 
-  // Force reload the iframe directly with new URL
-  if (pdfFrame.value) {
-    pdfFrame.value.src = ''
-    pdfFrame.value.data = ''
-    setTimeout(() => {
-      const newUrl = pdfUrl.value
-      pdfFrame.value.src = newUrl
-      pdfFrame.value.data = newUrl
-      console.log('PDF iframe src updated to:', newUrl)
-    }, 200) // Slightly longer delay for iframe reset
+  // Enhanced cache busting with multiple strategies
+  cacheBuster.value = Date.now()
+  refreshId.value++
+
+  console.log('Enhanced PDF refresh:', {
+    cacheBuster: cacheBuster.value,
+    refreshId: refreshId.value,
+    jobId: props.jobId,
+    fileType: props.fileType
+  })
+
+  // Import the enhanced URL generation
+  try {
+    const { generatePdfUrl } = await import('../utils/pdf-utils.js')
+    const enhancedUrl = generatePdfUrl(props.jobId, props.fileType, cacheBuster.value, refreshId.value)
+
+    console.log('Generated enhanced PDF URL:', enhancedUrl)
+
+    // More aggressive iframe reset
+    if (pdfFrame.value) {
+      // Method 1: Clear everything and wait longer
+      pdfFrame.value.src = 'about:blank'
+      pdfFrame.value.data = 'about:blank'
+
+      // Force browser to forget cached content
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      // Method 2: Try to force a complete reload
+      pdfFrame.value.src = enhancedUrl
+      pdfFrame.value.data = enhancedUrl
+
+      console.log('PDF iframe src updated with enhanced URL')
+    }
+  } catch (err) {
+    console.warn('Failed to import PDF utils, using fallback URL generation:', err)
+    // Fallback to original method if import fails
+    const newUrl = pdfUrl.value
+    if (pdfFrame.value) {
+      pdfFrame.value.src = ''
+      pdfFrame.value.data = ''
+      setTimeout(() => {
+        pdfFrame.value.src = newUrl
+        pdfFrame.value.data = newUrl
+      }, 300)
+    }
   }
 
-  // Set a reasonable timeout for PDF loading
+  // Set a reasonable timeout for PDF loading with better feedback
   loadTimeout = setTimeout(() => {
     if (loading.value) {
-      console.log('PDF assumed loaded after 3 seconds')
+      console.log('PDF assumed loaded after timeout - this may indicate caching issues')
       onLoad()
     }
-  }, 3000) // Reduced from 2000ms for faster feedback
+  }, 4000) // Slightly longer timeout for reliability
 }
 
 // Expose methods to parent (moved here after forceRefresh is declared)

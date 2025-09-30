@@ -71,23 +71,23 @@ router.post('/:jobId/:fileType', async (req, res) => {
     ]
     
     // Execute recompile command
-    const process = spawn(pythonScriptPath, args, {
+    const childProcess = spawn(pythonScriptPath, args, {
       cwd: workingDir,
       stdio: ['pipe', 'pipe', 'pipe']
     })
-    
+
     let stdout = ''
     let stderr = ''
-    
-    process.stdout.on('data', (data) => {
+
+    childProcess.stdout.on('data', (data) => {
       stdout += data.toString()
     })
-    
-    process.stderr.on('data', (data) => {
+
+    childProcess.stderr.on('data', (data) => {
       stderr += data.toString()
     })
-    
-    process.on('close', async (code) => {
+
+    childProcess.on('close', async (code) => {
       if (code === 0) {
         console.log('Recompilation successful:', stdout)
         
@@ -134,8 +134,8 @@ router.post('/:jobId/:fileType', async (req, res) => {
       }
     })
     
-    process.on('error', (err) => {
-      console.error('Process error:', err)
+    childProcess.on('error', (err) => {
+      console.error('Child process error:', err)
       res.status(500).json({
         success: false,
         message: 'Failed to execute recompilation',
