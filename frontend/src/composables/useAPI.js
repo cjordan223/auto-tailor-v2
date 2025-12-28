@@ -275,7 +275,7 @@ export function useAPI() {
             id: 'ollama',
             name: 'Ollama (Local)',
             available: false,
-            models: ['qwen2.5:14b-instruct', 'llama3:8b', 'phi3:mini', 'llama3.1:70b']
+            models: ['resume-editor:latest', 'qwen2.5:14b-instruct', 'llama3:8b', 'phi3:mini', 'llama3.1:70b']
           }
         ]
       }

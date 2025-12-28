@@ -31,6 +31,8 @@ WORKDIR /app/frontend
 # Install Node.js dependencies
 RUN npm install
 
+# Note: Frontend dist should be pre-built and copied via the COPY . /app command above
+
 # Expose the port
 EXPOSE 3001
 

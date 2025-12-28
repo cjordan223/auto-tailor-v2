@@ -1,10 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-  // In development, use Vite proxy. In production, use full URL
-  API_BASE_URL: import.meta.env.DEV 
-    ? '/api'  // Use Vite proxy in development
-    : (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api',
+  BASE_URL: import.meta.env.VITE_API_URL || window.location.origin,
+  // Always use relative path for API since backend serves the frontend
+  API_BASE_URL: '/api',
   TIMEOUT: 300000 // 5 minutes
 }
 

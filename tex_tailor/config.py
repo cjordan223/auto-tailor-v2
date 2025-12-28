@@ -26,7 +26,7 @@ class LLMModelConfig:
 class ProviderConfig:
     """Configuration for LLM providers."""
     ollama: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
-        default_model="qwen2.5:14b-instruct"  # Reliable medium-tier model with good JSON parsing
+        default_model="qwen2.5:14b-instruct"  # Best general-purpose model with excellent JSON parsing
     ))
     openai: LLMModelConfig = field(default_factory=lambda: LLMModelConfig(
         default_model="gpt-4o-mini"
@@ -45,7 +45,7 @@ class ProviderConfig:
 @dataclass
 class APIConfig:
     """Configuration for API endpoints."""
-    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_base_url: str = "http://192.168.1.22:11434"
     openai_base_url: str = "https://api.openai.com/v1"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/models"
     mistral_base_url: str = "https://api.mistral.ai/v1"

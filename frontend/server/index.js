@@ -20,7 +20,7 @@ import regenerateRoutes from './routes/regenerate.js'
 import authRoutes from './routes/auth.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
-import { authenticateToken } from './middleware/auth.js'
+import { authenticateToken, optionalAuth } from './middleware/auth.js'
 import rateLimit from 'express-rate-limit'
 import databaseConnection from './config/database.js'
 import applicationService from './services/ApplicationService.js'
@@ -28,9 +28,14 @@ import applicationService from './services/ApplicationService.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Load .env file
+// Load .env file - try both frontend/.env and parent directory .env
 const envPath = path.join(__dirname, '../.env')
-const envResult = dotenv.config({ path: envPath })
+const parentEnvPath = path.join(__dirname, '../../.env')
+let envResult = dotenv.config({ path: envPath })
+if (envResult.error) {
+  // Try parent directory if frontend/.env doesn't exist
+  envResult = dotenv.config({ path: parentEnvPath })
+}
 
 if (envResult.error) {
   console.log('📝 No .env file found, using system environment variables')
@@ -48,13 +53,13 @@ if (envResult.error) {
 }
 
 const app = express()
-const PORT = process.env.PORT || 10000
+const PORT = process.env.PORT || 3501
 
 // Middleware
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
+    'http://localhost:3500',
+    'http://localhost:3501',
     'https://auto-tailor-v2.vercel.app',
     process.env.FRONTEND_URL
   ].filter(Boolean),
@@ -101,19 +106,33 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 app.use(requestLogger)
 
 // Rate limiting - apply to all API routes
+// More permissive in development, strict in production
+const isDevelopment = process.env.NODE_ENV !== 'production'
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per windowMs
+	max: isDevelopment ? 1000 : 100, // 1000 requests in dev, 100 in production
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: 'Too many requests from this IP, please try again after 15 minutes.',
+  skip: (req) => {
+    // Skip rate limiting for local development on specific endpoints
+    if (isDevelopment && (req.ip === '::ffff:127.0.0.1' || req.ip === '::1' || req.ip === '127.0.0.1')) {
+      return true
+    }
+    return false
+  }
 })
 app.use('/api', apiLimiter)
 
 // Static files (for serving generated PDFs temporarily)
 app.use('/static', express.static(path.join(__dirname, '../temp')))
 
-// Note: Frontend static files not served - frontend deployed separately on Vercel
+const serveFrontend = process.env.SERVE_FRONTEND !== 'false'
+if (serveFrontend) {
+  // Serve frontend static files from dist directory
+  const frontendDistPath = path.join(__dirname, '../dist')
+  app.use(express.static(frontendDistPath))
+}
 
 // Health check
 app.get('/health', (req, res) => {
@@ -149,7 +168,7 @@ app.use('/api/auth', authRoutes)
 
 // Core functionality routes (public - no authentication required)
 app.use('/api/upload', uploadRoutes)
-app.use('/api/process', processRoutes)
+app.use('/api/process', optionalAuth, processRoutes)  // Optional auth to save to DB if logged in
 app.use('/api/download', downloadRoutes)
 app.use('/api/view', viewRoutes)
 app.use('/api/status', statusRoutes)
@@ -200,7 +219,20 @@ app.use('/api/*', (req, res) => {
   })
 })
 
-// API-only backend - no catch-all handler for frontend routes
+if (serveFrontend) {
+  // Catch-all handler for frontend routes (SPA routing)
+  app.get('*', (req, res) => {
+    const indexPath = path.join(__dirname, '../dist/index.html')
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        res.status(404).json({ 
+          message: 'Frontend not found. Run "npm run build" to build the frontend.',
+          path: req.originalUrl
+        })
+      }
+    })
+  })
+}
 
 // Initialize database connection and start server
 async function startServer() {
@@ -222,12 +254,17 @@ async function startServer() {
       console.log('   Replace <password> in MONGODB_ATLAS_URI in your .env file to enable database')
     }
 
-    // Start the server
-    app.listen(PORT, () => {
-      console.log(`🚀 Tex-Tailor API Server running on port ${PORT}`)
-      console.log(`📱 Frontend should connect to: http://localhost:${PORT}`)
-      console.log(`🔍 Health check: http://localhost:${PORT}/health`)
-      console.log(`📊 Applications API: http://localhost:${PORT}/api/applications`)
+    // Start the server - bind to 0.0.0.0 to accept connections from any interface
+    app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Tex-Tailor API Server running on port ${PORT}`)
+    if (serveFrontend) {
+      const frontendUrl = process.env.FRONTEND_URL || `http://localhost:${PORT}`
+      console.log(`📱 Frontend accessible at: ${frontendUrl}`)
+    } else {
+      console.log('📱 Frontend disabled (SERVE_FRONTEND=false)')
+    }
+    console.log(`🔍 Health check: http://localhost:${PORT}/health`)
+    console.log(`📊 Applications API: http://localhost:${PORT}/api/applications`)
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)

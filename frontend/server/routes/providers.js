@@ -88,14 +88,32 @@ router.get('/', async (req, res) => {
       {
         id: 'ollama',
         name: 'Ollama (Local)',
-        available: true, // Always available if Ollama is running
+        available: !!process.env.OLLAMA_BASE_URL,
         recommended: false,
         models: [
+          { 
+            id: 'resume-editor:latest',
+            name: 'Resume Editor (Custom)',
+            description: 'Custom model tuned for resume and cover letter tailoring.',
+            recommended: true,
+            quality: 'Excellent',
+            speed: 'Medium',
+            rateLimits: 'No limits (local)'
+          },
+          { 
+            id: 'llama3.2:3b', 
+            name: 'Llama 3.2 3B', 
+            description: 'Fast and lightweight - excellent for quick resume customization',
+            recommended: false,
+            quality: 'Good',
+            speed: 'Very Fast',
+            rateLimits: 'No limits (local)'
+          },
           { 
             id: 'qwen2.5:14b-instruct', 
             name: 'Qwen2.5 14B', 
             description: 'Good quality, requires powerful hardware',
-            recommended: true,
+            recommended: false,
             quality: 'Good',
             speed: 'Medium',
             rateLimits: 'No limits (local)'

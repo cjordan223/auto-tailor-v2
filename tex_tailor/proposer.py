@@ -471,7 +471,9 @@ def parse_json_response(response: str) -> Dict[str, Any]:
 
     # Try to parse as-is first
     try:
-        return json.loads(response)
+        edits = json.loads(response)
+        from .schema import normalize_edits_structure
+        return normalize_edits_structure(edits)
     except json.JSONDecodeError:
         pass
 
@@ -481,7 +483,9 @@ def parse_json_response(response: str) -> Dict[str, Any]:
         r'```(?:json)?\s*(\{.*?\})\s*```', response, re.DOTALL)
     if json_match:
         try:
-            return json.loads(json_match.group(1))
+            edits = json.loads(json_match.group(1))
+            from .schema import normalize_edits_structure
+            return normalize_edits_structure(edits)
         except json.JSONDecodeError:
             pass
 
@@ -489,7 +493,9 @@ def parse_json_response(response: str) -> Dict[str, Any]:
     json_match = re.search(r'(\{.*\})', response, re.DOTALL)
     if json_match:
         try:
-            return json.loads(json_match.group(1))
+            edits = json.loads(json_match.group(1))
+            from .schema import normalize_edits_structure
+            return normalize_edits_structure(edits)
         except json.JSONDecodeError:
             pass
 

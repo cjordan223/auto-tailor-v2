@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  tex-tailor:
+    build: .
+    container_name: tex-tailor
+    ports:
+      - "3501:3501"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=3501
+      - NODE_ENV=production
+      - FRONTEND_URL=http://localhost:3500
+      - SERVE_FRONTEND=false
+    volumes:
+      - ./frontend/temp:/app/frontend/temp
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  frontend:
+    image: node:22-slim
+    container_name: tex-tailor-frontend
+    working_dir: /app/frontend
+    ports:
+      - "3500:3500"
+    environment:
+      - VITE_API_PROXY_TARGET=http://tex-tailor:3501
+    volumes:
+      - .:/app
+    depends_on:
+      - tex-tailor
+    command: sh -c "npm install && npm run dev:client -- --host 0.0.0.0 --port 3500"

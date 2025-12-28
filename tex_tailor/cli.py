@@ -9,6 +9,7 @@ import click
 import os
 import sys
 import subprocess
+import shutil
 from subprocess import TimeoutExpired
 from pathlib import Path
 from typing import Optional
@@ -30,6 +31,7 @@ from .config import config, get_model_for_provider, get_default_paths
 from .reviewer import generate_review
 from .ollama_optimized import propose_edits_ollama_optimized, get_recommended_ollama_models
 from .ollama_validation import validate_ollama_response, get_ollama_validation_summary
+from .workflow import run_workflow_steps, render_pdfs
 
 
 @click.group()
@@ -703,131 +705,14 @@ def review(format: str, provider: Optional[str], job_description: Optional[str])
 def workflow(job_description: str, with_logging: bool):
     """Run the complete workflow with optional logging."""
 
-    if with_logging:
-        with WorkflowLogger():
-            run_workflow_steps(job_description)
-    else:
-        run_workflow_steps(job_description)
-
-
-def run_workflow_steps(job_description: str):
-    """Run the complete workflow steps."""
     try:
-        # Step 1: Initialize
-        click.echo("🔄 Step 1: Initializing...")
-        init_files()
-        click.echo("✅ Initialization complete")
-
-        # Step 2: Extract
-        click.echo("🔄 Step 2: Extracting content...")
-        default_paths = get_default_paths()
-        resume_file = default_paths["baseline_resume"]
-        cover_file = default_paths["baseline_cover"]
-        extract_to_json(resume_file, cover_file, default_paths["base_text"])
-        click.echo("✅ Text extraction complete")
-
-        # Step 3: Propose edits
-        click.echo("🔄 Step 3: Proposing edits...")
-        # Use provider from environment variable (set by backend)
-        provider = os.getenv("PROVIDER")
-        model = os.getenv("MODEL")
-        personality = os.getenv("PERSONALITY", "career_savvy_colleague")
-        if not provider:
-            # Fallback to auto-detection if not set
-            if os.getenv("OPENAI_API_KEY"):
-                provider = "openai"
-                click.echo("OPENAI_API_KEY found, using OpenAI provider.")
-            elif os.getenv("GEMINI_API_KEY"):
-                provider = "gemini"
-                click.echo("GEMINI_API_KEY found, using Gemini provider.")
-            elif os.getenv("MISTRAL_API_KEY"):
-                provider = "mistral"
-                click.echo("MISTRAL_API_KEY found, using Mistral provider.")
-            elif os.getenv("GROQ_API_KEY"):
-                provider = "groq"
-                click.echo("GROQ_API_KEY found, using Groq provider.")
-            else:
-                provider = "ollama"
-                click.echo("No API keys found, defaulting to Ollama provider.")
+        if with_logging:
+            with WorkflowLogger():
+                run_workflow_steps(job_description, emit=click.echo)
         else:
-            click.echo(f"Using provider: {provider}")
-            if model:
-                click.echo(f"Using model: {model}")
-
-        # Use Ollama-optimized workflow for specific models
-        if provider == "ollama" and model and model in ["resume-editor:latest", "qwen2.5:14b-instruct", "mixtral:latest"]:
-            click.echo(f"🔧 Using Ollama-optimized workflow for {model}")
-            try:
-                from .ollama_optimized import propose_edits_ollama_optimized
-                import json
-
-                # Generate edits with Ollama optimization (simplified - no extra validation)
-                edits = propose_edits_ollama_optimized(
-                    job_description, default_paths["base_text"], model)
-
-                # Save edits directly
-                with open(default_paths["edits"], 'w') as f:
-                    json.dump(edits, f, indent=2, ensure_ascii=False)
-
-                click.echo("✅ Ollama-optimized edits generated")
-
-            except Exception as e:
-                click.echo(
-                    f"⚠️ Ollama optimization failed, falling back to standard workflow: {e}")
-                # Fallback to standard workflow
-                propose_and_save_edits(
-                    job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
-        else:
-            # Use standard workflow
-            propose_and_save_edits(
-                job_description, default_paths["base_text"], default_paths["edits"], provider, model, personality)
-
-        click.echo("✅ Edit proposal complete")
-
-        # Step 4: Apply edits
-        click.echo("🔄 Step 4: Applying edits...")
-        apply_edits_with_validation(
-            resume_file, cover_file, default_paths["edits"])
-        click.echo("✅ Edits applied")
-
-        # Step 5: Show diffs
-        click.echo("🔄 Step 5: Showing differences...")
-        show_diffs()
-
-        # Step 6: Render PDFs
-        click.echo("🔄 Step 6: Rendering PDFs...")
-        render_pdfs(config.paths.output_dir)
-        click.echo("✅ PDF rendering complete")
-
-        click.echo("🎉 Workflow completed successfully!")
-
-    except Exception as e:
-        click.echo(f"❌ Workflow failed: {e}", err=True)
+            run_workflow_steps(job_description, emit=click.echo)
+    except Exception:
         sys.exit(1)
-
-
-def render_pdfs(out_dir: str):
-    """Render PDFs using latexmk."""
-    out_path = Path(out_dir)
-    if not out_path.exists():
-        raise RuntimeError(f"Output directory not found: {out_dir}")
-
-    tex_files = list(out_path.glob("*.tuned.tex"))
-    if not tex_files:
-        raise RuntimeError("No tuned .tex files found")
-
-    for tex_file in tex_files:
-        try:
-            result = subprocess.run([
-                "latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", tex_file.name
-            ], capture_output=True, text=True, cwd=out_path, timeout=300)
-
-            if result.returncode != 0:
-                raise RuntimeError(
-                    f"PDF rendering failed for {tex_file.name}: {result.stderr}")
-        except TimeoutExpired:
-            raise RuntimeError(
-                f"PDF rendering timed out for {tex_file.name} (LaTeX compilation took >60s)")
 
 
 if __name__ == "__main__":

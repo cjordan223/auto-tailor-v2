@@ -16,13 +16,21 @@ const router = express.Router()
 /**
  * Save completed application to MongoDB database
  */
-async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles) {
+async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles, userId = null) {
   try {
     // Only save if application service is available
     if (!applicationService.db) {
       console.log('📚 Database not connected - skipping application save')
       return
     }
+
+    // Skip if no userId provided
+    if (!userId) {
+      console.log(`[${jobId}] 💤 No userId provided, skipping database save`)
+      return
+    }
+
+    console.log(`[${jobId}] 💾 Attempting to save application for userId: ${userId}`)
 
     // Read job description
     const jobDescription = await fs.readFile(jobDescriptionPath, 'utf8')
@@ -59,17 +67,18 @@ async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, pro
 
     // Build application data
     const applicationData = {
+      jobId: jobId, // Store the UUID jobId for file retrieval
       jobTitle: jobTitle,
       companyName: companyName,
       jobDescription: jobDescription,
       location: null, // Could be extracted from JD in the future
-      
+
       resume: {
         fileName: 'Conner_Jordan_Software_Engineer.tuned.pdf',
         summary: edits?.summary?.replace || null,
         skills: edits?.skills || {}
       },
-      
+
       coverLetter: {
         fileName: 'Conner_Jordan_Cover_Letter.tuned.pdf',
         paragraphs: edits?.cover_letter?.paragraphs || []
@@ -91,7 +100,7 @@ async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, pro
     }
 
     // Save to database
-    const result = await applicationService.createApplication(req.user.userId, applicationData)
+    const result = await applicationService.createApplication(userId, applicationData)
     
     if (result.success) {
       console.log(`💾 Saved application to database: ${result.applicationId}`)
@@ -292,8 +301,10 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
     }
     
     // Start processing in background
-    processResumeAsync(jobId, baselineResumePath, jobDescriptionPath, provider, model, personality, apiKeys)
-    
+    const userId = req.user?.userId
+    console.log(`[${jobId}] Starting workflow - User authenticated: ${!!userId}, UserId: ${userId || 'none'}`)
+    processResumeAsync(jobId, baselineResumePath, jobDescriptionPath, provider, model, personality, apiKeys, userId)
+
     // Return job ID immediately
     res.json({
       jobId,
@@ -310,7 +321,7 @@ router.post('/', upload.single('jobDescription'), async (req, res) => {
 /**
  * Process resume asynchronously using the Python CLI
  */
-async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provider, model, personality, apiKeys = {}) {
+async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provider, model, personality, apiKeys = {}, userId = null) {
   const tempDir = path.join(__dirname, '../../temp', jobId)
   const statusFile = path.join(tempDir, 'status.json')
   
@@ -394,7 +405,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
     }
     
     // Run the complete workflow using Python CLI directly
-    const child = spawn(venvPython, ['-m', 'tex_tailor.cli', 'workflow', jobDescriptionPath], {
+    const child = spawn(venvPython, ['-m', 'tex_tailor.workflow_runner', jobDescriptionPath], {
       cwd: projectRoot, // Project root for venv and paths
       stdio: ['pipe', 'pipe', 'pipe'],
       env: mergedEnv,
@@ -524,7 +535,7 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
           
           // Save to database if MongoDB is connected
           try {
-            await saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles)
+            await saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, provider, model, outputFiles, userId)
           } catch (dbError) {
             console.warn(`Database save failed for job ${jobId}:`, dbError.message)
             // Don't fail the entire workflow if database save fails
@@ -584,6 +595,9 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
     
     for (const line of lines) {
       let statusUpdate = null
+      const trimmedLine = line.trim()
+      const isErrorLine = /error|failed|exception|traceback/i.test(trimmedLine)
+      const isWarningLine = /warning/i.test(trimmedLine)
       
       // Parse different types of progress indicators
       if (line.includes('🔄 Processing job description') || line.includes('🔄 Step 1: Initializing')) {
@@ -616,6 +630,13 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
           step: 'AI analysis in progress...',
           detail: 'Sending content to AI provider for analysis'
         }
+      } else if (line.includes('Generating edits') || line.includes('Saved edits to') || line.includes('✅ Edit proposal complete')) {
+        statusUpdate = { 
+          status: 'processing', 
+          progress: 60, 
+          step: 'AI analysis complete',
+          detail: 'Generated targeted edits based on job requirements'
+        }
       } else if (line.includes('Generated') && line.includes('edits')) {
         const match = line.match(/Generated (\d+) edits/)
         const edits = match ? match[1] : 'multiple'
@@ -625,12 +646,19 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
           step: 'AI analysis complete',
           detail: `Generated ${edits} targeted edits based on job requirements`
         }
-      } else if (line.includes('✓') && line.includes('edits applied') || line.includes('✅ Edits applied')) {
+      } else if (line.includes('Applying edits') || line.includes('✓') && line.includes('edits applied') || line.includes('✅ Edits applied')) {
         statusUpdate = { 
           status: 'processing', 
           progress: 70, 
           step: 'Applying edits to documents',
           detail: 'Updating resume and cover letter with AI-generated content'
+        }
+      } else if (line.includes('🔄 Step 5: Showing differences')) {
+        statusUpdate = { 
+          status: 'processing', 
+          progress: 75, 
+          step: 'Reviewing changes...',
+          detail: 'Generating diffs for updated documents'
         }
       } else if (line.includes('📄 Generating PDFs') || line.includes('render') || line.includes('🔄 Step 6: Rendering PDFs')) {
         statusUpdate = { 
@@ -638,6 +666,13 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
           progress: 80, 
           step: 'Generating PDF files...',
           detail: 'Compiling LaTeX to PDF using latexmk'
+        }
+      } else if (line.includes('✅ PDF rendering complete')) {
+        statusUpdate = { 
+          status: 'processing', 
+          progress: 90, 
+          step: 'PDF rendering complete',
+          detail: 'Finalizing output files and cleanup'
         }
       } else if (line.includes('✅ Workflow complete') || line.includes('🎉 Workflow completed successfully')) {
         statusUpdate = { 
@@ -649,14 +684,14 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
       }
       
       // Handle errors
-      if (isStderr || line.includes('Error') || line.includes('error') || line.includes('Failed')) {
+      if (isErrorLine) {
         if (line.includes('API') || line.includes('authentication') || line.includes('key')) {
           statusUpdate = { 
             status: 'error', 
             progress: 0, 
             step: 'API Authentication Error',
             detail: 'Invalid or missing API key. Please check your credentials.',
-            error: line.trim()
+            error: trimmedLine
           }
         } else if (line.includes('timeout') || line.includes('Timeout')) {
           statusUpdate = { 
@@ -664,7 +699,7 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
             progress: 0, 
             step: 'Request Timeout',
             detail: 'AI provider request timed out. Please try again.',
-            error: line.trim()
+            error: trimmedLine
           }
         } else if (line.includes('rate limit') || line.includes('quota')) {
           statusUpdate = { 
@@ -672,7 +707,7 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
             progress: 0, 
             step: 'Rate Limit Exceeded',
             detail: 'API rate limit reached. Please wait before trying again.',
-            error: line.trim()
+            error: trimmedLine
           }
         } else {
           statusUpdate = { 
@@ -680,8 +715,14 @@ async function parseOutputAndUpdateStatus(statusFile, output, jobId, isStderr = 
             progress: 0, 
             step: 'Processing Error',
             detail: 'An error occurred during processing. Check logs for details.',
-            error: line.trim()
+            error: trimmedLine
           }
+        }
+      } else if (isStderr && !isWarningLine) {
+        // Preserve stderr output without flipping job status to error.
+        statusUpdate = { 
+          status: 'processing',
+          detail: trimmedLine
         }
       }
       

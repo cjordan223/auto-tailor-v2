@@ -2,16 +2,82 @@ import express from 'express'
 import path from 'path'
 import fs from 'fs/promises'
 import { fileURLToPath } from 'url'
+import { ObjectId } from 'mongodb'
+import databaseConnection from '../config/database.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const router = express.Router()
 
+/**
+ * Helper function to get the actual jobId (UUID) from an application ID (ObjectId)
+ * or return the original if it's already a UUID
+ */
+async function resolveJobId(idParam) {
+  console.log(`[resolveJobId] Input parameter: ${idParam}`)
+
+  // Check if it looks like a MongoDB ObjectId (24 hex chars)
+  if (/^[a-f0-9]{24}$/i.test(idParam)) {
+    console.log(`[resolveJobId] Detected MongoDB ObjectId format`)
+    // Try to look up the application in the database
+    const db = databaseConnection.getDb()
+    console.log(`[resolveJobId] Database connection: ${db ? 'connected' : 'not connected'}`)
+
+    if (db) {
+      try {
+        // Search in both collections
+        console.log(`[resolveJobId] Searching saved_applications...`)
+        let application = await db.collection('saved_applications').findOne({
+          _id: new ObjectId(idParam)
+        })
+
+        if (!application) {
+          console.log(`[resolveJobId] Not found in saved_applications, trying generated_applications...`)
+          application = await db.collection('generated_applications').findOne({
+            _id: new ObjectId(idParam)
+          })
+        }
+
+        if (application) {
+          console.log(`[resolveJobId] Found application. Has jobId: ${!!application.jobId}, jobId value: ${application.jobId}`)
+          if (application.jobId) {
+            console.log(`✅ Resolved application ${idParam} to jobId ${application.jobId}`)
+            return application.jobId
+          } else {
+            // Fallback: Try to extract jobId from storageKey for older applications
+            const storageKey = application.files?.resume?.storageKey || application.files?.coverLetter?.storageKey
+            if (storageKey) {
+              const match = storageKey.match(/^([a-f0-9-]{36})\//)
+              if (match) {
+                const extractedJobId = match[1]
+                console.log(`✅ Extracted jobId from storageKey: ${extractedJobId}`)
+                return extractedJobId
+              }
+            }
+            console.warn(`⚠️  Application ${idParam} found but has no jobId field and couldn't extract from storageKey`)
+          }
+        } else {
+          console.warn(`⚠️  Application ${idParam} not found in database`)
+        }
+      } catch (error) {
+        console.error(`❌ Error looking up application:`, error.message)
+      }
+    }
+  } else {
+    console.log(`[resolveJobId] Not a MongoDB ObjectId, assuming UUID format`)
+  }
+
+  // Return original if not found or already a UUID
+  console.log(`[resolveJobId] Returning original: ${idParam}`)
+  return idParam
+}
+
 // View generated PDFs inline (for embedding)
 router.get('/:jobId/:fileType', async (req, res) => {
   try {
-    const { jobId, fileType } = req.params
+    const { jobId: jobIdParam, fileType } = req.params
+    const jobId = await resolveJobId(jobIdParam)
     const tempDir = path.join(__dirname, '../../temp', jobId)
     
     // Only allow PDF file types for viewing
@@ -51,7 +117,7 @@ router.get('/:jobId/:fileType', async (req, res) => {
       // Allow embedding the PDF in iframes from trusted origins only
       // Prefer Content-Security-Policy frame-ancestors over deprecated X-Frame-Options
       const allowedAncestors = [
-        'http://localhost:3000',
+        'http://localhost:3500',
         'https://auto-tailor-v2.vercel.app',
         process.env.FRONTEND_URL
       ].filter(Boolean)
@@ -77,7 +143,8 @@ router.get('/:jobId/:fileType', async (req, res) => {
 // View generated LaTeX source files (for text display)
 router.get('/:jobId/:fileType/tex', async (req, res) => {
   try {
-    const { jobId, fileType } = req.params
+    const { jobId: jobIdParam, fileType } = req.params
+    const jobId = await resolveJobId(jobIdParam)
     const tempDir = path.join(__dirname, '../../temp', jobId)
     
     // Map file types to LaTeX file names
@@ -119,7 +186,8 @@ router.get('/:jobId/:fileType/tex', async (req, res) => {
 // View original tailored LaTeX source files (for reset functionality)
 router.get('/:jobId/:fileType/original', async (req, res) => {
   try {
-    const { jobId, fileType } = req.params
+    const { jobId: jobIdParam, fileType } = req.params
+    const jobId = await resolveJobId(jobIdParam)
     const tempDir = path.join(__dirname, '../../temp', jobId)
     
     // Map file types to original LaTeX file names

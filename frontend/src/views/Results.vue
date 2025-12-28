@@ -631,8 +631,8 @@ const regenerating = ref({
   coverLetter: false
 })
 const regenSettings = ref({
-  provider: 'gemini',
-  model: 'gemini-2.5-flash-lite', 
+  provider: 'ollama',
+  model: 'qwen2.5:14b-instruct',
   personality: 'career_savvy_colleague'
 })
 
@@ -789,8 +789,8 @@ const loadResults = async () => {
       originalSettings.value = data.originalSettings
       // Update regeneration settings to match original
       regenSettings.value = {
-        provider: data.originalSettings.provider || 'gemini',
-        model: data.originalSettings.model || 'gemini-2.5-flash-lite',
+        provider: data.originalSettings.provider || 'ollama',
+        model: data.originalSettings.model || 'qwen2.5:14b-instruct',
         personality: data.originalSettings.personality || 'career_savvy_colleague'
       }
     }

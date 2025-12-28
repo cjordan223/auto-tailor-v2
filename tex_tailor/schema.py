@@ -527,3 +527,128 @@ def clean_edits_json(edits: Dict[str, Any]) -> Dict[str, Any]:
                 cleaned["cover_letter"]["paragraphs"][i] = paragraph["replace"] or ""
 
     return cleaned
+
+
+def normalize_edits_structure(edits: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize common LLM schema deviations into the expected structure."""
+    if not isinstance(edits, dict):
+        return {}
+
+    normalized: Dict[str, Any] = {}
+
+    # Summary normalization
+    summary = edits.get("summary")
+    if isinstance(summary, dict) and "replace" in summary:
+        normalized["summary"] = {"replace": summary.get("replace")}
+    elif isinstance(summary, (str, type(None))):
+        normalized["summary"] = {"replace": summary}
+
+    # Skills normalization with common aliases
+    allowed_skill_keys = [
+        "Programming Languages",
+        "Frontend",
+        "Backend",
+        "Cloud & DevOps",
+        "AI & LLM Tools",
+        "Automation & Productivity",
+        "Security & Operating Systems",
+        "Databases",
+    ]
+    normalized_skill_keys = {
+        re.sub(r"[^a-z0-9]+", "_", key.lower()).strip("_"): key
+        for key in allowed_skill_keys
+    }
+    alias_map = {
+        "programming_languages": "Programming Languages",
+        "programming_language": "Programming Languages",
+        "cloud_devops": "Cloud & DevOps",
+        "cloud_and_devops": "Cloud & DevOps",
+        "ai_llm_tools": "AI & LLM Tools",
+        "ai_llm_tool": "AI & LLM Tools",
+        "automation_productivity": "Automation & Productivity",
+        "security_os": "Security & Operating Systems",
+        "security_operating_systems": "Security & Operating Systems",
+        "security_and_operating_systems": "Security & Operating Systems",
+        "databases": "Databases",
+        "frontend": "Frontend",
+        "backend": "Backend",
+    }
+
+    def normalize_skill_key(key: str) -> Optional[str]:
+        normalized_key = re.sub(r"[^a-z0-9]+", "_", key.lower()).strip("_")
+        if normalized_key in alias_map:
+            return alias_map[normalized_key]
+        return normalized_skill_keys.get(normalized_key)
+
+    skills = edits.get("skills")
+    if isinstance(skills, dict):
+        normalized_skills: Dict[str, Any] = {}
+        for raw_key, value in skills.items():
+            normalized_key = normalize_skill_key(str(raw_key))
+            if not normalized_key:
+                continue
+            if value is None:
+                normalized_skills[normalized_key] = None
+            elif isinstance(value, dict) and "replace" in value:
+                normalized_skills[normalized_key] = {"replace": value.get("replace")}
+            elif isinstance(value, list):
+                normalized_skills[normalized_key] = {"replace": ", ".join(str(v) for v in value)}
+            else:
+                normalized_skills[normalized_key] = {"replace": str(value)}
+        if normalized_skills:
+            normalized["skills"] = normalized_skills
+
+    # Cover letter normalization
+    cover_letter = edits.get("cover_letter")
+    salutation = None
+    paragraphs = None
+
+    if isinstance(cover_letter, dict):
+        salutation = cover_letter.get("salutation")
+        paragraphs = cover_letter.get("paragraphs")
+
+    if salutation is None:
+        salutation = edits.get("cover_letter_salutation")
+    if paragraphs is None:
+        paragraphs = edits.get("cover_letter_paragraphs")
+
+    if salutation is not None or paragraphs is not None:
+        if isinstance(salutation, dict) and "replace" in salutation:
+            salutation_value = salutation.get("replace")
+        elif isinstance(salutation, str):
+            salutation_value = salutation
+        else:
+            salutation_value = None
+
+        normalized_paragraphs: List[Optional[str]] = []
+        if isinstance(paragraphs, list):
+            for paragraph in paragraphs:
+                if isinstance(paragraph, dict) and "replace" in paragraph:
+                    normalized_paragraphs.append(paragraph.get("replace"))
+                elif paragraph is None:
+                    normalized_paragraphs.append(None)
+                else:
+                    normalized_paragraphs.append(str(paragraph))
+        elif isinstance(paragraphs, str):
+            normalized_paragraphs = [paragraphs]
+
+        normalized["cover_letter"] = {
+            "salutation": {"replace": salutation_value},
+            "paragraphs": normalized_paragraphs,
+        }
+
+    # Suggested additions normalization
+    suggestions = edits.get("suggested_additions")
+    if isinstance(suggestions, list):
+        normalized_suggestions = []
+        for item in suggestions:
+            if not isinstance(item, dict):
+                continue
+            term = item.get("term")
+            why = item.get("why")
+            if term is None or why is None:
+                continue
+            normalized_suggestions.append({"term": str(term), "why": str(why)})
+        normalized["suggested_additions"] = normalized_suggestions
+
+    return normalized

@@ -28,11 +28,12 @@ class ApplicationService {
       const application = {
         _id: new ObjectId(),
         userId: userId,
+        jobId: applicationData.jobId || null, // UUID from workflow for file retrieval
         createdAt: new Date(),
         updatedAt: new Date(),
         status: 'draft',
         source: 'generated',
-        
+
         jobDetails: {
           jobTitle: applicationData.jobTitle || 'Unknown Position',
           companyName: applicationData.companyName || 'Unknown Company',
@@ -99,9 +100,19 @@ class ApplicationService {
         isArchived: false
       }
 
-      // Insert into capped collection (temporary storage)
+      console.log(`💾 Creating application for userId: ${userId} (type: ${typeof userId})`)
+
+      // Insert into both collections:
+      // 1. generated_applications (temporary/capped collection for recent items)
       const result = await this.db.collection('generated_applications').insertOne(application)
-      
+
+      // 2. saved_applications (permanent storage for dashboard)
+      // Mark as 'draft' status since it's newly generated
+      const savedApp = { ...application, status: 'draft' }
+      await this.db.collection('saved_applications').insertOne(savedApp)
+
+      console.log(`✅ Application saved to both collections: ${result.insertedId}`)
+
       return {
         success: true,
         applicationId: result.insertedId,
@@ -206,6 +217,8 @@ class ApplicationService {
         sortOrder = -1
       } = options
 
+      console.log(`🔍 Fetching saved applications for userId: ${userId} (type: ${typeof userId})`)
+
       const query = { userId: userId }
       
       if (!includeArchived) {
@@ -232,6 +245,9 @@ class ApplicationService {
         .toArray()
 
       const totalCount = await this.db.collection('saved_applications').countDocuments(query)
+
+      console.log(`📊 Query results: Found ${applications.length} applications (total: ${totalCount})`)
+      console.log(`📊 Query used: ${JSON.stringify(query)}`)
 
       return {
         success: true,

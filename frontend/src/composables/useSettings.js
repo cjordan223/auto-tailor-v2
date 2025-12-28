@@ -8,8 +8,8 @@ const settings = reactive({
     mistral: '',
     groq: ''
   },
-  ollamaUrl: 'http://localhost:11434',
-  defaultProvider: 'gemini',
+  ollamaUrl: 'http://192.168.1.22:11434',
+  defaultProvider: 'ollama',
   autoDownload: false,
   pdfViewerType: 'pdfjs'
 })
@@ -34,8 +34,8 @@ export function useSettings() {
             mistral: parsed.apiKeys?.mistral || '',
             groq: parsed.apiKeys?.groq || ''
           },
-          ollamaUrl: parsed.ollamaUrl || 'http://localhost:11434',
-          defaultProvider: parsed.defaultProvider || 'gemini',
+          ollamaUrl: parsed.ollamaUrl || 'http://192.168.1.22:11434',
+          defaultProvider: parsed.defaultProvider || 'ollama',
           autoDownload: parsed.autoDownload || false,
           pdfViewerType: parsed.pdfViewerType || 'pdfjs'
         })
@@ -112,8 +112,8 @@ export function useSettings() {
       // Reset to defaults
       Object.assign(settings, {
         apiKeys: { gemini: '', openai: '', mistral: '', groq: '' },
-        ollamaUrl: 'http://localhost:11434',
-        defaultProvider: 'gemini',
+        ollamaUrl: 'http://192.168.1.22:11434',
+        defaultProvider: 'ollama',
         autoDownload: false
       })
       

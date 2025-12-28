@@ -23,7 +23,7 @@ All hardcoded values have been successfully centralized:
 # Default models (can be overridden by environment variables)
 providers:
   ollama:
-    default_model: "qwen2.5:14b-instruct"
+    default_model: "resume-editor:latest"  # Custom trained model for resume tailoring
     timeout: 120
     temperature: 0
     top_k: 1
@@ -63,7 +63,7 @@ providers:
 ### API Endpoints
 ```python
 apis:
-  ollama_base_url: "http://127.0.0.1:11434"
+  ollama_base_url: "http://192.168.1.22:11434"  # LAN Ollama instance
   openai_base_url: "https://api.openai.com/v1"
   gemini_base_url: "https://generativelanguage.googleapis.com/v1beta/models"
   mistral_base_url: "https://api.mistral.ai/v1"
@@ -103,7 +103,7 @@ export MISTRAL_MODEL="mistral-large-latest"
 export GROQ_MODEL="ollama-3.3-70b-versatile"
 
 # Override API endpoints
-export OLLAMA_BASE_URL="http://localhost:11434"
+export OLLAMA_BASE_URL="http://192.168.1.22:11434"
 
 # Use with any provider
 tex-tailor propose --jd job.txt --provider ollama
@@ -111,6 +111,60 @@ tex-tailor propose --jd job.txt --provider openai
 tex-tailor propose --jd job.txt --provider gemini
 tex-tailor propose --jd job.txt --provider mistral
 tex-tailor propose --jd job.txt --provider groq
+```
+
+## LAN Ollama Setup (Default Configuration)
+
+### Custom Model Configuration
+
+The application now defaults to using a **custom-trained Ollama model** (`resume-editor:latest`) hosted on a **LAN Ollama instance** at `http://192.168.1.22:11434`.
+
+**What's Configured:**
+
+1. **Backend Defaults** (`tex_tailor/config.py`):
+   - Default provider: `ollama`
+   - Default model: `resume-editor:latest`
+   - Ollama base URL: `http://192.168.1.22:11434`
+
+2. **Frontend Defaults** (`frontend/src/composables/useSettings.js`, `frontend/src/views/Home.vue`):
+   - Default provider: `ollama`
+   - Default model: `resume-editor:latest`
+   - Ollama URL: `http://192.168.1.22:11434`
+
+3. **Environment Variables** (`.env`):
+   - `OLLAMA_BASE_URL=http://192.168.1.22:11434` - Required for provider availability check
+
+**How It Works:**
+
+- **New Users**: When the UI loads for the first time, it automatically selects Ollama with the `resume-editor:latest` model
+- **Existing Users**: If you've already saved settings in your browser, you'll need to clear localStorage (key: `tex-tailor-settings`) or manually switch in the UI to use the new defaults
+- **CLI Usage**: The CLI automatically uses the custom model when you specify `--provider ollama`
+
+**Custom Model Details:**
+
+The `resume-editor:latest` model is a specialized model fine-tuned for:
+- Resume and cover letter tailoring
+- Understanding job descriptions
+- Generating targeted edits
+- Professional tone and formatting
+
+See [CUSTOM_OLLAMA_MODEL_TRAINING.md](CUSTOM_OLLAMA_MODEL_TRAINING.md) for details on how this model was trained.
+
+**Switching Providers:**
+
+You can still use other providers by either:
+- Setting environment variables: `OLLAMA_MODEL=llama3:8b` or switching to another provider
+- Using the UI to select a different provider/model
+- Passing `--provider` and `--model` flags to CLI commands
+
+**Network Access:**
+
+Since the Ollama instance is on your LAN (`192.168.1.22`), ensure:
+- Your machine can reach the LAN IP address
+- Ollama is running on the target machine
+- Port 11434 is accessible
+- For Docker deployments, use `network_mode: host` to access LAN resources
+
 ```
 
 ## Web Interface Configuration
@@ -178,9 +232,9 @@ Settings are persisted in browser local storage:
     "mistral": "user_provided_key",   // Validated with real API calls
     "groq": "user_provided_key"       // Validated with real API calls
   },
-  "ollamaUrl": "http://localhost:11434",  // Server URL for local models
-  "defaultProvider": "gemini",            // Auto-selected on new jobs
-  "autoDownload": false                   // Auto-download completed files
+  "ollamaUrl": "http://192.168.1.22:11434",  // LAN Ollama instance URL
+  "defaultProvider": "ollama",               // Auto-selected on new jobs (defaults to Ollama)
+  "autoDownload": false                      // Auto-download completed files
 }
 ```
 
@@ -379,13 +433,13 @@ print(paths["edits"])        # "out/edits.json"
 print(paths["baseline_resume"]) # "templates/Baseline_Resume/Conner_Jordan_Software_Engineer llm_ready.tex"
 
 # Get model for provider (respects env var overrides)
-model = get_model_for_provider("ollama")  # "qwen2.5:14b-instruct" or OLLAMA_MODEL
+model = get_model_for_provider("ollama")  # "resume-editor:latest" or OLLAMA_MODEL
 model = get_model_for_provider("openai")  # "gpt-4o-mini" or OPENAI_MODEL
 
 # Access configuration directly
 timeout = config.providers.ollama.timeout        # 120
 output_dir = config.paths.output_dir             # "out"
-api_url = config.apis.ollama_base_url            # "http://127.0.0.1:11434"
+api_url = config.apis.ollama_base_url            # "http://192.168.1.22:11434"
 max_changes = config.validation.max_skills_changes # 8
 
 # Get API configuration for provider

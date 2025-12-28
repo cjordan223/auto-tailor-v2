@@ -36,8 +36,8 @@ exec > >(tee "$LOG_FILE") 2>&1
 
 log_message "Starting clean workflow for job description: $JD_FILE"
 
-# Activate virtual environment from project root
-source "$SCRIPT_DIR/../venv/bin/activate"
+# Activate virtual environment (Docker uses /opt/venv)
+source /opt/venv/bin/activate
 
 echo "🔄 Processing job description..."
 tex-tailor --quiet init

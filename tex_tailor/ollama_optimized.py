@@ -501,7 +501,7 @@ def propose_edits_ollama_optimized(
     try:
         response = provider.generate("", user_prompt)  # System prompt handled internally
         
-        # Parse JSON
+        # Parse and normalize JSON
         from .proposer import parse_json_response
         edits = parse_json_response(response)
         

@@ -270,8 +270,8 @@ const { hasApiKey } = useSettings()
 
 // State
 const currentStep = ref(0)
-const selectedProvider = ref(props.provider || 'gemini')
-const selectedModel = ref(props.model || 'gemini-2.5-flash-lite')
+const selectedProvider = ref(props.provider || 'ollama')
+const selectedModel = ref(props.model || 'qwen2.5:14b-instruct')
 const selectedPersonality = ref(props.personality || 'career_savvy_colleague')
 
 // Steps configuration
@@ -553,7 +553,7 @@ const providers = ref([
     apiKeyEnv: null,
     models: [
       {
-        id: 'resume-editor:latest',
+        id: 'qwen2.5:14b-instruct',
         name: '🎯 Resume Editor (Custom)',
         description: 'SPECIALIZED MODEL - Custom trained for resume and cover letter tailoring. Best choice for job applications.',
         recommended: true,

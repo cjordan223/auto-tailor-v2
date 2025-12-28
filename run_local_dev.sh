@@ -57,9 +57,10 @@ fi
 
 echo ""
 echo "🎯 Starting development server..."
-echo "   Frontend: http://localhost:3000"
-echo "   Backend API: http://localhost:3001"
-echo "   Health check: http://localhost:3001/health"
+export PORT=3501
+echo "   Frontend: http://localhost:3500"
+echo "   Backend API: http://localhost:3501"
+echo "   Health check: http://localhost:3501/health"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""

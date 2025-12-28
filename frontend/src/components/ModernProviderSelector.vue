@@ -85,8 +85,8 @@ const emit = defineEmits(['update:provider', 'update:model', 'update:personality
 const { hasApiKey } = useSettings()
 
 // State
-const selectedProvider = ref(props.provider || 'gemini')
-const selectedModel = ref(props.model || 'gemini-2.5-flash-lite')
+const selectedProvider = ref(props.provider || 'ollama')
+const selectedModel = ref(props.model || 'qwen2.5:14b-instruct')
 const selectedPersonality = ref(props.personality || 'career_savvy_colleague')
 
 // Personality configurations
@@ -278,7 +278,7 @@ const providers = ref([
     apiKeyRequired: false,
     models: [
       {
-        id: 'resume-editor:latest',
+        id: 'qwen2.5:14b-instruct',
         name: '🎯 Resume Editor (Custom)',
         description: 'SPECIALIZED MODEL - Custom trained for resume and cover letter tailoring. Best choice for job applications.',
         recommended: true,
