@@ -130,33 +130,24 @@
       </div>
       
       <!-- Applications Table -->
-      <div v-else class="overflow-x-auto">
-        <table class="w-full border-collapse bg-white rounded-lg shadow-sm">
+      <div v-else>
+        <table class="min-w-full border-collapse bg-white rounded-lg shadow-sm table-fixed">
           <!-- Table Header -->
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 30%">
                 Job Title
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 25%">
                 Company
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 15%">
                 Status
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Saved Date
+              <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 12%">
+                Date
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Updated
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                AI Provider
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Notes
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 18%">
                 Actions
               </th>
             </tr>
@@ -164,48 +155,48 @@
           
           <!-- Table Body -->
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr 
-              v-for="app in filteredApplications" 
+            <tr
+              v-for="app in filteredApplications"
               :key="app._id"
               class="hover:bg-gray-50 transition-colors duration-150"
             >
               <!-- Job Title -->
-              <td class="px-4 py-4 whitespace-nowrap">
+              <td class="px-3 py-3">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span class="text-blue-600 text-sm font-medium">
                       {{ getJobTitleInitial(app.jobDetails?.jobTitle) }}
                     </span>
                   </div>
-                  <div class="ml-3">
-                    <div class="text-sm font-medium text-gray-900">
+                  <div class="ml-2 min-w-0 flex-1">
+                    <div class="text-sm font-medium text-gray-900 truncate">
                       {{ app.jobDetails?.jobTitle || 'Untitled Position' }}
                     </div>
-                    <div v-if="app.jobDetails?.location" class="text-sm text-gray-500">
+                    <div v-if="app.jobDetails?.location" class="text-xs text-gray-500 truncate">
                       📍 {{ app.jobDetails.location }}
                     </div>
                   </div>
                 </div>
               </td>
-              
+
               <!-- Company -->
-              <td class="px-4 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">
+              <td class="px-3 py-3">
+                <div class="text-sm font-medium text-gray-900 truncate">
                   {{ app.jobDetails?.companyName || 'Unknown Company' }}
                 </div>
-                <div v-if="app.jobDetails?.jobUrl" class="text-sm text-gray-500">
+                <div v-if="app.jobDetails?.jobUrl" class="text-xs text-gray-500 truncate">
                   <a :href="app.jobDetails.jobUrl" target="_blank" class="text-blue-600 hover:text-blue-800">
                     🔗 View Job
                   </a>
                 </div>
               </td>
-              
+
               <!-- Status -->
-              <td class="px-4 py-4 whitespace-nowrap">
+              <td class="px-2 py-3">
                 <select
                   :value="app.status"
                   @change="handleStatusChange(app._id, $event.target.value)"
-                  class="text-sm rounded-full px-3 py-1 font-medium border-0 focus:ring-2 focus:ring-blue-500"
+                  class="text-xs rounded-full px-2 py-1 font-medium border-0 focus:ring-2 focus:ring-blue-500 w-full"
                   :class="getStatusClasses(app.status)"
                 >
                   <option value="saved">Saved</option>
@@ -214,67 +205,42 @@
                   <option value="rejected">Rejected</option>
                 </select>
               </td>
-              
-              <!-- Saved Date -->
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+
+              <!-- Date -->
+              <td class="px-2 py-3 text-xs text-gray-500">
                 {{ formatDate(app.createdAt) }}
               </td>
-              
-              <!-- Last Updated -->
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatDate(app.updatedAt) }}
-              </td>
-              
-              <!-- AI Provider -->
-              <td class="px-4 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  {{ app.generationMeta?.provider || 'Unknown' }}
-                </div>
-                <div class="text-xs text-gray-500">
-                  {{ app.generationMeta?.model || 'Unknown Model' }}
-                </div>
-              </td>
-              
-              <!-- Notes -->
-              <td class="px-4 py-4 whitespace-nowrap">
-                <div v-if="app.trackingInfo?.notes" class="text-sm text-gray-900 max-w-xs truncate" :title="app.trackingInfo.notes">
-                  {{ app.trackingInfo.notes }}
-                </div>
-                <div v-else class="text-sm text-gray-400 italic">
-                  No notes
-                </div>
-              </td>
-              
+
               <!-- Actions -->
-              <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                <div class="flex space-x-2">
+              <td class="px-2 py-3">
+                <div class="flex items-center justify-start space-x-1">
                   <button
                     @click="viewApplication(app._id)"
-                    class="text-blue-600 hover:text-blue-900 transition-colors duration-150"
+                    class="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors duration-150"
                     title="View Details"
                   >
                     👁️
                   </button>
                   <button
                     @click="downloadApplication(app._id)"
-                    class="text-green-600 hover:text-green-900 transition-colors duration-150"
+                    class="p-1 text-green-600 hover:bg-green-50 rounded transition-colors duration-150"
                     title="Download Files"
                   >
                     📥
                   </button>
                   <button
-                    @click="addNotes(app._id)"
-                    class="text-yellow-600 hover:text-yellow-900 transition-colors duration-150"
-                    title="Add Notes"
+                    @click="viewApplication(app._id)"
+                    class="p-1 text-purple-600 hover:bg-purple-50 rounded transition-colors duration-150"
+                    title="Add/Edit Notes"
                   >
                     📝
                   </button>
                   <button
-                    @click="archiveApplication(app._id)"
-                    class="text-red-600 hover:text-red-900 transition-colors duration-150"
-                    title="Archive"
+                    @click="deleteApplication(app._id)"
+                    class="p-1 text-red-600 hover:bg-red-50 rounded transition-colors duration-150"
+                    title="Delete Permanently"
                   >
-                    🗄️
+                    🗑️
                   </button>
                 </div>
               </td>
@@ -485,6 +451,33 @@ const handleStatusChange = async (applicationId, newStatus) => {
   }
 }
 
+const handleNotesChange = async (applicationId, newNotes) => {
+  try {
+    const response = await fetch(`/api/applications/${applicationId}/notes`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ notes: newNotes })
+    })
+
+    if (response.ok) {
+      // Update the application in the array
+      const appIndex = savedApplications.value.findIndex(app => app._id === applicationId)
+      if (appIndex !== -1) {
+        if (!savedApplications.value[appIndex].trackingInfo) {
+          savedApplications.value[appIndex].trackingInfo = {}
+        }
+        savedApplications.value[appIndex].trackingInfo.notes = newNotes
+        savedApplications.value[appIndex].updatedAt = new Date().toISOString()
+      }
+    }
+  } catch (error) {
+    console.error('Error updating application notes:', error)
+  }
+}
+
 const viewApplication = (applicationId) => {
   // Navigate to application details page
   window.location.href = `/application/${applicationId}`
@@ -513,34 +506,6 @@ const downloadApplication = async (applicationId) => {
   }
 }
 
-const addNotes = async (applicationId) => {
-  const notes = prompt('Add notes for this application:')
-  if (notes !== null) {
-    try {
-      const response = await fetch(`/api/applications/${applicationId}/notes`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
-        },
-        body: JSON.stringify({ notes: notes })
-      })
-      
-      if (response.ok) {
-        // Update the application in the array
-        const appIndex = savedApplications.value.findIndex(app => app._id === applicationId)
-        if (appIndex !== -1) {
-          savedApplications.value[appIndex].trackingInfo = savedApplications.value[appIndex].trackingInfo || {}
-          savedApplications.value[appIndex].trackingInfo.notes = notes
-          savedApplications.value[appIndex].updatedAt = new Date().toISOString()
-        }
-      }
-    } catch (error) {
-      console.error('Error adding notes:', error)
-    }
-  }
-}
-
 const archiveApplication = async (applicationId) => {
   if (confirm('Are you sure you want to archive this application?')) {
     try {
@@ -552,13 +517,37 @@ const archiveApplication = async (applicationId) => {
         },
         body: JSON.stringify({ archived: true })
       })
-      
+
       if (response.ok) {
         // Remove from array
         savedApplications.value = savedApplications.value.filter(app => app._id !== applicationId)
       }
     } catch (error) {
       console.error('Error archiving application:', error)
+    }
+  }
+}
+
+const deleteApplication = async (applicationId) => {
+  if (confirm('Are you sure you want to permanently delete this application? This action cannot be undone.')) {
+    try {
+      const response = await fetch(`/api/applications/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      })
+
+      if (response.ok) {
+        // Remove from array
+        savedApplications.value = savedApplications.value.filter(app => app._id !== applicationId)
+      } else {
+        const result = await response.json()
+        alert(`Error deleting application: ${result.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error deleting application:', error)
+      alert('Error deleting application. Please try again.')
     }
   }
 }
@@ -586,12 +575,19 @@ onMounted(() => {
 table {
   border-radius: 8px;
   overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
 }
 
 th {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Hover effects */

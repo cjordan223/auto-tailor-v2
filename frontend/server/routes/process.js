@@ -116,48 +116,104 @@ async function saveApplicationToDatabase(jobId, tempDir, jobDescriptionPath, pro
 }
 
 /**
- * Simple extraction functions for job details
+ * Improved extraction functions for job details using smarter heuristics
  */
 function extractJobTitle(jobDescription) {
-  // Look for common patterns
-  const patterns = [
-    /Position:\s*([^\n\r]+)/i,
-    /Role:\s*([^\n\r]+)/i,
-    /Job Title:\s*([^\n\r]+)/i,
-    /seeking\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+at|\s*,|\s*\.)/i,
-    /hiring\s+(?:a\s+)?([A-Z][a-zA-Z\s]+?)(?:\s+to|\s*,|\s*\.)/i
+  const lines = jobDescription.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+
+  // First, try explicit patterns
+  const explicitPatterns = [
+    /^(?:Position|Role|Job Title|Title):\s*(.+)$/i,
+    /^Job:\s*(.+)$/i,
+    /We'?re?\s+(?:hiring|seeking|looking for)\s+(?:a|an)\s+(.+?)(?:\s+to\s+|\s+at\s+|\s*[.!]|$)/i,
+    /(?:seeking|hiring|looking for)\s+(?:a|an)\s+([A-Z][\w\s-]+?)(?:\s+to\s+|\s+who\s+|\s+with\s+|\s*[.!,])/
   ]
-  
-  for (const pattern of patterns) {
-    const match = jobDescription.match(pattern)
-    if (match) {
-      return match[1].trim()
+
+  for (const pattern of explicitPatterns) {
+    for (const line of lines) {
+      const match = line.match(pattern)
+      if (match && match[1]) {
+        const title = match[1].trim()
+        // Validate it's a reasonable job title (not a full sentence)
+        if (title.length > 3 && title.length < 60 && !title.match(/^(We|Our|The|A|An)\s+/)) {
+          return cleanJobTitle(title)
+        }
+      }
     }
   }
-  
+
+  // Look at first few lines for capitalized phrases that look like job titles
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const line = lines[i]
+    // Skip very short or very long lines
+    if (line.length < 10 || line.length > 80) continue
+
+    // Check if line looks like a job title (capitalized, contains "Engineer", "Developer", "Manager", etc.)
+    const jobKeywords = /(?:Engineer|Developer|Manager|Designer|Analyst|Architect|Specialist|Consultant|Director|Lead|Senior|Junior|Staff)/i
+    if (jobKeywords.test(line) && !line.match(/^(We|Our|The|This|About|Join|Apply)/i)) {
+      // Make sure it's not a full sentence
+      if (!line.match(/\b(?:is|are|will|must|should|can|has|have)\b/i)) {
+        return cleanJobTitle(line)
+      }
+    }
+  }
+
   return 'Software Engineer' // Default fallback
 }
 
+function cleanJobTitle(title) {
+  return title
+    .replace(/^(for|as|a|an)\s+/i, '')
+    .replace(/\s+(role|position)$/i, '')
+    .replace(/[.,!?;:]$/g, '')
+    .trim()
+}
+
 function extractCompanyName(jobDescription) {
-  // Look for common patterns
-  const patterns = [
-    /Company:\s*([^\n\r,]+)/i,
-    /at\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+is\s|\s*,|\s*\.|$)/i,
-    /join\s+([A-Z][a-zA-Z\s&.,]+?)(?:\s+as\s|\s*,|\s*\.|$)/i,
-    /([A-Z][a-zA-Z\s&.,]+?)\s+is\s+(?:seeking|hiring|looking)/i
+  const lines = jobDescription.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+
+  // First, try explicit patterns
+  const explicitPatterns = [
+    /^(?:Company|Organization):\s*(.+)$/i,
+    /^About\s+([A-Z][\w\s&.,'()-]+?)(?:\s*:|$)/i,
+    /^([A-Z][\w\s&.,'()-]+?)\s+is\s+(?:hiring|seeking|looking|a)/i,
+    /Join\s+([A-Z][\w\s&.,'()-]+?)(?:\s+as\s+|\s+to\s+|\s*[.!,])/i,
+    /at\s+([A-Z][\w\s&.,'()-]+?)(?:\s+as\s+|\s+to\s+|\s+in\s+|\s*[.!,]|$)/i
   ]
-  
-  for (const pattern of patterns) {
-    const match = jobDescription.match(pattern)
-    if (match) {
-      let company = match[1].trim()
-      // Clean up common suffixes
-      company = company.replace(/\s+(Inc\.?|LLC\.?|Ltd\.?|Corp\.?|Corporation)\.?$/i, '')
-      return company
+
+  for (const pattern of explicitPatterns) {
+    for (const line of lines) {
+      const match = line.match(pattern)
+      if (match && match[1]) {
+        const company = match[1].trim()
+        // Validate it's a reasonable company name (not too long, not generic words)
+        if (company.length > 2 && company.length < 50 && !company.match(/^(We|Our|The|This|About)$/i)) {
+          return cleanCompanyName(company)
+        }
+      }
     }
   }
-  
+
+  // Check if first line is a company name (short, capitalized, no common sentence starters)
+  if (lines.length > 0) {
+    const firstLine = lines[0]
+    if (firstLine.length < 50 &&
+        /^[A-Z]/.test(firstLine) &&
+        !firstLine.match(/^(We|Our|The|This|About|Job|Position|Role)/i) &&
+        !firstLine.match(/\b(?:is|are|will|must|should|can|has|have)\b/i)) {
+      return cleanCompanyName(firstLine)
+    }
+  }
+
   return 'Unknown Company' // Default fallback
+}
+
+function cleanCompanyName(company) {
+  return company
+    .replace(/^(at|join)\s+/i, '')
+    .replace(/\s+(Inc\.?|LLC\.?|Ltd\.?|Corp\.?|Corporation|Company|Co\.?)\.?$/i, '')
+    .replace(/[.,!?;:]$/g, '')
+    .trim()
 }
 
 function extractKeywords(jobDescription) {
@@ -515,7 +571,8 @@ async function processResumeAsync(jobId, resumePath, jobDescriptionPath, provide
             'Conner_Jordan_Cover_Letter.tuned.pdf',
             'Conner_Jordan_Software_Engineer.tuned.tex',
             'Conner_Jordan_Cover_Letter.tuned.tex',
-            'edits.json'
+            'edits.json',
+            'base_text.json'
           ]
           
           for (const file of outputFiles) {

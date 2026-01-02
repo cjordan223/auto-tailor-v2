@@ -43,7 +43,7 @@
             <!-- LaTeX Source Column -->
             <div class="space-y-4">
 
-              <LaTeXEditor :job-id="jobId" file-type="resume" @content-changed="onResumeContentChanged"
+              <LaTeXEditor :key="resumeEditorKey" :job-id="jobId" file-type="resume" @content-changed="onResumeContentChanged"
                 @save="onResumeSave" @revert="onResumeRevert" @reset="onResumeReset" />
             </div>
 
@@ -417,7 +417,12 @@
             </p>
             <div class="space-y-2 max-h-64 overflow-y-auto">
               <div v-for="(suggestion, index) in results.suggestedAdditions" :key="index"
-                class="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg">
+                class="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors duration-200"
+                :class="{ 'opacity-60 cursor-wait': addingSuggestions.has(suggestion.term) }"
+                role="button"
+                tabindex="0"
+                @click="handleApplySuggestedSkill(suggestion)"
+                @keydown.enter="handleApplySuggestedSkill(suggestion)">
                 <div
                   class="flex-shrink-0 w-5 h-5 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
                   {{ index + 1 }}
@@ -425,6 +430,10 @@
                 <div>
                   <h4 class="font-medium text-gray-900 text-sm">{{ suggestion.term }}</h4>
                   <p class="text-xs text-gray-600">{{ suggestion.why }}</p>
+                </div>
+                <div class="ml-auto flex-shrink-0 text-xs text-primary-700 font-medium">
+                  <span v-if="addingSuggestions.has(suggestion.term)">Adding...</span>
+                  <span v-else>+ Add to resume</span>
                 </div>
               </div>
             </div>
@@ -598,7 +607,7 @@ import PDFViewer from '../components/PDFViewer.vue'
 import LaTeXEditor from '../components/LaTeXEditor.vue'
 
 const route = useRoute()
-const { getResults, downloadFile: apiDownloadFile, downloadAllAsZip, addSkillToBaseline, checkStatus } = useAPI()
+const { getResults, downloadFile: apiDownloadFile, downloadAllAsZip, addSkillToBaseline, applySuggestedSkill, checkStatus } = useAPI()
 const { getToken } = useAuth()
 
 // Props
@@ -618,6 +627,7 @@ const downloading = ref({
 })
 const downloadingZip = ref(false)
 const addingSkills = ref(new Set()) // Track which skills are being added
+const addingSuggestions = ref(new Set())
 const openSkillMenus = ref(new Set()) // Track which skill dropdowns are open
 
 // Application saving state
@@ -660,6 +670,7 @@ const resumeContent = ref('')
 const coverLetterContent = ref('')
 const resumePdfKey = ref(0)
 const coverLetterPdfKey = ref(0)
+const resumeEditorKey = ref(0)
 const recompiling = ref({
   resume: false,
   coverLetter: false
@@ -1179,6 +1190,33 @@ const handleAddSkill = async (skill, category = 'conversational_skills', confide
     alert(`Failed to add skill: ${err.message}`)
   } finally {
     addingSkills.value.delete(skill)
+  }
+}
+
+const handleApplySuggestedSkill = async (suggestion) => {
+  const term = typeof suggestion === 'string' ? suggestion : suggestion?.term
+  if (!term || addingSuggestions.value.has(term)) {
+    return
+  }
+
+  try {
+    addingSuggestions.value.add(term)
+
+    const result = await applySuggestedSkill(jobId.value, term)
+
+    if (result.alreadyExists) {
+      alert(`"${term}" is already listed under ${result.category}.`)
+    } else if (result.resumeContent) {
+      resumeContent.value = result.resumeContent
+      await recompileLatex('resume', result.resumeContent)
+    }
+
+    resumeEditorKey.value += 1
+    await loadResults()
+  } catch (err) {
+    alert(`Failed to add "${term}": ${err.message}`)
+  } finally {
+    addingSuggestions.value.delete(term)
   }
 }
 

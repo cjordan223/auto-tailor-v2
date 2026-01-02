@@ -241,6 +241,21 @@ export function useAPI() {
   }
 
   /**
+   * Apply suggested skill directly to resume skills
+   */
+  const applySuggestedSkill = async (jobId, term) => {
+    try {
+      const response = await api.post(`/results/${jobId}/apply-suggested-skill`, {
+        term
+      })
+
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to apply suggested skill')
+    }
+  }
+
+  /**
    * Get PDF URL for viewing inline (no download)
    */
   const getPDFViewUrl = (jobId, fileType) => {
@@ -329,6 +344,7 @@ export function useAPI() {
     checkStatus,
     downloadFile,
     downloadAllAsZip,
+    applySuggestedSkill,
     addSkillToBaseline,
     getPDFViewUrl,
     getProviders,

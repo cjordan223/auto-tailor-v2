@@ -1,8 +1,3 @@
-% Resume in LaTeX — One Page
-% Author : Conner Jordan (modified)
-% License : MIT
-%------------------------
-
 \documentclass[letterpaper,10pt]{article}
 
 % Basics
@@ -50,7 +45,7 @@
 \pdfgentounicode=1
 
 % Convenience commands
-\newcommand{\resumeItem}[1]{\item\small{#1}}
+\newcommand{\resumeItem}[1]{\item{\small #1}}
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0in,label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
 \newcommand{\resumeItemListStart}{\begin{itemize}}
@@ -64,14 +59,16 @@
   \end{tabular*}\vspace{-2pt}
 }
 
+%-------------------------------------
 \begin{document}
 
 % === LLM:LOCK START RESUME.HEADER ===
+% Header
 \begin{center}
   {\Huge \textbf{Conner Jordan}}\\[0pt]
   {\Large Software Engineer}\\[0pt]
-  \href{tel:+18059759793}{\faPhone\ +1 (805) 975-9793} \,|\, 
-  \href{mailto:connercharlesjordan@gmail.com}{\faEnvelope\ connercharlesjordan@gmail.com} \,|\, 
+  \href{tel:+18059759793}{\faPhone\ +1 (805) 975-9793} \,|\,
+  \href{mailto:connercharlesjordan@gmail.com}{\faEnvelope\ connercharlesjordan@gmail.com} \,|\,
   \faMapMarker\ San Luis Obispo, CA \\[-2pt]
   \href{https://www.linkedin.com/in/conner-jordan-4b268514a/}{\faLinkedin\ linkedin.com/in/conner-jordan-4b268514a}
   \,|\, \href{https://github.com/cjordan223}{\faGithub\ github.com/cjordan223}
@@ -85,33 +82,89 @@
 \section{PROFESSIONAL SUMMARY}
 \vspace{8pt}
 \resumeSubHeadingListStart
-\item \small{%
+\item {\small
 % === LLM:CHUNK START RESUME.SUMMARY ===
-I am a passionate and driven software engineer with a proven track record of developing innovative and robust solutions. My experience spans across the full software development lifecycle, from conception to deployment, with a strong focus on writing clean, efficient, and maintainable code in Python.
+Full-stack Security Engineer with broad experience across enterprise systems. Strong at turning ambiguous, cross-team problems into clean workflows, automated pipelines, and intuitive interfaces. Known for bringing initiative, creativity, and an engineer's mindset to make security faster, clearer, and more accessible across an organization.
 % === LLM:CHUNK END RESUME.SUMMARY ===
 }
 \resumeSubHeadingListEnd
-
 \vspace{6pt}
 
-% EXPERIENCE (moved above Skills)
+% === LLM:LOCK START RESUME.EDUCATION ===
+% EDUCATION
+\section{EDUCATION}
+\vspace{8pt}
+\resumeSubHeadingListStart
+  \resumeSubheading
+    {California State University - Monterey Bay}{}
+    {B.S., Computer Science}{}
+  \item {\small \textit{Capstone Award for Innovation }}
+  \item {\small Developed PhishFinder, a Chrome extension and backend API analyzing SPF, DKIM, DMARC, and email content using NLP and LLM analysis to detect phishing attempts; awarded Most Innovative Project at the 2024 Capstone Festival.}
+\resumeSubHeadingListEnd
+% === LLM:LOCK END RESUME.EDUCATION ===
+\vspace{6pt}
+
+% SKILLS
+\section{TECHNICAL SKILLS}
+\vspace{6pt}
+\resumeSubHeadingListStart
+\item {\small
+% === LLM:CHUNK START SKILLS.Programming Languages ===
+\textbf{Programming Languages:} Python, TypeScript, Java, C, C++, SQL, Swift, PowerShell, Bash
+% === LLM:CHUNK END SKILLS.Programming Languages ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.Frontend ===
+\textbf{Frontend:} React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js, Vercel, Postman
+% === LLM:CHUNK END SKILLS.Frontend ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.Backend ===
+\textbf{Backend:} Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, FastMCP, Docker
+% === LLM:CHUNK END SKILLS.Backend ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.Cloud & DevOps ===
+\textbf{Cloud and DevOps:} AWS (EC2, ECS, Lambda, RDS, Secrets Manager, Route 53), GCP, Azure, Ansible, Terraform, Github Actions, GitLab
+% === LLM:CHUNK END SKILLS.Cloud & DevOps ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.AI & LLM Tools ===
+\textbf{AI and LLM Tools:} Claude Code, Cursor, Antigravity, Codex, Ollama, HuggingFace, MLX, Warp, LibreChat, Copilot
+% === LLM:CHUNK END SKILLS.AI & LLM Tools ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.Security & Operating Systems ===
+\textbf{Security and Enterprise Systems:} Rapid7 InsightVM, CrowdStrike Falcon, Jamf Pro, Defender XDR, Trellix EDR, Grafana, Prometheus, Zeek
+% === LLM:CHUNK END SKILLS.Security & Operating Systems ===
+
+\vspace{3pt}
+% === LLM:CHUNK START SKILLS.Databases ===
+\textbf{Databases:} MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks, ClickHouse
+% === LLM:CHUNK END SKILLS.Databases ===
+}
+\resumeSubHeadingListEnd
+\vspace{6pt}
+
 % === LLM:LOCK START RESUME.EXPERIENCE ===
+% EXPERIENCE
 \section{WORK EXPERIENCE}
 \vspace{8pt}
 \resumeSubHeadingListStart
 
 \resumeSubheading
-  {University of California}{Oakland, CA (Remote)}
+  {University of California, Office of the President}{Oakland, CA (Remote)}
   {Security Engineer}{March 2025 - Present}
   \vspace{4pt}
 \resumeItemListStart
-  \resumeItem{Helped develop standardized workflows and automation for UC-wide vulnerability detection and mitigation across MacOS and Windows endpoints, supporting a systemwide cybersecurity and compliance initiative.}
-  \resumeItem{Investigated security risks in fringe and unmanaged applications, writing custom remediation scripts and policies to address non-standard vulnerabilities, leveraging innovative thinking and advanced troubleshooting skills.}
-  \resumeItem{Built a unified dashboard integrating Rapid7, Jamf, BigFix, and ServiceNow (SaaS), improving threat visibility and enabling more efficient SecOps response through real-time database and asset data aggregation.}
-  \resumeItem{Automated asset tracking and compliance monitoring through cross-platform scripting (Python, Bash, PowerShell), reducing manual workload and improving coverage across multiple operating systems.}
-  \resumeItem{Coordinated with IT teams to align endpoint security practices with compliance standards, streamlining reporting, supporting project management efforts, and improving interdepartmental collaboration in a cloud computing environment.}
-\resumeItemListEnd
-
+  \resumeItem{Developed Coraline, a Dockerized Flask \& React application on AWS ECS, to ingest and correlate data from five disparate security and IT inventory sources; utilized hierarchical confidence matching to reconcile over 500 drifted assets across a fleet of more than 7,000 endpoints.}
+  \resumeItem{Engineered the organization's inaugural RAG chatbot using LangChain and vector databases, establishing the technical standard for future internal AI deployments while enabling instant access to IT and SecOps knowledge.}
+  \resumeItem{Established standardized vulnerability response protocols for a heterogeneous fleet of macOS and Windows devices, integrating API-driven automation to accelerate patch deployment and ensure compliance with University-wide cybersecurity mandates.}
+  \resumeItem{Designed the internal server infrastructure for hosting UCOP's 2,900-user identity portal; led cross-departmental efforts to integrate MFA provider and enforce strict network security protocols.}
+  \resumeItem{Secured 1st place organization-wide (UCOP) and 3rd place across the UC system in 2025 AWS Cost Optimization Challenge; collaborated in a 4-person team to analyze infrastructure and implement architectural efficiencies.}
+  \resumeItem{Partnered with IAM, Networking, and Endpoint teams to translate security requirements into deployable controls across environment.}
+  \resumeItem{Presented complex application architectures in accessible terms to support informed decision-making by leadership.}
+  \resumeItemListEnd
 \vspace{6pt}
 
 \resumeSubheading
@@ -119,13 +172,12 @@ I am a passionate and driven software engineer with a proven track record of dev
   {Security Support Engineer}{May 2023 - March 2025}
 \vspace{4pt}
 \resumeItemListStart
-  \resumeItem{Developed and maintained automation scripts for hybrid Azure tenant management, deploying updates for Carbon Black agents, Citrix patching, and BitLocker device enforcement across 10,000+ endpoints.}
-  \resumeItem{Automated security certificate deployments using CrowdStrike RTR and PowerShell, preventing service disruptions for critical teams and saving an estimated 200+ hours in manual interventions annually.}
-  \resumeItem{Engineered a PowerShell interface integrated with Microsoft Graph API for managing distribution lists of 10,000+ users, eliminating human error and reducing annual manual workload by 500+ hours.}
-  \resumeItem{Built SQL log query frameworks in Rapid7 with Pandas/NumPy analytics pipelines, creating dynamic visualizations to detect suspicious behavior and inform executive decisions on security posture.}
-  \resumeItem{Led security awareness campaigns via KnowBe4, developing custom Python tools to analyze phishing simulation data, transforming raw metrics into actionable insights that improved employee compliance rates by 25\%.}
+  \resumeItem{Developed and maintained automation scripts for hybrid Azure tenant management, deploying updates for Carbon Black agents, Citrix patching, and BitLocker device enforcement across more than 10,000 endpoints.}
+  \resumeItem{Automated security certificate deployments using CrowdStrike RTR and PowerShell, preventing service disruptions for critical teams and saving an estimated 200 hours annually in manual interventions.}
+  \resumeItem{Engineered a PowerShell interface integrated with Microsoft Graph API for managing distribution lists of over 10,000 users, eliminating human error and reducing annual manual workload by more than 500 hours.}
+  \resumeItem{Built SQL log query frameworks in Rapid7 with Pandas and NumPy analytics pipelines, creating dynamic visualizations to detect suspicious behavior and inform executive decisions on security posture.}
+  \resumeItem{Led security awareness campaigns via KnowBe4, developing custom Python tools to analyze phishing simulation data, transforming raw metrics into actionable insights that improved employee compliance rates by 25 percent.}
 \resumeItemListEnd
-
 \vspace{6pt}
 
 \resumeSubheading
@@ -133,93 +185,22 @@ I am a passionate and driven software engineer with a proven track record of dev
   {Freelance Web Developer}{August 2022 - May 2023}
 \vspace{4pt}
 \resumeItemListStart
-  \resumeItem{Delivered production-ready websites with optimized performance and SEO enhancements (e.g., alt tags, meta descriptions), incorporating automation scripts for build processes that improved search rankings and client visibility.}
-  \resumeItem{Implemented WCAG/ADA compliance guidelines through automated testing tools like Selenium, ensuring inclusive web applications and boosting usability scores while reducing accessibility-related issues.}
-  \resumeItem{Conducted cross-browser/device compatibility testing with scripted automation, resolving discrepancies and achieving a 30\% decrease in user-reported issues across platforms.}
+  \resumeItem{Delivered production-ready websites with optimized performance and SEO enhancements including alt tags and meta descriptions, incorporating automation scripts for build processes that improved search rankings and client visibility.}
+  \resumeItem{Implemented WCAG and ADA compliance guidelines through automated testing tools like Selenium, ensuring inclusive web applications and boosting usability scores while reducing accessibility-related issues.}
+  \resumeItem{Conducted cross-browser and cross-device compatibility testing with scripted automation, resolving discrepancies and achieving a 30 percent decrease in user-reported issues across platforms.}
 \resumeItemListEnd
 
 \resumeSubHeadingListEnd
 % === LLM:LOCK END RESUME.EXPERIENCE ===
 
-\vspace{6pt}
+\vspace{4pt}
 
-% SKILLS (now below Work Experience)
-\section{TECHNICAL SKILLS}
-\vspace{6pt}
-\resumeSubHeadingListStart
-\item \small{
-
-% === LLM:CHUNK START SKILLS.Programming Languages ===
-\textbf{Programming Languages:} Python, TypeScript, Java, C/C++, SQL, Swift, PowerShell, Bash
-% === LLM:CHUNK END SKILLS.Programming Languages ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Frontend ===
-\textbf{Frontend:} React.js, Vue.js, Tailwind CSS, MUI, Vite, Next.js
-% === LLM:CHUNK END SKILLS.Frontend ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Backend ===
-\textbf{Backend:} Node.js, Express.js, Django, Flask, Spring Boot, FastAPI, .NET, RESTful \& GraphQL API Development
-% === LLM:CHUNK END SKILLS.Backend ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Cloud & DevOps ===
-\textbf{Cloud \& DevOps:} AWS, Google Cloud Platform, Azure, Docker, Kubernetes, Lambda, Ansible, Terraform, CI/CD (GitHub Actions, Jenkins)
-% === LLM:CHUNK END SKILLS.Cloud & DevOps ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.AI & LLM Tools ===
-\textbf{AI \& LLM Tools:} Claude Code, LangChain, LM Studio, Ollama, MLX, Vector Databases (Chroma, Pinecone)
-% === LLM:CHUNK END SKILLS.AI & LLM Tools ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Automation & Productivity ===
-\textbf{Automation \& Productivity:} Git, Postman, Selenium, GitHub Copilot, Raycast, PowerToys, Crontab, Shell Scripting
-% === LLM:CHUNK END SKILLS.Automation & Productivity ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Security & Operating Systems ===
-\textbf{Security \& Operating Systems:} Rapid7, CrowdStrike, Jamf, BigFix, ServiceNow, Vulnerability Management, OWASP Top 10, Web Security Testing (Burp Suite, OWASP Juice Shop), API Security, Incident Response
-% === LLM:CHUNK END SKILLS.Security & Operating Systems ===
-
-\vspace{3pt}
-
-% === LLM:CHUNK START SKILLS.Databases ===
-\textbf{Databases:} MySQL, PostgreSQL, MongoDB, DynamoDB, Snowflake, Databricks
-% === LLM:CHUNK END SKILLS.Databases ===
-
-}
-\resumeSubHeadingListEnd
-
-\vspace{6pt}
-
-% EDUCATION
-% === LLM:LOCK START RESUME.EDUCATION ===
-\section{EDUCATION}
-\vspace{8pt}
-\resumeSubHeadingListStart
-  \resumeSubheading
-    {California State University - Monterey Bay}{December 2024}
-    {B.S., Computer Science}{}
-  \item \small{\textit{Capstone Award for Innovation (2024)}}
-\resumeSubHeadingListEnd
-% === LLM:LOCK END RESUME.EDUCATION ===
-
-\vspace{6pt}
-
-% CERTIFICATIONS
 % === LLM:LOCK START RESUME.CERTS ===
+% CERTIFICATIONS
 \section{CERTIFICATIONS}
 \resumeSubHeadingListStart
 \vspace{10pt}
-\item \small{\textbf{AWS Certified Cloud Practitioner} \hfill \textit{January 2025}}
+\item {\small \textbf{AWS Certified Cloud Practitioner} \hfill \textit{January 2025}}
 \resumeSubHeadingListEnd
 % === LLM:LOCK END RESUME.CERTS ===
 

@@ -433,7 +433,7 @@ router.patch('/:id/notes', async (req, res) => {
     }
 
     const result = await applicationService.addNotes(applicationId, userId, notes)
-    
+
     if (result.success) {
       res.json(result)
     } else {
@@ -444,6 +444,41 @@ router.patch('/:id/notes', async (req, res) => {
     }
   } catch (error) {
     console.error('Error adding notes:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    })
+  }
+})
+
+/**
+ * Delete application permanently
+ * DELETE /api/applications/:id
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const applicationId = req.params.id
+    const userId = req.user.userId
+
+    if (!ObjectId.isValid(applicationId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid application ID'
+      })
+    }
+
+    const result = await applicationService.deleteApplication(applicationId, userId)
+
+    if (result.success) {
+      res.json(result)
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Application not found'
+      })
+    }
+  } catch (error) {
+    console.error('Error deleting application:', error)
     res.status(500).json({
       success: false,
       error: 'Internal server error'

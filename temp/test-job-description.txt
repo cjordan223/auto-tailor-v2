@@ -1,0 +1,33 @@
+Senior Security Engineer
+
+Acme Corporation is seeking a talented Senior Security Engineer to join our growing security team. 
+
+About the Role:
+We're looking for a security engineer who can design and implement scalable security solutions across our cloud infrastructure. You'll work closely with engineering teams to build secure systems and automate security processes.
+
+Key Responsibilities:
+- Design and implement security automation tools and workflows
+- Manage vulnerability assessment and remediation programs
+- Deploy and maintain EDR solutions across enterprise endpoints
+- Build integrations between security tools using APIs and scripting
+- Develop security dashboards and reporting for executive leadership
+- Collaborate with IT teams on identity and access management solutions
+
+Required Qualifications:
+- 3+ years of experience in security engineering or related field
+- Strong Python scripting and automation skills
+- Experience with cloud platforms (AWS, Azure, or GCP)
+- Familiarity with EDR tools like CrowdStrike, Carbon Black, or similar
+- Knowledge of vulnerability management tools
+- Understanding of API integrations and automation frameworks
+
+Preferred Qualifications:
+- Experience with React.js or modern frontend frameworks
+- Background in building internal security tools
+- AWS certification
+- Experience with container security (Docker, Kubernetes)
+
+Location: Remote (US)
+Salary: $120k - $160k
+
+Acme Corporation is an equal opportunity employer.

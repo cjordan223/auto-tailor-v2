@@ -475,6 +475,38 @@ class ApplicationService {
       }
     }
   }
+
+  /**
+   * Delete application permanently (hard delete)
+   */
+  async deleteApplication(applicationId, userId) {
+    try {
+      // Delete from saved_applications
+      const savedResult = await this.db.collection('saved_applications').deleteOne({
+        _id: new ObjectId(applicationId),
+        userId: userId
+      })
+
+      // Also delete from generated_applications if exists
+      const generatedResult = await this.db.collection('generated_applications').deleteOne({
+        _id: new ObjectId(applicationId),
+        userId: userId
+      })
+
+      const deleted = savedResult.deletedCount > 0 || generatedResult.deletedCount > 0
+
+      return {
+        success: deleted,
+        deletedCount: savedResult.deletedCount + generatedResult.deletedCount
+      }
+    } catch (error) {
+      console.error('Error deleting application:', error)
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  }
 }
 
 const applicationService = new ApplicationService()
